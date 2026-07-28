@@ -113,10 +113,8 @@ export interface RawSearchInput {
   sort?: unknown;
   page?: unknown;
   pageSize?: unknown;
+  /** Nested filter object (URL params are nested here by the caller). */
   filters?: unknown;
-  /** Flat filter keys (projectId, language, tag, dates, …) are read off the
-   *  top level when `filters` is absent — the URL-params path. */
-  [key: string]: unknown;
 }
 
 /**
