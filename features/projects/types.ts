@@ -28,11 +28,11 @@ export type ProjectStatus = "active" | "archived";
 export type ProjectSort = "name" | "updated" | "created" | "favorite";
 
 export interface ProjectListParams {
-  search?: string;
-  status?: ProjectStatus;
-  sort?: ProjectSort;
-  page?: number;
-  pageSize?: number;
+  search?: string | undefined;
+  status?: ProjectStatus | undefined;
+  sort?: ProjectSort | undefined;
+  page?: number | undefined;
+  pageSize?: number | undefined;
 }
 
 export interface ProjectListResult {

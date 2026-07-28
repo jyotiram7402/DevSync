@@ -34,13 +34,13 @@ export type SnippetStatus = "active" | "archived";
 export type SnippetSort = "updated" | "created" | "title" | "favorite";
 
 export interface SnippetListParams {
-  search?: string;
-  status?: SnippetStatus;
-  sort?: SnippetSort;
-  projectId?: string;
-  language?: string;
-  page?: number;
-  pageSize?: number;
+  search?: string | undefined;
+  status?: SnippetStatus | undefined;
+  sort?: SnippetSort | undefined;
+  projectId?: string | undefined;
+  language?: string | undefined;
+  page?: number | undefined;
+  pageSize?: number | undefined;
 }
 
 export interface SnippetListResult {
