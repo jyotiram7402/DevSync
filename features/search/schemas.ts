@@ -114,6 +114,9 @@ export interface RawSearchInput {
   page?: unknown;
   pageSize?: unknown;
   filters?: unknown;
+  /** Flat filter keys (projectId, language, tag, dates, …) are read off the
+   *  top level when `filters` is absent — the URL-params path. */
+  [key: string]: unknown;
 }
 
 /**
