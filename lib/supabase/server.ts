@@ -39,5 +39,5 @@ export async function createServerSupabaseClient(): Promise<TypedSupabaseClient>
         }
       },
     },
-  });
+  }) as unknown as TypedSupabaseClient;
 }

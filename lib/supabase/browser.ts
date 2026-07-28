@@ -21,10 +21,14 @@ export function createBrowserSupabaseClient(): TypedSupabaseClient {
   // Configure the realtime transport's heartbeat and reconnect strategy
   // (exponential backoff with jitter). Channel-level lifecycle is managed by
   // the RealtimePlatform; this governs the underlying socket.
+  // `@supabase/ssr` and `@supabase/supabase-js` resolve slightly different
+  // SupabaseClient generic signatures, so the returned client type does not
+  // structurally equal `SupabaseClient<Database>`. The runtime client is
+  // correct and bound to Database; normalize the type at this single seam.
   return createBrowserClient<Database>(url, anonKey, {
     realtime: {
       heartbeatIntervalMs: 25000,
       reconnectAfterMs: (tries: number) => computeBackoff(tries - 1, { baseMs: 1000, maxMs: 30000 }),
     },
-  });
+  }) as unknown as TypedSupabaseClient;
 }
