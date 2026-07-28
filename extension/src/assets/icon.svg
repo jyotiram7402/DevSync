@@ -1,0 +1,12 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DevSync">
+  <rect width="128" height="128" rx="28" fill="#4f46e5" />
+  <path
+    d="M44 40h28a24 24 0 0 1 0 48H44"
+    stroke="#ffffff"
+    stroke-width="10"
+    stroke-linecap="round"
+    fill="none"
+  />
+  <circle cx="44" cy="40" r="7" fill="#ffffff" />
+  <circle cx="44" cy="88" r="7" fill="#ffffff" />
+</svg>

@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "DevSync",
+    "slug": "devsync",
+    "version": "0.1.0",
+    "scheme": "devsync",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#09090b"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "android": {
+      "package": "app.devsync.mobile",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#4f46e5"
+      },
+      "permissions": ["INTERNET", "READ_EXTERNAL_STORAGE", "CAMERA"]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "DevSync needs access to your photos to upload images.",
+          "cameraPermission": "DevSync needs camera access to capture and upload photos."
+        }
+      ],
+      "expo-document-picker",
+      [
+        "expo-share-intent",
+        {
+          "androidIntentFilters": ["text/*", "image/*", "video/*", "audio/*", "application/*"],
+          "androidMultiIntentFilters": ["image/*", "application/*"],
+          "disableAndroidLegacyStorage": false
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      }
+    }
+  }
+}

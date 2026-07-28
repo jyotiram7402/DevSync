@@ -1,0 +1,8 @@
+<svg width="164" height="40" viewBox="0 0 164 40" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DevSync">
+  <rect x="4" y="4" width="32" height="32" rx="8" fill="#4F46E5" />
+  <g stroke="#FFFFFF" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M15 13 L22 20 L15 27" />
+    <path d="M23 13 L30 20 L23 27" opacity="0.55" />
+  </g>
+  <text x="46" y="26" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="18" font-weight="600" fill="#09090B">DevSync</text>
+</svg>

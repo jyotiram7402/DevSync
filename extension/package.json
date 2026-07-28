@@ -1,0 +1,39 @@
+{
+  "name": "devsync-extension",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "DevSync browser extension (Manifest V3) — sign in, save clipboard as snippets, and view synced snippets from any Chromium browser.",
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.10",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.469.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "tailwind-merge": "^2.6.0",
+    "webextension-polyfill": "^0.12.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.0.0-beta.28",
+    "@types/chrome": "^0.0.287",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "@types/webextension-polyfill": "^0.12.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7"
+  }
+}

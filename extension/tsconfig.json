@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": false,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    "strict": true,
+    "noImplicitAny": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+
+    "types": ["chrome", "webextension-polyfill", "vite/client"],
+
+    "baseUrl": ".",
+    "paths": {
+      "@ext/*": ["./src/*"],
+      "@/*": ["../*"]
+    }
+  },
+  "include": ["src", "manifest.config.ts", "vite.config.ts"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}

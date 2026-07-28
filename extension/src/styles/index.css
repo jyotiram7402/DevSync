@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design tokens mirror the web app (zinc surfaces + single indigo brand accent),
+ * defined for light and class-based dark mode.
+ */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 240 10% 4%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 4%;
+  --muted: 240 5% 96%;
+  --muted-foreground: 240 4% 46%;
+  --border: 240 6% 90%;
+  --input: 240 6% 90%;
+  --ring: 240 5% 65%;
+  --brand: 243 75% 59%;
+  --brand-foreground: 0 0% 100%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+}
+
+.dark {
+  --background: 240 10% 4%;
+  --foreground: 0 0% 98%;
+  --card: 240 10% 6%;
+  --card-foreground: 0 0% 98%;
+  --muted: 240 4% 14%;
+  --muted-foreground: 240 5% 65%;
+  --border: 240 4% 16%;
+  --input: 240 4% 16%;
+  --ring: 240 5% 40%;
+  --brand: 243 75% 66%;
+  --brand-foreground: 240 10% 4%;
+  --destructive: 0 63% 50%;
+  --destructive-foreground: 0 0% 98%;
+}
+
+html,
+body {
+  margin: 0;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Popup viewport constraints (Chromium caps popups ~800x600). */
+.popup-root {
+  width: 360px;
+  min-height: 200px;
+  max-height: 580px;
+}
+
+/* Respect reduced motion and provide a visible focus ring everywhere. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
