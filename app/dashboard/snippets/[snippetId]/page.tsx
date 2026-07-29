@@ -7,6 +7,7 @@ import {
   SnippetViewer,
   getSnippetPermissions,
 } from "@/features/snippets";
+import { AttachmentPreview } from "@/features/snippets/components/attachment-preview";
 import { getSnippet } from "@/features/snippets/services/snippet-service";
 
 export const metadata = {
@@ -29,11 +30,28 @@ export default async function SnippetDetailPage({
   const { snippet, role } = result.data;
   const permissions = getSnippetPermissions(role);
 
+  // A file/image snippet carries its attachment location in metadata.
+  const meta = snippet.metadata;
+  const attachmentPath = typeof meta.path === "string" ? meta.path : null;
+  const attachmentKind = typeof meta.kind === "string" ? meta.kind : "file";
+  const attachmentMime = typeof meta.mimeType === "string" ? meta.mimeType : "application/octet-stream";
+  const attachmentSize = typeof meta.size === "number" ? meta.size : undefined;
+
   return (
     <div className="flex flex-col gap-6">
       <SnippetHeader snippet={snippet} permissions={permissions} />
       <SnippetToolbar snippet={snippet} />
-      <SnippetViewer content={snippet.content} language={snippet.language} />
+      {attachmentPath ? (
+        <AttachmentPreview
+          path={attachmentPath}
+          kind={attachmentKind}
+          mimeType={attachmentMime}
+          name={snippet.title ?? snippet.content}
+          size={attachmentSize}
+        />
+      ) : (
+        <SnippetViewer content={snippet.content} language={snippet.language} />
+      )}
     </div>
   );
 }
