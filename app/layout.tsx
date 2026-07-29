@@ -61,6 +61,13 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  // Lock to the device width and disable pinch/auto zoom so the app feels
+  // native on mobile (also stops iOS from zooming when focusing inputs).
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#09090b" },

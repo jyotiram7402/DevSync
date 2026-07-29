@@ -97,6 +97,9 @@
     scroll-behavior: smooth;
     /* Offset anchor targets so the sticky header does not overlap them. */
     scroll-padding-top: 5rem;
+    /* Prevent mobile browsers from inflating text sizes. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
@@ -107,6 +110,23 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* App-like mobile behavior: no horizontal jitter, no rubber-band overscroll,
+       no grey tap-flash. */
+    overflow-x: hidden;
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Remove the double-tap-to-zoom delay on interactive elements (snappy taps). */
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  [role="button"],
+  [role="tab"],
+  [role="option"] {
+    touch-action: manipulation;
   }
 
   ::selection {
