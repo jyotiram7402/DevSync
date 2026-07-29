@@ -15,11 +15,15 @@ import { EnvironmentError } from "@/utils/errors";
  * from client components. Server-only secrets are loaded in a dedicated
  * server-only module in the sprint that needs them.
  */
+// `.catch(undefined)` means a malformed value degrades to "unset" (and its
+// default) instead of throwing and taking down the entire build/deploy. A
+// misconfigured public env var should never be able to break the app — worst
+// case it falls back and the app reports "not configured".
 const clientEnvSchema = z.object({
-  NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
-  NEXT_PUBLIC_APP_ENV: z.enum(["development", "preview", "production"]).optional(),
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1).optional(),
+  NEXT_PUBLIC_SITE_URL: z.string().url().optional().catch(undefined),
+  NEXT_PUBLIC_APP_ENV: z.enum(["development", "preview", "production"]).optional().catch(undefined),
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional().catch(undefined),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1).optional().catch(undefined),
 });
 
 // Reference variables explicitly so the Next.js compiler can inline them.
