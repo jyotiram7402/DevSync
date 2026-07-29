@@ -107,7 +107,7 @@ export function AttachmentPreview({
           {size ? ` · ${(size / 1024).toFixed(0)} KB` : ""}
         </p>
       </div>
-      {download}
+      {actions}
     </div>
   );
 }
