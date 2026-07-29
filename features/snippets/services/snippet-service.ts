@@ -166,7 +166,9 @@ export async function createPendingFileSnippet(input: {
       workspace_id: context.workspaceId,
       content: name,
       title: name,
-      type: "file",
+      // `type` is constrained by the DB (text/code/log/…); the file's real
+      // nature is carried in metadata.kind. Use an allowed value here.
+      type: "text",
       tags: [],
       visibility: DEFAULT_SNIPPET_VISIBILITY,
       created_by: context.userId,

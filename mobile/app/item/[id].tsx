@@ -37,7 +37,12 @@ export default function ItemScreen() {
     );
   }
 
-  const isFile = snippet.type === "file";
+  const metadata = snippet.metadata;
+  const kind =
+    metadata && typeof metadata === "object" && !Array.isArray(metadata)
+      ? (metadata as Record<string, unknown>).kind
+      : undefined;
+  const isFile = typeof kind === "string" && kind !== "text" && kind !== "url";
 
   return (
     <Screen scroll>

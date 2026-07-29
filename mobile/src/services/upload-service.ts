@@ -63,7 +63,9 @@ export async function uploadPending(workspaceId: string, item: PendingUpload): P
     content: item.name,
     title: item.name,
     language: null,
-    type: "file",
+    // `type` is DB-constrained (text/code/log/…); the real kind lives in
+    // metadata.kind. Use an allowed value.
+    type: "text",
     tags: [],
     visibility: "private",
     created_by: userId,
