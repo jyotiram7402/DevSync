@@ -22,6 +22,26 @@ export async function createSnippetAction(
   return result;
 }
 
+/** Quick Capture: create the placeholder row for a file/image before upload. */
+export async function createPendingFileSnippetAction(input: {
+  name: string;
+  mimeType: string;
+  size: number;
+  kind: string;
+}): Promise<ActionResult<{ snippetId: string; workspaceId: string }>> {
+  return service.createPendingFileSnippet(input);
+}
+
+/** Quick Capture: link the uploaded attachment and reveal the snippet. */
+export async function finalizeFileSnippetAction(
+  id: string,
+  meta: { bucket: string; path: string; mimeType: string; size: number; kind: string },
+): Promise<ActionResult<void>> {
+  const result = await service.finalizeFileSnippet(id, meta);
+  if (result.ok) revalidatePath(LIST_PATH);
+  return result;
+}
+
 export async function updateSnippetAction(
   id: string,
   values: SnippetFormValues,

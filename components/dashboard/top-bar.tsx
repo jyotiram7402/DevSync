@@ -5,6 +5,7 @@ import { Menu } from "lucide-react";
 import { Breadcrumbs } from "@/components/dashboard/breadcrumbs";
 import { NotificationMenu } from "@/components/dashboard/notification-menu";
 import { UserDropdown } from "@/components/dashboard/user-dropdown";
+import { QuickCaptureButton } from "@/components/dashboard/quick-capture-button";
 import { GlobalSearchBar } from "@/features/search/components/global-search-bar";
 import { WorkspaceSwitcher } from "@/components/dashboard/workspace-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -38,6 +39,7 @@ export function TopBar({ user }: { user: AuthUser }) {
       <Breadcrumbs className="hidden md:block" />
 
       <div className="ml-auto flex items-center gap-1.5">
+        <QuickCaptureButton />
         <GlobalSearchBar />
         <NotificationMenu />
         <ThemeToggle />

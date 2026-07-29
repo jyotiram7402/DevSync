@@ -141,6 +141,79 @@ export async function getSnippet(
   }
 }
 
+/**
+ * Quick Capture — file/image flow. Create a placeholder snippet row (type
+ * "file", metadata status "uploading"), returning the ids the client needs to
+ * upload the binary directly to the snippet-attachments bucket. The attachment
+ * is linked back via `finalizeFileSnippet`. Reuses the same repository + RLS.
+ */
+export async function createPendingFileSnippet(input: {
+  name: string;
+  mimeType: string;
+  size: number;
+  kind: string;
+}): Promise<ActionResult<{ snippetId: string; workspaceId: string }>> {
+  try {
+    const client = await createServerSupabaseClient();
+    const context = await repository.resolveContext(client);
+    if (!context) return err(NO_WORKSPACE);
+    if (!getSnippetPermissions(context.role).canCreate) {
+      return err({ code: "FORBIDDEN", message: "You cannot create snippets here." });
+    }
+
+    const name = input.name.trim().slice(0, 200) || "Untitled file";
+    const insert: TablesInsert<"snippets"> = {
+      workspace_id: context.workspaceId,
+      content: name,
+      title: name,
+      type: "file",
+      tags: [],
+      visibility: DEFAULT_SNIPPET_VISIBILITY,
+      created_by: context.userId,
+      updated_by: context.userId,
+      metadata: {
+        kind: input.kind,
+        mimeType: input.mimeType,
+        size: input.size,
+        status: "uploading",
+        source: "web",
+      },
+    };
+    const row = await repository.insertSnippetRow(client, insert);
+    return ok({ snippetId: row.id, workspaceId: context.workspaceId });
+  } catch (error) {
+    return err(toActionError(error));
+  }
+}
+
+/** Link an uploaded attachment to its pending snippet and mark it synced. */
+export async function finalizeFileSnippet(
+  id: string,
+  meta: { bucket: string; path: string; mimeType: string; size: number; kind: string },
+): Promise<ActionResult<void>> {
+  try {
+    const client = await createServerSupabaseClient();
+    const context = await repository.resolveContext(client);
+    if (!context) return err(NO_WORKSPACE);
+
+    await repository.updateSnippetRow(client, context.workspaceId, id, {
+      updated_by: context.userId,
+      metadata: {
+        kind: meta.kind,
+        mimeType: meta.mimeType,
+        size: meta.size,
+        bucket: meta.bucket,
+        path: meta.path,
+        status: "synced",
+        source: "web",
+      },
+    });
+    return ok(undefined);
+  } catch (error) {
+    return err(toActionError(error));
+  }
+}
+
 export async function createSnippet(values: SnippetFormValues): Promise<ActionResult<Snippet>> {
   const parsed = snippetFormSchema.safeParse(values);
   if (!parsed.success) {
