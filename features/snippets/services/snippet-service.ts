@@ -11,6 +11,7 @@ import * as repository from "@/features/snippets/services/snippet-repository";
 import { mapSnippetRow, mapSnippetRows } from "@/features/snippets/services/snippet-mapper";
 import { snippetFormSchema, toFieldErrors, type SnippetFormValues } from "@/features/snippets/schemas";
 import type {
+  LibraryItem,
   SelectOption,
   Snippet,
   SnippetListParams,
@@ -136,6 +137,53 @@ export async function getSnippet(
 
     const collectionIds = await repository.getSnippetCollectionIds(client, id);
     return ok({ snippet: mapSnippetRow(row, collectionIds), role: context.role });
+  } catch (error) {
+    return err(toActionError(error));
+  }
+}
+
+function readMetaString(metadata: unknown, key: string): string | null {
+  if (metadata && typeof metadata === "object" && !Array.isArray(metadata)) {
+    const value = (metadata as Record<string, unknown>)[key];
+    if (typeof value === "string") return value;
+  }
+  return null;
+}
+
+/**
+ * Type-based library listing (images/links/docs/files). Fetches recent
+ * workspace items and projects them by `metadata.kind`. Kind filtering is done
+ * in memory (kind lives in the jsonb metadata) over a bounded, RLS-scoped set.
+ */
+export async function listLibraryItems(kinds: string[]): Promise<ActionResult<LibraryItem[]>> {
+  try {
+    const client = await createServerSupabaseClient();
+    const context = await repository.resolveContext(client);
+    if (!context) return err(NO_WORKSPACE);
+
+    const { data, error } = await client
+      .from("snippets")
+      .select("id,title,content,created_at,metadata")
+      .eq("workspace_id", context.workspaceId)
+      .is("deleted_at", null)
+      .eq("archived", false)
+      .order("created_at", { ascending: false })
+      .limit(300);
+    if (error) return err(toActionError(error));
+
+    const items = (data ?? [])
+      .map<LibraryItem>((row) => ({
+        id: row.id,
+        name: row.title && row.title.length > 0 ? row.title : row.content,
+        kind: readMetaString(row.metadata, "kind") ?? "text",
+        mimeType: readMetaString(row.metadata, "mimeType"),
+        path: readMetaString(row.metadata, "path"),
+        source: readMetaString(row.metadata, "source"),
+        createdAt: row.created_at,
+      }))
+      .filter((item) => kinds.includes(item.kind));
+
+    return ok(items);
   } catch (error) {
     return err(toActionError(error));
   }

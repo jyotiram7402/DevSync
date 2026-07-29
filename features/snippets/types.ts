@@ -56,3 +56,15 @@ export interface SelectOption {
   id: string;
   name: string;
 }
+
+/** A synced item projected for the type-based library views (images/links/docs/files). */
+export interface LibraryItem {
+  id: string;
+  name: string;
+  kind: string;
+  mimeType: string | null;
+  path: string | null;
+  /** Originating platform, from metadata.source (web / mobile / extension). */
+  source: string | null;
+  createdAt: string;
+}

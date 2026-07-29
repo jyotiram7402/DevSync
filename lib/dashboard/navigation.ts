@@ -1,10 +1,14 @@
 import {
   Code2,
   CreditCard,
+  FileText,
+  Files,
   FolderKanban,
   Home,
+  Image,
   Library,
   LifeBuoy,
+  Link2,
   Search,
   Settings,
   type LucideIcon,
@@ -27,6 +31,10 @@ export const DASHBOARD_PRIMARY_NAV: readonly DashboardNavItem[] = [
   { label: "Snippets", href: "/dashboard/snippets", icon: Code2 },
   { label: "Collections", href: "/dashboard/collections", icon: Library },
   { label: "Search", href: "/dashboard/search", icon: Search },
+  { label: "Images", href: "/dashboard/library/images", icon: Image },
+  { label: "Links", href: "/dashboard/library/links", icon: Link2 },
+  { label: "Docs", href: "/dashboard/library/docs", icon: FileText },
+  { label: "Files", href: "/dashboard/library/files", icon: Files },
 ];
 
 export const DASHBOARD_SECONDARY_NAV: readonly DashboardNavItem[] = [
@@ -43,6 +51,11 @@ export const ROUTE_LABELS: Record<string, string> = {
   snippets: "Snippets",
   collections: "Collections",
   search: "Search",
+  library: "Library",
+  images: "Images",
+  links: "Links",
+  docs: "Documents",
+  files: "Files",
   settings: "Settings",
   profile: "Profile",
   billing: "Billing",
