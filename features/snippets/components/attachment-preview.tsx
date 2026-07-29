@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, FileText } from "lucide-react";
+import { Download, ExternalLink, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -54,13 +54,22 @@ export function AttachmentPreview({
 
   if (!url) return <Skeleton className="h-64 w-full rounded-lg" />;
 
-  const download = (
-    <Button asChild variant="outline">
-      <a href={url} target="_blank" rel="noreferrer">
-        <Download className="size-4" aria-hidden="true" />
-        Open / download
-      </a>
-    </Button>
+  const downloadUrl = `${url}${url.includes("?") ? "&" : "?"}download=${encodeURIComponent(name)}`;
+  const actions = (
+    <div className="flex flex-wrap gap-2">
+      <Button asChild variant="outline">
+        <a href={url} target="_blank" rel="noreferrer">
+          <ExternalLink className="size-4" aria-hidden="true" />
+          Open
+        </a>
+      </Button>
+      <Button asChild>
+        <a href={downloadUrl} rel="noreferrer">
+          <Download className="size-4" aria-hidden="true" />
+          Download
+        </a>
+      </Button>
+    </div>
   );
 
   if (kind === "image") {
@@ -72,7 +81,7 @@ export function AttachmentPreview({
           alt={name}
           className="max-h-[520px] w-full rounded-lg border object-contain"
         />
-        {download}
+        {actions}
       </div>
     );
   }
@@ -81,7 +90,7 @@ export function AttachmentPreview({
     return (
       <div className="flex flex-col gap-3">
         <iframe src={url} title={name} className="h-[600px] w-full rounded-lg border" />
-        {download}
+        {actions}
       </div>
     );
   }

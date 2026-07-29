@@ -10,7 +10,7 @@ import { Dialog, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import {
   createPendingFileSnippetAction,
-  createSnippetAction,
+  createTextCaptureAction,
   finalizeFileSnippetAction,
 } from "@/features/snippets/actions";
 import { useSupabase } from "@/hooks/use-supabase";
@@ -101,7 +101,7 @@ export function QuickCapture({ open, onClose }: { open: boolean; onClose: () => 
   }
 
   async function submitText(): Promise<boolean> {
-    const result = await createSnippetAction({ content: text.trim() });
+    const result = await createTextCaptureAction(text.trim());
     if (!result.ok) {
       toast.error(result.error.message);
       return false;

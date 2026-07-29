@@ -109,6 +109,8 @@ export async function listSnippets(
       language: params.language,
       from,
       to,
+      // The Snippets list is code/text only; images/links/files have their own views.
+      contentOnly: true,
     });
 
     return ok({
@@ -259,6 +261,48 @@ export async function finalizeFileSnippet(
       },
     });
     return ok(undefined);
+  } catch (error) {
+    return err(toActionError(error));
+  }
+}
+
+function isUrl(value: string): boolean {
+  return /^https?:\/\/\S+$/i.test(value.trim());
+}
+
+/**
+ * Quick Capture — text/URL flow. Auto-classifies the content so a pasted link
+ * lands in the Links view (metadata.kind = "url") while plain text/code stays
+ * in Snippets (kind "text"). The manual snippet form does NOT auto-classify.
+ */
+export async function createTextCapture(content: string): Promise<ActionResult<Snippet>> {
+  const trimmed = content.trim();
+  if (trimmed.length === 0) return err({ code: "VALIDATION_FAILED", message: "Nothing to capture." });
+  if (trimmed.length > 100_000) {
+    return err({ code: "VALIDATION_FAILED", message: "Content exceeds the maximum size." });
+  }
+
+  try {
+    const client = await createServerSupabaseClient();
+    const context = await repository.resolveContext(client);
+    if (!context) return err(NO_WORKSPACE);
+    if (!getSnippetPermissions(context.role).canCreate) {
+      return err({ code: "FORBIDDEN", message: "You cannot create snippets here." });
+    }
+
+    const insert: TablesInsert<"snippets"> = {
+      workspace_id: context.workspaceId,
+      content: trimmed,
+      title: null,
+      type: "text",
+      tags: [],
+      visibility: DEFAULT_SNIPPET_VISIBILITY,
+      created_by: context.userId,
+      updated_by: context.userId,
+      metadata: { kind: isUrl(trimmed) ? "url" : "text", source: "web" },
+    };
+    const row = await repository.insertSnippetRow(client, insert);
+    return ok(mapSnippetRow(row, []));
   } catch (error) {
     return err(toActionError(error));
   }

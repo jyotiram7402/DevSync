@@ -22,6 +22,13 @@ export async function createSnippetAction(
   return result;
 }
 
+/** Quick Capture: create a text/URL item (URLs auto-classified into Links). */
+export async function createTextCaptureAction(content: string): Promise<ActionResult<Snippet>> {
+  const result = await service.createTextCapture(content);
+  if (result.ok) revalidatePath(LIST_PATH);
+  return result;
+}
+
 /** Quick Capture: create the placeholder row for a file/image before upload. */
 export async function createPendingFileSnippetAction(input: {
   name: string;

@@ -47,6 +47,9 @@ interface ListRowsArgs extends Required<Pick<SnippetListParams, "status" | "sort
   language: string | undefined;
   from: number;
   to: number;
+  /** When true, show only code/text snippets — exclude library kinds
+   *  (image/url/pdf/office/file/…), which live in their own type views. */
+  contentOnly?: boolean;
 }
 
 export async function listSnippetRows(
@@ -71,6 +74,13 @@ export async function listSnippetRows(
     if (term.length > 0) {
       filtered = filtered.or(`title.ilike.*${term}*,content.ilike.*${term}*`);
     }
+  }
+  if (args.contentOnly) {
+    // Keep only code/text (kind absent/null, or explicitly text/code); items
+    // with a library kind (image/url/pdf/office/file/…) are shown in their tabs.
+    filtered = filtered.or(
+      "metadata->>kind.is.null,metadata->>kind.eq.text,metadata->>kind.eq.code",
+    );
   }
 
   let ordered = filtered.order("pinned", { ascending: false });
