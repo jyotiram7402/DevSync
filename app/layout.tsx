@@ -27,6 +27,11 @@ export const metadata: Metadata = {
   },
   description: APP_DESCRIPTION,
   applicationName: APP_NAME,
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: APP_NAME,
+  },
   keywords: [
     "developer tools",
     "clipboard sync",

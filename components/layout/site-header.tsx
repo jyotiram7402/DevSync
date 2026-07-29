@@ -62,7 +62,12 @@ export function SiteHeader() {
           {isLoading ? (
             <div className="size-8" aria-hidden="true" />
           ) : isAuthenticated ? (
-            <UserMenu />
+            <div className="flex items-center gap-2">
+              <Button asChild size="sm" className="hidden sm:inline-flex">
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+              <UserMenu />
+            </div>
           ) : (
             <div className="hidden items-center gap-2 sm:flex">
               <Button asChild variant="ghost" size="sm">
@@ -104,7 +109,15 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
-          {!isLoading && !isAuthenticated ? (
+          {!isLoading && isAuthenticated ? (
+            <div className="mt-2 flex flex-col gap-2">
+              <Button asChild size="sm" className="w-full">
+                <Link href="/dashboard" onClick={() => setOpen(false)}>
+                  Go to Dashboard
+                </Link>
+              </Button>
+            </div>
+          ) : !isLoading && !isAuthenticated ? (
             <div className="mt-2 flex flex-col gap-2">
               <Button asChild variant="outline" size="sm" className="w-full">
                 <Link href="/login" onClick={() => setOpen(false)}>
