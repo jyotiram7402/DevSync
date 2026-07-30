@@ -165,7 +165,7 @@ export async function listLibraryItems(kinds: string[]): Promise<ActionResult<Li
 
     const { data, error } = await client
       .from("snippets")
-      .select("id,title,content,created_at,metadata")
+      .select("id,title,content,created_at,metadata,pinned,favorite")
       .eq("workspace_id", context.workspaceId)
       .is("deleted_at", null)
       .eq("archived", false)
@@ -182,6 +182,7 @@ export async function listLibraryItems(kinds: string[]): Promise<ActionResult<Li
         path: readMetaString(row.metadata, "path"),
         source: readMetaString(row.metadata, "source"),
         createdAt: row.created_at,
+        kept: row.pinned || row.favorite,
       }))
       .filter((item) => kinds.includes(item.kind));
 

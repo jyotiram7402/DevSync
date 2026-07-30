@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { sourceLabel } from "@/features/library/config";
 import type { LibraryItem } from "@/features/snippets/types";
 import { useSupabase } from "@/hooks/use-supabase";
+import { expiryLabel } from "@/lib/retention";
 import { createSignedUrl } from "@/lib/storage/storage";
 import { cn } from "@/utils/cn";
 
@@ -87,6 +88,15 @@ export function LibraryItemRow({ item }: { item: LibraryItem }) {
             </>
           ) : null}
         </span>
+      </span>
+
+      <span
+        className={cn(
+          "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium",
+          item.kept ? "bg-brand/10 text-brand" : "bg-muted text-muted-foreground",
+        )}
+      >
+        {expiryLabel(item.createdAt, item.kept)}
       </span>
     </Link>
   );

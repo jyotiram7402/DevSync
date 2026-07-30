@@ -14,6 +14,7 @@ import {
   finalizeFileSnippetAction,
 } from "@/features/snippets/actions";
 import { useSupabase } from "@/hooks/use-supabase";
+import { RETENTION_DAYS } from "@/lib/retention";
 import { snippetAttachmentPath } from "@/lib/storage/paths";
 import { uploadFile } from "@/lib/storage/storage";
 import { cn } from "@/utils/cn";
@@ -172,7 +173,7 @@ export function QuickCapture({ open, onClose }: { open: boolean; onClose: () => 
       open={open}
       onClose={onClose}
       title="Quick capture"
-      description="Paste text, or drop / attach a file — it syncs to all your devices."
+      description={`Paste text, or drop / attach a file — it syncs to all your devices. Items auto-expire after ${RETENTION_DAYS} days unless you pin or favorite them.`}
       className="max-w-lg"
     >
       <div

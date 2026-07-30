@@ -67,4 +67,6 @@ export interface LibraryItem {
   /** Originating platform, from metadata.source (web / mobile / extension). */
   source: string | null;
   createdAt: string;
+  /** Pinned or favorited items are exempt from the retention policy. */
+  kept: boolean;
 }
