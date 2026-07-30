@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/dashboard/app-shell";
 import { QuickCaptureProvider } from "@/features/capture/quick-capture-provider";
+import { RegisterDevice } from "@/features/dashboard/components/register-device";
 import { SearchProvider } from "@/features/search/search-provider";
 import { requireUser } from "@/lib/auth/guards";
 
@@ -16,6 +17,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   return (
     <SearchProvider>
       <QuickCaptureProvider>
+        <RegisterDevice />
         <AppShell user={user}>{children}</AppShell>
       </QuickCaptureProvider>
     </SearchProvider>

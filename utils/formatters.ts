@@ -32,6 +32,22 @@ export function formatNumber(value: number, locale = "en-US"): string {
   return new Intl.NumberFormat(locale).format(value);
 }
 
+/** Compact relative time, e.g. "just now", "5m ago", "3h ago", "2d ago". */
+export function formatRelativeTime(iso: string | null): string {
+  if (!iso) return "";
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "";
+  const diff = Date.now() - then;
+  if (diff < 60_000) return "just now";
+  const minutes = Math.floor(diff / 60_000);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(iso).toLocaleDateString();
+}
+
 const BYTE_UNITS = ["B", "KB", "MB", "GB", "TB", "PB"] as const;
 
 /** Human-readable byte size, e.g. "1.5 KB". */
