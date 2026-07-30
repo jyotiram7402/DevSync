@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 
+import { RegisterServiceWorker } from "@/components/pwa/register-service-worker";
 import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE, SITE_URL } from "@/lib/constants";
 import { Providers } from "@/providers";
 
@@ -80,6 +81,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body
         className={`${fontSans.variable} ${fontMono.variable} min-h-screen bg-background font-sans antialiased`}
       >
+        <RegisterServiceWorker />
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -137,6 +137,30 @@ corporate IT than a known file-sharing service.
 
 ---
 
+## 2b. Installable app (PWA) — in progress
+
+✅ Manifest with PNG icon entries, `share_target` (GET), app shortcuts,
+standalone display · service worker (`public/sw.js`, network-first so it can
+never serve a stale app) · offline fallback page · SW registration ·
+`/dashboard/share` receiver for the Android share sheet.
+
+**🔴 Blocked on you:** add `public/icon-192.png` and `public/icon-512.png`.
+Android/Chrome will not show "Install app" without both. Export from
+`public/logo.svg` or use realfavicongenerator.net.
+
+**🟡 Deferred — sharing *files* to the app.** The share target currently accepts
+**text and links only** (`method: "GET"`). Receiving images/PDFs from the share
+sheet needs `method: "POST"` + `multipart/form-data` and a route handler that
+reads `formData()`. Files can already be added via Quick add → Attach file.
+
+**🟡 Deferred — "Install app" in-app prompt.** Users must currently use the
+browser menu → *Install app / Add to Home Screen*. A `beforeinstallprompt`
+button would make this discoverable.
+
+**Not doing yet:** Play Store (TWA/PWABuilder, needs a $25 one-time Google fee).
+
+---
+
 ## 3. UX & polish backlog
 
 - **Bottom tab bar on mobile web** — biggest "feels native" upgrade (replaces the
