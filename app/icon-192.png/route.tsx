@@ -10,7 +10,6 @@ import { AppIconMark } from "@/components/pwa/app-icon-mark";
  * mark in sync with the brand and avoids committing binary assets.
  */
 export const runtime = "edge";
-export const contentType = "image/png";
 
 export function GET() {
   return new ImageResponse(<AppIconMark size={192} />, { width: 192, height: 192 });

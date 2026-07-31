@@ -7,7 +7,6 @@ import { AppIconMark } from "@/components/pwa/app-icon-mark";
  * maskable icon, so the mark is inset to survive adaptive-icon cropping).
  */
 export const runtime = "edge";
-export const contentType = "image/png";
 
 export function GET() {
   return new ImageResponse(<AppIconMark size={512} />, { width: 512, height: 512 });
