@@ -2,7 +2,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { ShareReceiver } from "@/features/capture/share-receiver";
 
 export const metadata = {
-  title: "Share to DevSync",
+  title: "Share to CopyAnywhere",
 };
 
 type SearchParams = Record<string, string | string[] | undefined>;
@@ -32,7 +32,7 @@ export default async function SharePage({
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Share to DevSync"
+        title="Share to CopyAnywhere"
         description="Review what you shared, then sync it to every device."
       />
       <ShareReceiver shared={shared} />

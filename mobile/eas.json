@@ -11,11 +11,21 @@
     },
     "preview": {
       "distribution": "internal",
-      "android": { "buildType": "apk" }
+      "android": { "buildType": "apk" },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://REPLACE-ME.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "REPLACE-ME",
+        "EXPO_PUBLIC_DEVSYNC_URL": "https://REPLACE-ME.vercel.app"
+      }
     },
     "production": {
       "autoIncrement": true,
-      "android": { "buildType": "app-bundle" }
+      "android": { "buildType": "app-bundle" },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://REPLACE-ME.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "REPLACE-ME",
+        "EXPO_PUBLIC_DEVSYNC_URL": "https://REPLACE-ME.vercel.app"
+      }
     }
   },
   "submit": {

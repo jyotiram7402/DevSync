@@ -33,7 +33,7 @@ export default async function LoginPage({
     <AuthLayout>
       <AuthCard
         title="Welcome back"
-        description="Sign in to your DevSync account"
+        description="Sign in to your CopyAnywhere account"
         footer={
           <>
             Don&apos;t have an account?{" "}

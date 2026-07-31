@@ -1,0 +1,71 @@
+name: Build Android app (EAS)
+
+# Cloud build for the DevSync Android app. Runs entirely on GitHub + Expo's
+# servers, so no local Node/Android toolchain is required.
+#
+# SETUP (one time):
+#   1. Create a free account at https://expo.dev
+#   2. Create an access token: expo.dev → Account Settings → Access Tokens
+#   3. Add it to this repo: Settings → Secrets and variables → Actions →
+#      New repository secret → name: EXPO_TOKEN, value: <the token>
+#
+# RUN: Actions tab → "Build Android app (EAS)" → Run workflow.
+# The finished APK appears at https://expo.dev → your project → Builds,
+# with a QR code / download link you can open directly on your phone.
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: "EAS build profile"
+        required: true
+        default: "preview"
+        type: choice
+        options:
+          - preview
+          - production
+  push:
+    branches: [main]
+    paths:
+      - "mobile/**"
+      - ".github/workflows/mobile-build.yml"
+
+jobs:
+  build:
+    name: EAS Build (Android)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Link or create the EAS project
+        run: npx eas init --non-interactive --force
+
+      - name: Build Android package
+        run: |
+          npx eas build \
+            --platform android \
+            --profile ${{ github.event.inputs.profile || 'preview' }} \
+            --non-interactive \
+            --no-wait

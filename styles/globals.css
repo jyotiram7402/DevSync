@@ -43,9 +43,10 @@
     --input: 240 5.9% 90%;
     --ring: 240 10% 3.9%;
 
-    /* Brand accent (indigo). Used sparingly for emphasis + decoration. */
-    --brand: 243 75% 59%;
+    /* CopyAnywhere brand: primary #5B5FFF, accent #8B5CF6. */
+    --brand: 238 100% 68%;
     --brand-foreground: 0 0% 100%;
+    --accent-brand: 258 90% 66%;
 
     --radius: 0.5rem;
 
@@ -81,8 +82,10 @@
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
 
-    --brand: 245 80% 70%;
+    /* Slightly lifted in dark mode so the brand stays vivid on #09090B. */
+    --brand: 238 100% 72%;
     --brand-foreground: 240 10% 4%;
+    --accent-brand: 258 90% 70%;
 
     color-scheme: dark;
   }

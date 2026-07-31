@@ -18,7 +18,7 @@ type ExtendedManifest = MetadataRoute.Manifest & {
 /**
  * Web App Manifest.
  *
- * Makes DevSync installable as a standalone app ("Install app" / "Add to Home
+ * Makes CopyAnywhere installable as a standalone app ("Install app" / "Add to Home
  * Screen") on Android and desktop. Next.js serves this at
  * /manifest.webmanifest and injects <link rel="manifest"> automatically.
  *
@@ -29,15 +29,15 @@ type ExtendedManifest = MetadataRoute.Manifest & {
  * 192x192 AND a 512x512 PNG icon are present (SVG alone is not enough), and a
  * service worker with a fetch handler is registered (see public/sw.js).
  *
- * `share_target` registers DevSync in the Android share sheet, so "Share →
- * DevSync" from any app opens /dashboard/share with the shared text or link.
+ * `share_target` registers CopyAnywhere in the Android share sheet, so "Share →
+ * CopyAnywhere" from any app opens /dashboard/share with the shared text or link.
  */
 export default function manifest(): ExtendedManifest {
   return {
-    name: "DevSync — Copy Once. Debug Anywhere.",
-    short_name: "DevSync",
+    name: "CopyAnywhere — Copy Once. Access Anywhere.",
+    short_name: "CopyAnywhere",
     description:
-      "Sync your errors, logs, and snippets across every device you code on. Copy on one machine, paste on another.",
+      "Instantly sync text, code, images, documents, files and links across all your devices in real time.",
     id: "/dashboard/home",
     start_url: "/dashboard/home",
     scope: "/",

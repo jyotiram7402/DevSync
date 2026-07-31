@@ -1,64 +1,123 @@
-import { Command, FolderKanban, MonitorSmartphone, Search, ShieldCheck, Zap } from "lucide-react";
+import {
+  Clipboard,
+  FolderKanban,
+  Library,
+  Search,
+  ShieldCheck,
+  Upload,
+  WifiOff,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
 
 import { Container } from "@/components/shared/container";
 import { SectionHeader } from "@/components/shared/section-header";
-import { Card } from "@/components/ui/card";
+import { cn } from "@/utils/cn";
 
-const FEATURES = [
+interface Feature {
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  gradient: string;
+  span?: string;
+}
+
+const FEATURES: Feature[] = [
   {
+    title: "Universal clipboard",
+    description:
+      "Copy on your phone, paste on your laptop. Text, code, and links move the moment you save them.",
+    icon: Clipboard,
+    gradient: "from-blue-500 to-indigo-500",
+    span: "lg:col-span-2",
+  },
+  {
+    title: "Sync any file",
+    description: "Images, PDFs, Word, Excel, ZIP, audio, video. If you can share it, it syncs.",
+    icon: Upload,
+    gradient: "from-violet-500 to-purple-500",
+  },
+  {
+    title: "Realtime by default",
+    description: "Changes appear on every signed-in device in about a second. No refresh button.",
     icon: Zap,
-    title: "Instant sync",
-    description: "Copy on one device and it appears on the others in about a second. No refresh, no button.",
+    gradient: "from-amber-400 to-orange-500",
   },
   {
-    icon: MonitorSmartphone,
-    title: "Every platform",
-    description: "Works in the browser across Windows, macOS, and Linux — nothing to install on locked-down machines.",
-  },
-  {
-    icon: Search,
-    title: "Searchable history",
-    description: "Every snippet you copy is kept and full-text searchable, so last week's stack trace is seconds away.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Private by default",
-    description: "Your snippets are isolated to your account at the database layer and never shared without your say-so.",
-  },
-  {
+    title: "Projects",
+    description: "Group related content so work, side projects, and study stay separate.",
     icon: FolderKanban,
-    title: "Organized by project",
-    description: "Keep client and side-project contexts cleanly separated so nothing ever gets crossed.",
+    gradient: "from-emerald-400 to-teal-500",
   },
   {
-    icon: Command,
-    title: "Keyboard-first",
-    description: "Create, copy, and search without leaving the keyboard — built for the way developers actually work.",
+    title: "Collections",
+    description: "Curate reusable sets of snippets and files you reach for again and again.",
+    icon: Library,
+    gradient: "from-pink-500 to-rose-500",
   },
-] as const;
+  {
+    title: "Search everything",
+    description:
+      "Full-text search across text, code, filenames and tags — with instant results as you type.",
+    icon: Search,
+    gradient: "from-cyan-400 to-sky-500",
+    span: "lg:col-span-2",
+  },
+  {
+    title: "Works offline",
+    description: "Save without a connection. Everything queues and syncs the moment you are back.",
+    icon: WifiOff,
+    gradient: "from-slate-400 to-slate-600",
+  },
+  {
+    title: "Private by design",
+    description:
+      "Row-level security isolates every workspace in the database itself. Your data stays yours.",
+    icon: ShieldCheck,
+    gradient: "from-brand to-brand-accent",
+  },
+];
+
+function FeatureCard({ feature }: { feature: Feature }) {
+  const Icon = feature.icon;
+  return (
+    <article
+      className={cn(
+        "group relative overflow-hidden rounded-2xl border bg-card p-6 transition-all duration-300",
+        "hover:-translate-y-1 hover:border-brand/40 hover:shadow-premium",
+        feature.span,
+      )}
+    >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-16 -top-16 size-40 rounded-full bg-brand/10 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
+      />
+      <div
+        className={cn(
+          "relative mb-4 flex size-11 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-soft transition-transform duration-300 group-hover:scale-110",
+          feature.gradient,
+        )}
+      >
+        <Icon className="size-5" aria-hidden="true" />
+      </div>
+      <h3 className="relative mb-1.5 text-base font-semibold">{feature.title}</h3>
+      <p className="relative text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
+    </article>
+  );
+}
 
 export function Features() {
   return (
     <section id="features" className="py-24">
       <Container className="flex flex-col gap-12">
         <SectionHeader
-          eyebrow="Features"
-          title="Everything you copy, everywhere you work"
-          description="A focused set of primitives that make moving text between your machines effortless."
+          eyebrow="Everything you need"
+          title="One place for everything you move"
+          description="Built for the hundred small transfers you make every day — between your phone, your laptop, and the machine you are not allowed to install anything on."
         />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map(({ icon: Icon, title, description }, index) => (
-            <Card
-              key={title}
-              className="animate-fade-up p-6 transition-colors hover:border-foreground/20"
-              style={{ animationDelay: `${index * 60}ms` }}
-            >
-              <div className="mb-4 flex size-10 items-center justify-center rounded-lg bg-secondary text-foreground">
-                <Icon className="size-5" aria-hidden="true" />
-              </div>
-              <h3 className="text-base font-semibold">{title}</h3>
-              <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>
-            </Card>
+          {FEATURES.map((feature) => (
+            <FeatureCard key={feature.title} feature={feature} />
           ))}
         </div>
       </Container>

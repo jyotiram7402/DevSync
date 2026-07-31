@@ -29,7 +29,7 @@ const STEPS = [
   {
     icon: Smartphone,
     title: "2. Log in on another device",
-    body: "Open DevSync on your phone or a second browser and log in with the SAME account. That is the only thing that links your devices.",
+    body: "Open CopyAnywhere on your phone or a second browser and log in with the SAME account. That is the only thing that links your devices.",
   },
   {
     icon: Copy,
@@ -62,21 +62,21 @@ export default function HelpPage() {
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
-        title="How to use DevSync"
+        title="How to use CopyAnywhere"
         description="Sync your errors, logs, and snippets across every device you code on."
       />
 
-      {/* What is DevSync */}
+      {/* What is CopyAnywhere */}
       <DashboardCard>
         <div className="flex flex-col gap-2">
           <span className="flex size-9 items-center justify-center rounded-md bg-secondary text-foreground">
             <Rocket className="size-4" aria-hidden="true" />
           </span>
-          <h3 className="text-sm font-semibold">What is DevSync?</h3>
+          <h3 className="text-sm font-semibold">What is CopyAnywhere?</h3>
           <p className="text-sm text-muted-foreground">
-            DevSync is a cloud clipboard for developers. Anything you save is stored on
+            CopyAnywhere is a cloud clipboard for developers. Anything you save is stored on
             your account and instantly available on every device you log in on. Copy an
-            error on your work laptop, open DevSync on your phone or home desktop, and it
+            error on your work laptop, open CopyAnywhere on your phone or home desktop, and it
             is already there — no more emailing yourself stack traces.
           </p>
         </div>
@@ -129,7 +129,7 @@ export default function HelpPage() {
 
       {/* Install as app */}
       <section className="flex flex-col gap-4">
-        <h2 className="text-base font-semibold">Install DevSync as an app</h2>
+        <h2 className="text-base font-semibold">Install CopyAnywhere as an app</h2>
         <DashboardCard>
           <div className="flex flex-col gap-3">
             <span className="flex size-9 items-center justify-center rounded-md bg-secondary text-foreground">
@@ -137,7 +137,7 @@ export default function HelpPage() {
             </span>
             <h3 className="text-sm font-semibold">Use it like a native app</h3>
             <p className="text-sm text-muted-foreground">
-              Install DevSync to your home screen so it opens fullscreen, without the browser
+              Install CopyAnywhere to your home screen so it opens fullscreen, without the browser
               bars, and you never have to type the URL again.
             </p>
             <InstallAppButton />

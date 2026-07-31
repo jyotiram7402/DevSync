@@ -2,7 +2,10 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-    "exactOptionalPropertyTypes": true,
+    // Disabled deliberately: it conflicts with idiomatic React/JSX optional
+    // props (passing `undefined` to mean "absent"). The web app hit the same
+    // wall. `strict` + noUncheckedIndexedAccess still catch real bugs.
+    "exactOptionalPropertyTypes": false,
     "noUncheckedIndexedAccess": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 /**
- * Registers the service worker (public/sw.js), which is what makes DevSync
+ * Registers the service worker (public/sw.js), which is what makes CopyAnywhere
  * installable as an app on Android and enables the offline fallback.
  * Registration is deferred to the `load` event so it never competes with the
  * first paint. Failures are non-fatal — the app works fine without it.

@@ -161,6 +161,30 @@ button would make this discoverable.
 
 ---
 
+## 2c. Native Android app — decided, in progress
+
+**Decision (2026-07-30):** the user wants a real native app (not a PWA wrapper).
+The PWA work stays as the browser experience; native is additive.
+
+**Build pipeline:** `.github/workflows/mobile-build.yml` runs EAS Build in the
+cloud (GitHub Actions + Expo servers) so **no local Node/Android toolchain is
+needed** — this was the hard blocker given the corporate-machine constraint.
+Distribute the resulting APK directly (free); Play Store deferred.
+
+**Pending before the app is usable:**
+- 🔴 First build has never run — expect failures like the Vercel loop; fix from
+  the Actions logs. (`exactOptionalPropertyTypes` already pre-disabled.)
+- 🔴 Fill the real values into `mobile/eas.json` `env` blocks (currently
+  `REPLACE-ME`), and add the `EXPO_TOKEN` secret in GitHub.
+- 🔴 Generate `mobile/assets/*.png` (icon, adaptive-icon, splash).
+- 🟠 **Feature parity gap vs web** — the mobile app is missing: Images/Links/
+  Docs/Files library views, attachment/image previews, retention expiry badges,
+  and the Recent Sync feed. It has home/search/devices/settings/share/upload.
+- 🟠 Register `devsync://auth-callback` in Supabase Auth redirect URLs.
+- 🟡 Ongoing cost: two UIs to maintain. Accepted deliberately.
+
+---
+
 ## 3. UX & polish backlog
 
 - **Bottom tab bar on mobile web** — biggest "feels native" upgrade (replaces the

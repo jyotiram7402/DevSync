@@ -4,7 +4,7 @@ import { APP_NAME } from "@/lib/constants";
 import { cn } from "@/utils/cn";
 
 /**
- * Logo — the DevSync mark (a brand-colored double-chevron, echoing the sync
+ * Logo — the CopyAnywhere mark (a brand-colored double-chevron, echoing the sync
  * motion) with an optional wordmark. Links home by default. The mark is
  * decorative; the link carries an accessible name.
  */

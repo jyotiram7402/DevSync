@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 /**
- * InstallAppButton — lets the user install DevSync as a standalone app.
+ * InstallAppButton — lets the user install CopyAnywhere as a standalone app.
  *
  * On Chrome / Edge / Android the browser fires a `beforeinstallprompt` event
  * which we capture and replay when the button is clicked. On iOS Safari there
@@ -43,7 +43,7 @@ export function InstallAppButton() {
   if (installed) {
     return (
       <p className="text-sm text-muted-foreground">
-        ✓ DevSync is already installed as an app on this device.
+        ✓ CopyAnywhere is already installed as an app on this device.
       </p>
     );
   }
@@ -58,7 +58,7 @@ export function InstallAppButton() {
         }}
       >
         <Download className="mr-2 size-4" aria-hidden="true" />
-        Install DevSync app
+        Install CopyAnywhere app
       </Button>
     );
   }

@@ -1,97 +1,81 @@
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 
+import { RotatingWords } from "@/components/sections/rotating-words";
+import { SyncVisual } from "@/components/sections/sync-visual";
 import { Container } from "@/components/shared/container";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-/** Placeholder stack trace shown in the decorative product mock. */
-const TRACE = `Error: Cannot read properties of undefined (reading 'id')
-    at getUser (auth.ts:42:17)
-    at handler (route.ts:18:9)
-    at process (server.ts:120:5)`;
-
 export function Hero() {
   return (
     <section className="relative overflow-hidden">
-      {/* Decorative backdrop: faint grid, masked to fade at the edges. */}
+      {/* Faint grid, masked to fade at the edges. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 bg-grid opacity-40 [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]"
+        className="pointer-events-none absolute inset-0 -z-10 bg-grid opacity-[0.35] [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]"
       />
-      {/* Decorative brand glow. */}
+      {/* Dual brand glow (primary + accent). */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[420px] w-[820px] -translate-x-1/2 rounded-full bg-brand/20 blur-[120px]"
+        className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[460px] w-[900px] -translate-x-1/2 rounded-full bg-brand/20 blur-[130px]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-[62%] top-24 -z-10 h-[320px] w-[520px] -translate-x-1/2 rounded-full bg-brand-accent/15 blur-[120px]"
       />
 
-      <Container className="flex flex-col items-center gap-8 pb-16 pt-20 text-center sm:pt-28">
-        <Badge variant="brand" className="animate-fade-up">
-          <span className="inline-block size-1.5 rounded-full bg-brand" />
-          Now in early access
+      <Container className="flex flex-col items-center gap-7 pb-20 pt-20 text-center sm:pt-28">
+        <Badge variant="brand" className="gap-1.5 animate-fade-up">
+          <Sparkles className="size-3" aria-hidden="true" />
+          Realtime sync across every device
         </Badge>
 
         <h1
-          className="max-w-3xl text-balance text-4xl font-semibold tracking-tight animate-fade-up sm:text-6xl"
+          className="max-w-4xl text-balance text-4xl font-semibold leading-[1.05] tracking-tight animate-fade-up sm:text-6xl lg:text-7xl"
           style={{ animationDelay: "60ms" }}
         >
-          Copy once. Debug <span className="text-brand">anywhere.</span>
+          Move anything.
+          <br />
+          Access <RotatingWords words={["everywhere", "instantly", "anywhere"]} />
         </h1>
 
         <p
-          className="max-w-xl text-balance text-lg text-muted-foreground animate-fade-up"
+          className="max-w-2xl text-balance text-lg leading-relaxed text-muted-foreground animate-fade-up"
           style={{ animationDelay: "120ms" }}
         >
-          DevSync instantly syncs your errors, logs, and snippets across every machine you code on.
-          Copy on one device, paste into your AI assistant on another — no more emailing yourself
-          stack traces.
+          CopyAnywhere instantly synchronizes text, code, images, documents, files and links across
+          your devices in real time. From Android to web. From browser to desktop.{" "}
+          <span className="text-foreground">Without emailing yourself again.</span>
         </p>
 
         <div
-          className="flex flex-col items-center gap-3 animate-fade-up sm:flex-row"
+          className="flex w-full flex-col items-center gap-3 animate-fade-up sm:w-auto sm:flex-row"
           style={{ animationDelay: "180ms" }}
         >
-          <Button asChild size="lg">
-            <Link href="#get-started">
-              Get started
+          <Button asChild size="lg" className="w-full shadow-glow sm:w-auto">
+            <Link href="/signup">
+              Start free
               <ArrowRight />
             </Link>
           </Button>
-          <Button asChild variant="outline" size="lg">
-            <Link href="#how-it-works">See how it works</Link>
+          <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
+            <Link href="#how-it-works">See it in action</Link>
           </Button>
         </div>
 
-        {/* Decorative product mock. */}
-        <div
-          aria-hidden="true"
-          className="mt-10 w-full max-w-4xl animate-scale-in"
-          style={{ animationDelay: "240ms" }}
+        <p
+          className="text-xs text-muted-foreground animate-fade-up"
+          style={{ animationDelay: "220ms" }}
         >
-          <div className="overflow-hidden rounded-xl border bg-card shadow-premium">
-            <div className="flex items-center gap-2 border-b px-4 py-3">
-              <span className="size-3 rounded-full bg-red-400" />
-              <span className="size-3 rounded-full bg-amber-400" />
-              <span className="size-3 rounded-full bg-emerald-400" />
-              <span className="ml-3 font-mono text-xs text-muted-foreground">
-                devsync — synced clipboard
-              </span>
-            </div>
-            <div className="grid md:grid-cols-2">
-              <div className="border-b p-5 text-left font-mono text-xs leading-relaxed md:border-b-0 md:border-r">
-                <p className="mb-2 text-muted-foreground">{"// Machine A · copied"}</p>
-                <pre className="whitespace-pre-wrap text-foreground/90">{TRACE}</pre>
-              </div>
-              <div className="p-5 text-left font-mono text-xs leading-relaxed">
-                <p className="mb-2 text-muted-foreground">{"// Machine B · available instantly"}</p>
-                <pre className="whitespace-pre-wrap text-foreground/90">{TRACE}</pre>
-                <span className="mt-4 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium text-foreground">
-                  <Check className="size-3 text-brand" />
-                  Synced · 3 devices
-                </span>
-              </div>
-            </div>
-          </div>
+          Free forever plan · No credit card · No install required
+        </p>
+
+        <div
+          className="mt-8 flex w-full justify-center animate-scale-in"
+          style={{ animationDelay: "260ms" }}
+        >
+          <SyncVisual />
         </div>
       </Container>
     </section>

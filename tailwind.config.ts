@@ -69,6 +69,7 @@ const config: Config = {
         brand: {
           DEFAULT: "hsl(var(--brand))",
           foreground: "hsl(var(--brand-foreground))",
+          accent: "hsl(var(--accent-brand))",
         },
       },
       borderRadius: {
@@ -104,6 +105,31 @@ const config: Config = {
           from: { opacity: "0", transform: "scale(0.98)" },
           to: { opacity: "1", transform: "scale(1)" },
         },
+        /* Packet travelling along the sync path in the hero visual. */
+        "travel-right": {
+          "0%": { opacity: "0", transform: "translateX(0) scale(0.8)" },
+          "12%": { opacity: "1", transform: "translateX(6%) scale(1)" },
+          "88%": { opacity: "1", transform: "translateX(94%) scale(1)" },
+          "100%": { opacity: "0", transform: "translateX(100%) scale(0.8)" },
+        },
+        /* Soft breathing halo on connected devices. */
+        "pulse-ring": {
+          "0%": { opacity: "0.55", transform: "scale(0.92)" },
+          "70%": { opacity: "0", transform: "scale(1.35)" },
+          "100%": { opacity: "0", transform: "scale(1.35)" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-6px)" },
+        },
+        "gradient-pan": {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+        "word-in": {
+          from: { opacity: "0", transform: "translateY(14px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -111,6 +137,11 @@ const config: Config = {
         "fade-in": "fade-in 0.2s ease-out",
         "fade-up": "fade-up 0.5s ease-out both",
         "scale-in": "scale-in 0.4s ease-out both",
+        "travel-right": "travel-right 2.4s ease-in-out infinite",
+        "pulse-ring": "pulse-ring 2.4s ease-out infinite",
+        float: "float 4s ease-in-out infinite",
+        "gradient-pan": "gradient-pan 8s ease infinite",
+        "word-in": "word-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both",
       },
     },
   },

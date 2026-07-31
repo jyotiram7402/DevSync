@@ -20,8 +20,8 @@ export function SiteFooter() {
           <div className="flex flex-col gap-4 md:col-span-2 lg:col-span-2">
             <Logo />
             <p className="max-w-xs text-sm text-muted-foreground">
-              {APP_TAGLINE} DevSync keeps your dev clipboard in sync across every machine you code
-              on.
+              {APP_TAGLINE} Realtime sync for text, code, images, documents and files across every
+              device you use.
             </p>
             <Link
               href={GITHUB_URL}

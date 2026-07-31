@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 
 /**
- * Toaster — the app-wide toast surface (Sonner), styled to the DevSync theme.
+ * Toaster — the app-wide toast surface (Sonner), styled to the CopyAnywhere theme.
  *
  * It reads the active theme from next-themes so toasts match light/dark mode,
  * and maps Sonner's slots to our design tokens. Mounted once in <Providers>.
