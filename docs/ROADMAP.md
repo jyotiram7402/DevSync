@@ -144,9 +144,11 @@ standalone display · service worker (`public/sw.js`, network-first so it can
 never serve a stale app) · offline fallback page · SW registration ·
 `/dashboard/share` receiver for the Android share sheet.
 
-**🔴 Blocked on you:** add `public/icon-192.png` and `public/icon-512.png`.
-Android/Chrome will not show "Install app" without both. Export from
-`public/logo.svg` or use realfavicongenerator.net.
+✅ **PNG icons solved in code** — `app/icon-192.png/route.tsx` and
+`app/icon-512.png/route.tsx` generate real PNGs at build time via Next.js
+`ImageResponse`, rendering `components/pwa/app-icon-mark.tsx`. No binary assets
+to commit and no design tool needed. (Replace with hand-designed PNGs in
+`public/` later if desired — just delete the two routes.)
 
 **🟡 Deferred — sharing *files* to the app.** The share target currently accepts
 **text and links only** (`method: "GET"`). Receiving images/PDFs from the share
