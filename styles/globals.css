@@ -103,6 +103,10 @@
     /* Prevent mobile browsers from inflating text sizes. */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    /* Clamp horizontal scroll at the root too — body alone is not enough on
+       mobile when decorative elements extend past the viewport. */
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
   }
 
   body {

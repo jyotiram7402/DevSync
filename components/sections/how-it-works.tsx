@@ -29,7 +29,7 @@ export function HowItWorks() {
     <section id="how-it-works" className="relative overflow-hidden py-24">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[300px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/10 blur-[120px]"
+        className="pointer-events-none absolute left-1/2 top-1/2 -z-10 hidden h-[300px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/10 blur-[120px] sm:block"
       />
       <Container className="flex flex-col gap-14">
         <SectionHeader

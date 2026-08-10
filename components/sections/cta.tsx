@@ -16,7 +16,7 @@ export function CTA() {
           />
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute -top-20 left-1/2 size-[420px] -translate-x-1/2 rounded-full bg-brand/20 blur-[110px]"
+            className="pointer-events-none absolute -top-20 left-1/2 hidden size-[420px] -translate-x-1/2 rounded-full bg-brand/20 blur-[110px] sm:block"
           />
 
           <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center gap-6">

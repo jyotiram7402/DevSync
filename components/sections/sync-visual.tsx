@@ -89,10 +89,10 @@ export function SyncVisual() {
   return (
     <div
       aria-hidden="true"
-      className="relative w-full max-w-4xl overflow-hidden rounded-2xl border bg-card/60 p-6 shadow-premium backdrop-blur-sm sm:p-10"
+      className="relative w-full max-w-4xl overflow-hidden rounded-2xl border bg-card p-5 shadow-premium sm:bg-card/60 sm:p-10 sm:backdrop-blur-sm"
     >
-      {/* Ambient brand wash */}
-      <div className="pointer-events-none absolute -top-24 left-1/2 size-[420px] -translate-x-1/2 rounded-full bg-brand/10 blur-[100px]" />
+      {/* Ambient brand wash — desktop only (blur is expensive on mobile GPUs). */}
+      <div className="pointer-events-none absolute -top-24 left-1/2 hidden size-[420px] -translate-x-1/2 rounded-full bg-brand/10 blur-[100px] sm:block" />
 
       <div className="relative flex items-center justify-between gap-2 sm:gap-6">
         <Device icon={Smartphone} label="Android" active />

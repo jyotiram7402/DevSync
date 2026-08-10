@@ -18,11 +18,11 @@ export function Hero() {
       {/* Dual brand glow (primary + accent). */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[460px] w-[900px] -translate-x-1/2 rounded-full bg-brand/20 blur-[130px]"
+        className="pointer-events-none absolute left-1/2 top-0 -z-10 hidden h-[460px] w-[900px] -translate-x-1/2 rounded-full bg-brand/20 blur-[130px] sm:block"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-[62%] top-24 -z-10 h-[320px] w-[520px] -translate-x-1/2 rounded-full bg-brand-accent/15 blur-[120px]"
+        className="pointer-events-none absolute left-[62%] top-24 -z-10 hidden h-[320px] w-[520px] -translate-x-1/2 rounded-full bg-brand-accent/15 blur-[120px] sm:block"
       />
 
       <Container className="flex flex-col items-center gap-7 pb-20 pt-20 text-center sm:pt-28">

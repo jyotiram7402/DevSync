@@ -189,10 +189,14 @@ Distribute the resulting APK directly (free); Play Store deferred.
 
 ## 3. UX & polish backlog
 
-- **Bottom tab bar on mobile web** — biggest "feels native" upgrade (replaces the
-  hamburger drawer).
+- ✅ **Bottom tab bar on mobile web** — `components/dashboard/bottom-tab-bar.tsx`
+  (Home / Snippets / center Quick-add / Search / Settings), safe-area aware,
+  hidden at md+. The hamburger drawer remains for full nav.
+- ✅ **Mobile horizontal-drift fix** — `overflow-x: hidden` on `html` + heavy
+  `blur-[120px]` landing glows set to `sm:block` (also a big mobile paint win).
 - **PWA install prompt** — "Add to Home Screen" gives a fullscreen, app-like
-  launch. Manifest already exists; just needs prompting.
+  launch. Manifest + icons done; an in-app `beforeinstallprompt` button exists
+  on the Help page but isn't surfaced elsewhere.
 - **Thumbnails on the main Snippets grid** (library rows already have them).
 - **Trim the mobile top bar** — collapse the 3-icon theme switcher into the
   avatar menu.
