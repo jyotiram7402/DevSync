@@ -21,6 +21,8 @@ import { Button } from "@/components/ui/button";
 import { LiveRefresh } from "@/features/dashboard/components/live-refresh";
 import { RecentSyncList } from "@/features/dashboard/components/recent-sync-list";
 import { getDashboardOverview } from "@/features/dashboard/services/overview-service";
+import { NotesWidget } from "@/features/notes/components/notes-widget";
+import { getNoteBuckets } from "@/features/notes/services/note-service";
 import { getServerUser } from "@/lib/auth/session";
 import { formatBytes, formatRelativeTime } from "@/utils/formatters";
 
@@ -39,7 +41,7 @@ const CLIENT_LABEL: Record<string, string> = {
 export default async function DashboardHomePage() {
   const user = await getServerUser();
   const firstName = user?.displayName?.split(" ")[0] ?? "there";
-  const result = await getDashboardOverview();
+  const [result, notesResult] = await Promise.all([getDashboardOverview(), getNoteBuckets()]);
 
   if (!result.ok) {
     return (
@@ -159,6 +161,8 @@ export default async function DashboardHomePage() {
           </div>
         </DashboardCard>
       </div>
+
+      {notesResult.ok ? <NotesWidget buckets={notesResult.data} /> : null}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <DashboardCard

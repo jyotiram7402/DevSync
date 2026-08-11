@@ -325,6 +325,57 @@ export interface Database {
         };
         Relationships: [];
       };
+      notes: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          content: string;
+          status: string;
+          priority: string;
+          due_date: string | null;
+          due_time: string | null;
+          tags: string[];
+          pinned: boolean;
+          archived: boolean;
+          completed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title: string;
+          content?: string;
+          status?: string;
+          priority?: string;
+          due_date?: string | null;
+          due_time?: string | null;
+          tags?: string[];
+          pinned?: boolean;
+          archived?: boolean;
+          completed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          content?: string;
+          status?: string;
+          priority?: string;
+          due_date?: string | null;
+          due_time?: string | null;
+          tags?: string[];
+          pinned?: boolean;
+          archived?: boolean;
+          completed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
