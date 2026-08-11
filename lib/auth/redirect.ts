@@ -8,7 +8,7 @@ import { env } from "@/lib/env";
  * behavior consistent everywhere.
  */
 export const LOGIN_ROUTE = "/login";
-export const DEFAULT_AUTHENTICATED_REDIRECT = "/";
+export const DEFAULT_AUTHENTICATED_REDIRECT = "/dashboard/home";
 
 /** Routes an authenticated user should be redirected away from. */
 export const AUTH_ROUTES: readonly string[] = ["/login", "/signup", "/forgot-password"];

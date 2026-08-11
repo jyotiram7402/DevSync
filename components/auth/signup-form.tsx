@@ -45,7 +45,7 @@ export function SignupForm() {
       setEmailSent(true);
       return;
     }
-    router.push("/");
+    router.push("/dashboard/home");
     router.refresh();
   }
 
