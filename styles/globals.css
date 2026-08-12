@@ -103,10 +103,10 @@
     /* Prevent mobile browsers from inflating text sizes. */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    /* Clamp horizontal scroll at the root too — body alone is not enough on
-       mobile when decorative elements extend past the viewport. */
-    overflow-x: hidden;
-    overscroll-behavior-x: none;
+    /* Clamp horizontal drift WITHOUT creating a scroll container. `clip`
+       (unlike `hidden`) does not force overflow-y to `auto`, so normal vertical
+       mouse-wheel scrolling keeps working. */
+    overflow-x: clip;
   }
 
   body {
@@ -117,10 +117,9 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* App-like mobile behavior: no horizontal jitter, no rubber-band overscroll,
-       no grey tap-flash. */
-    overflow-x: hidden;
-    overscroll-behavior-y: none;
+    /* App-like mobile behavior: no horizontal jitter, no grey tap-flash.
+       `clip` (not `hidden`) so the document keeps its normal vertical scroll. */
+    overflow-x: clip;
     -webkit-tap-highlight-color: transparent;
   }
 
