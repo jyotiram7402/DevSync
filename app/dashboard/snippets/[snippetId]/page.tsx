@@ -40,8 +40,9 @@ export default async function SnippetDetailPage({
   return (
     <div className="flex flex-col gap-6">
       <SnippetHeader snippet={snippet} permissions={permissions} />
-      <SnippetToolbar snippet={snippet} />
       {attachmentPath ? (
+        // File/image: only the attachment actions (Open / Download the real
+        // file). The content toolbar (copy/download text) is meaningless here.
         <AttachmentPreview
           path={attachmentPath}
           kind={attachmentKind}
@@ -50,7 +51,10 @@ export default async function SnippetDetailPage({
           size={attachmentSize}
         />
       ) : (
-        <SnippetViewer content={snippet.content} language={snippet.language} />
+        <>
+          <SnippetToolbar snippet={snippet} />
+          <SnippetViewer content={snippet.content} language={snippet.language} />
+        </>
       )}
     </div>
   );

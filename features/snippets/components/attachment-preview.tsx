@@ -1,19 +1,20 @@
 "use client";
 
-import { Download, ExternalLink, FileText } from "lucide-react";
+import { Download, ExternalLink, FileText, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSupabase } from "@/hooks/use-supabase";
-import { createSignedUrl } from "@/lib/storage/storage";
+import { createSignedUrl, downloadFile } from "@/lib/storage/storage";
 
 const BUCKET = "snippet-attachments" as const;
 
 /**
  * Renders a synced file attachment: inline image, embedded PDF, or a download
- * card for anything else. The bucket is private, so access is via a short-lived
- * signed URL fetched with the user's session.
+ * card for anything else. The bucket is private, so previews use a short-lived
+ * signed URL and downloads fetch the actual bytes via the authenticated client
+ * (so the user gets the real file, correctly named — not a link or a filename).
  */
 export function AttachmentPreview({
   path,
@@ -31,6 +32,7 @@ export function AttachmentPreview({
   const supabase = useSupabase();
   const [url, setUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -44,6 +46,25 @@ export function AttachmentPreview({
     };
   }, [supabase, path]);
 
+  async function handleDownload() {
+    if (downloading) return;
+    setDownloading(true);
+    const result = await downloadFile(supabase, BUCKET, path);
+    setDownloading(false);
+    if (!result.ok) {
+      if (url) window.open(url, "_blank");
+      return;
+    }
+    const objectUrl = URL.createObjectURL(result.data);
+    const anchor = document.createElement("a");
+    anchor.href = objectUrl;
+    anchor.download = name && name.length > 0 ? name : "download";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(objectUrl);
+  }
+
   if (error) {
     return (
       <p role="alert" className="rounded-lg border border-dashed p-6 text-sm text-destructive">
@@ -54,7 +75,6 @@ export function AttachmentPreview({
 
   if (!url) return <Skeleton className="h-64 w-full rounded-lg" />;
 
-  const downloadUrl = `${url}${url.includes("?") ? "&" : "?"}download=${encodeURIComponent(name)}`;
   const actions = (
     <div className="flex flex-wrap gap-2">
       <Button asChild variant="outline">
@@ -63,11 +83,13 @@ export function AttachmentPreview({
           Open
         </a>
       </Button>
-      <Button asChild>
-        <a href={downloadUrl} rel="noreferrer">
+      <Button type="button" onClick={() => void handleDownload()} disabled={downloading} aria-busy={downloading}>
+        {downloading ? (
+          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+        ) : (
           <Download className="size-4" aria-hidden="true" />
-          Download
-        </a>
+        )}
+        {downloading ? "Downloading…" : "Download"}
       </Button>
     </div>
   );
@@ -76,11 +98,7 @@ export function AttachmentPreview({
     return (
       <div className="flex flex-col items-start gap-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={url}
-          alt={name}
-          className="max-h-[520px] w-full rounded-lg border object-contain"
-        />
+        <img src={url} alt={name} className="max-h-[520px] w-full rounded-lg border object-contain" />
         {actions}
       </div>
     );
