@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
+import { LibraryAdd } from "@/features/library/components/library-add";
 import { LibraryItemRow } from "@/features/library/components/library-item";
 import { isLibraryType, LIBRARY_KINDS, LIBRARY_META } from "@/features/library/config";
 import { listLibraryItems } from "@/features/snippets/services/snippet-service";
@@ -51,7 +52,11 @@ export default async function LibraryPage({ params }: { params: Promise<{ type: 
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title={meta.title} description={meta.description} />
+      <PageHeader
+        title={meta.title}
+        description={meta.description}
+        actions={<LibraryAdd type={type} />}
+      />
 
       {items.length === 0 ? (
         <EmptyState

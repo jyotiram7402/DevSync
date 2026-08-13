@@ -22,6 +22,48 @@ export function isLibraryType(value: string): value is LibraryType {
   return value === "images" || value === "links" || value === "docs" || value === "files";
 }
 
+/** Per-page "Add" action config. `accept` drives the file picker; links use text. */
+export const LIBRARY_ADD: Record<
+  LibraryType,
+  { label: string; accept?: string; isLink?: boolean }
+> = {
+  images: { label: "Add image", accept: "image/*" },
+  links: { label: "Add link", isLink: true },
+  docs: {
+    label: "Add document",
+    accept: ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,application/pdf",
+  },
+  files: { label: "Add file", accept: "*/*" },
+};
+
+/** Which library view a synced item belongs to, from its metadata.kind. */
+export function libraryTypeForKind(kind: string): LibraryType {
+  if (kind === "image") return "images";
+  if (kind === "url") return "links";
+  if (kind === "pdf" || kind === "office") return "docs";
+  return "files";
+}
+
+/** Coarse content kind from a MIME type (mirrors the capture flow). */
+export function kindFromMime(mime: string): string {
+  const m = mime.toLowerCase();
+  if (m.startsWith("image/")) return "image";
+  if (m.startsWith("audio/")) return "audio";
+  if (m.startsWith("video/")) return "video";
+  if (m === "application/pdf") return "pdf";
+  if (m.includes("zip")) return "archive";
+  if (
+    m.includes("word") ||
+    m.includes("excel") ||
+    m.includes("spreadsheet") ||
+    m.includes("presentation") ||
+    m.includes("officedocument")
+  ) {
+    return "office";
+  }
+  return "file";
+}
+
 /** Friendly label for the originating platform (metadata.source). */
 export function sourceLabel(source: string | null): string | null {
   if (source === "web") return "Web";

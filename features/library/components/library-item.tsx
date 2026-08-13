@@ -12,7 +12,7 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { sourceLabel } from "@/features/library/config";
+import { libraryTypeForKind, sourceLabel } from "@/features/library/config";
 import type { LibraryItem } from "@/features/snippets/types";
 import { useSupabase } from "@/hooks/use-supabase";
 import { expiryLabel } from "@/lib/retention";
@@ -59,10 +59,12 @@ export function LibraryItemRow({ item }: { item: LibraryItem }) {
 
   const Icon = ICONS[item.kind] ?? Paperclip;
   const source = sourceLabel(item.source);
+  // Keep the item inside its Library category — Snippets is code/text only.
+  const href = `/dashboard/library/${libraryTypeForKind(item.kind)}/${item.id}`;
 
   return (
     <Link
-      href={`/dashboard/snippets/${item.id}`}
+      href={href}
       className={cn(
         "flex items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-secondary/50",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
