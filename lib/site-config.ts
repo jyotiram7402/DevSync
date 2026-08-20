@@ -1,9 +1,10 @@
 /**
  * Site configuration.
  *
- * Placeholder navigation, footer, and external-link content for the marketing
- * surface. Centralized here so structure and copy live in one typed place and
- * components stay presentational. Replace hrefs/labels as real pages land.
+ * Navigation, footer, and external-link content for the marketing surface.
+ * Centralized here so structure and copy live in one typed place and components
+ * stay presentational. Every href below resolves to a real section, route, or
+ * address — no placeholder ("#") links.
  */
 export interface NavLink {
   label: string;
@@ -13,7 +14,7 @@ export interface NavLink {
 export const NAV_LINKS: readonly NavLink[] = [
   { label: "Features", href: "#features" },
   { label: "How it works", href: "#how-it-works" },
-  { label: "Tech stack", href: "#tech" },
+  { label: "FAQ", href: "#faq" },
 ];
 
 export interface FooterLink {
@@ -26,39 +27,32 @@ export interface FooterSection {
   links: readonly FooterLink[];
 }
 
+/** Support inbox surfaced in the footer "Contact" link. */
+// TODO(owner): confirm this address (or point it at your real support inbox).
+export const SUPPORT_EMAIL = "support@copyanywhere.com" as const;
+
 export const FOOTER_SECTIONS: readonly FooterSection[] = [
   {
     title: "Product",
     links: [
       { label: "Features", href: "#features" },
       { label: "How it works", href: "#how-it-works" },
-      { label: "Roadmap", href: "#" },
-    ],
-  },
-  {
-    title: "Resources",
-    links: [
-      { label: "Documentation", href: "#" },
-      { label: "Changelog", href: "#" },
-      { label: "Status", href: "#" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { label: "About", href: "#" },
-      { label: "Blog", href: "#" },
-      { label: "Contact", href: "#" },
+      { label: "FAQ", href: "#faq" },
     ],
   },
   {
     title: "Legal",
     links: [
-      { label: "Privacy", href: "#" },
-      { label: "Terms", href: "#" },
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/terms" },
+      { label: "Contact", href: `mailto:${SUPPORT_EMAIL}` },
     ],
   },
 ];
 
-/** External project link (placeholder — update to the real repository). */
-export const GITHUB_URL = "https://github.com/your-org/devsync" as const;
+/**
+ * Public source repository. Empty string hides the GitHub icon in the footer
+ * (so we never ship a dead link). Set this to the real repo URL to show it.
+ */
+// TODO(owner): paste the real public repository URL here.
+export const GITHUB_URL = "" as const;

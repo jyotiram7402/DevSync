@@ -10,8 +10,14 @@ import { FOOTER_SECTIONS, GITHUB_URL } from "@/lib/site-config";
  * SiteFooter — marketing footer with the brand block and link columns.
  * Server component; the copyright year is computed at render time.
  */
+/** http(s) and mailto links must render as plain anchors, not next/link. */
+function isExternalHref(href: string): boolean {
+  return /^(https?:|mailto:|tel:)/.test(href);
+}
+
 export function SiteFooter() {
   const year = new Date().getFullYear();
+  const githubUrl: string = GITHUB_URL;
 
   return (
     <footer className="border-t border-border/60">
@@ -23,31 +29,40 @@ export function SiteFooter() {
               {APP_TAGLINE} Realtime sync for text, code, images, documents and files across every
               device you use.
             </p>
-            <Link
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="GitHub repository"
-              className="inline-flex size-9 items-center justify-center rounded-md border text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <Github className="size-4" />
-            </Link>
+            {githubUrl ? (
+              <a
+                href={githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub repository"
+                className="inline-flex size-9 items-center justify-center rounded-md border text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <Github className="size-4" />
+              </a>
+            ) : null}
           </div>
 
           {FOOTER_SECTIONS.map((section) => (
             <div key={section.title} className="flex flex-col gap-3">
               <h3 className="text-sm font-medium">{section.title}</h3>
               <ul className="flex flex-col gap-2">
-                {section.links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
+                {section.links.map((link) => {
+                  const className =
+                    "rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+                  return (
+                    <li key={link.label}>
+                      {isExternalHref(link.href) ? (
+                        <a href={link.href} className={className}>
+                          {link.label}
+                        </a>
+                      ) : (
+                        <Link href={link.href} className={className}>
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
