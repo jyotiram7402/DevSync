@@ -44,3 +44,15 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Local tooling / assistant config — never commit
+.claude/
+.cursor/
+.continue/
+.aider*
+.mcp.json
+CLAUDE.md
+AGENTS.md
+
+# Internal planning docs — kept locally, not published
+/docs/

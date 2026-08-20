@@ -34,7 +34,7 @@ DevSync removes that friction. Anything you copy on one authenticated device —
 
 ## Vision
 
-DevSync starts as clipboard sync for developers and grows into a **developer productivity workspace** — the connective tissue of a developer's multi-device life, where build-time knowledge (errors and their fixes, commands, prompts) is captured, organized, searchable, and safely shareable instead of thrown away. The long-term product, community, and monetization thinking lives in [`docs/`](docs/00-README.md).
+DevSync starts as clipboard sync for developers and grows into a **developer productivity workspace** — the connective tissue of a developer's multi-device life, where build-time knowledge (errors and their fixes, commands, prompts) is captured, organized, searchable, and safely shareable instead of thrown away.
 
 ## Technology Stack
 
@@ -65,7 +65,7 @@ Vercel (hosts Next.js: RSC, Server Actions, Route Handlers)
 Supabase — PostgreSQL (+ Row-Level Security), Auth (OAuth), Realtime, Storage
 ```
 
-Guiding principles: **server-first rendering**, **Postgres as the single source of truth**, **security enforced at the data layer (RLS)**, **persist-then-broadcast** sync, and **feature-based modularity**. The complete technical architecture is documented in [`docs/architecture/`](docs/architecture/00-README.md).
+Guiding principles: **server-first rendering**, **Postgres as the single source of truth**, **security enforced at the data layer (RLS)**, **persist-then-broadcast** sync, and **feature-based modularity**.
 
 ## Folder Structure
 
@@ -83,11 +83,8 @@ devsync/
 ├── supabase/       # Database as code (migrations, policies) — reserved
 ├── types/          # Shared, API, and database types
 ├── utils/          # Pure helpers (cn, date, clipboard, formatters, storage, validation)
-├── public/         # Static assets
-└── docs/           # Product + architecture documentation
+└── public/         # Static assets
 ```
-
-Full structure and ownership rules: [`docs/architecture/02-Folder-Structure.md`](docs/architecture/02-Folder-Structure.md).
 
 ## Development Workflow
 
@@ -124,7 +121,7 @@ Full structure and ownership rules: [`docs/architecture/02-Folder-Structure.md`]
 - **Conventional Commits** (`feat(scope): summary`) drive changelogs and versioning.
 - **Pull Requests** are required to reach `main` (no direct pushes). Each PR must pass CI (type-check, lint, format), produce a **successful Vercel preview build**, and receive review (two reviewers for auth/RLS/realtime/sharing changes).
 
-Details: [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`docs/architecture/13-Git-Strategy.md`](docs/architecture/13-Git-Strategy.md).
+Details: [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Deployment Workflow
 
@@ -136,7 +133,7 @@ push / merge → GitHub → Vercel
                          └─ main → Production deployment (global edge/CDN)
 ```
 
-Environment variables are set in the Vercel project (never committed). Rollback = promote the previous immutable deployment. Full guide: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+Environment variables are set in the Vercel project (never committed). Rollback = promote the previous immutable deployment.
 
 ## Contributing
 
@@ -151,8 +148,6 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for coding standards, branching, commit
 | **v2** | Collections, browser extension, personal analytics, advanced search |
 | **v3** | Team workspaces, roles/permissions, public API + webhooks, native/desktop helper |
 | **Long term** | AI enrichment, integration marketplace, enterprise SSO/audit |
-
-Full roadmap: [`docs/02-Product-Roadmap.md`](docs/02-Product-Roadmap.md) and [`docs/11-Development-Roadmap.md`](docs/11-Development-Roadmap.md).
 
 ## License
 

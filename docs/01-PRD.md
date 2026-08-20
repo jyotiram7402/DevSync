@@ -27,7 +27,7 @@ Developers routinely need to move small pieces of text between machines and cont
 
 1. A project (Java, Spring Boot, Python, Node.js, Docker, etc.) throws an error on the primary development machine.
 2. The developer selects and copies the error/stack trace.
-3. The AI assistant (Claude Code, ChatGPT, Gemini) or a second workstation is on a **different machine** — a personal laptop, a second monitor rig, a locked-down work device, or a phone.
+3. The AI assistant (Claude, ChatGPT, Gemini) or a second workstation is on a **different machine** — a personal laptop, a second monitor rig, a locked-down work device, or a phone.
 4. The developer manually transfers the text: emails it to themselves, pastes it into a chat, drops it in a notes app, or types it out.
 5. They repeat this **dozens of times a day**.
 

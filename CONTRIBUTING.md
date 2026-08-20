@@ -1,6 +1,6 @@
 # Contributing to DevSync
 
-Thanks for contributing. This guide covers the workflow and standards. It complements the detailed engineering docs under [`docs/architecture/`](docs/architecture/00-README.md).
+Thanks for contributing. This guide covers the workflow and standards.
 
 ## Ground Rules
 
@@ -8,7 +8,6 @@ Thanks for contributing. This guide covers the workflow and standards. It comple
 - **Server Components by default.** Add `"use client"` only for interactivity (state, effects, browser APIs, subscriptions). Keep the client boundary as low as possible.
 - **Feature-first.** Code that belongs to one feature lives in `features/<name>/`. Promote to a shared folder only on real, second-use reuse. Import other features only via their public surface.
 - **Data access only through `services/`.** Never call the Supabase client inline from UI.
-- Full details: [`docs/architecture/12-Coding-Standards.md`](docs/architecture/12-Coding-Standards.md).
 
 ## Branching
 

@@ -44,14 +44,10 @@ profiles 1─N devices                    snippets N─1 devices (source)
 
 ## Applying migrations
 
-Per the project's environment constraints, migrations are authored here and
-applied by the operator through Supabase tooling (SQL editor or CLI) — this
-repository never executes CLIs during the build.
+Migrations are authored here and applied through Supabase tooling (SQL editor
+or CLI); the build pipeline itself never executes CLIs.
 
 ## Type generation
 
-`types/database.ts` is a placeholder until regenerated from this schema with the
-Supabase type generator. Regenerate it **before** building typed data-access
-services (next sprint); do not hand-edit the generated output.
-
-See `docs/architecture/06-Database-Strategy.md` and `docs/architecture/10-Security-Architecture.md`.
+`types/database.ts` mirrors this schema and can be regenerated with the Supabase
+type generator. Keep it in sync when the schema changes.

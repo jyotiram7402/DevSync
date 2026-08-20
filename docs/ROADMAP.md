@@ -81,7 +81,7 @@ count queries + pagination beyond that.
 - `components/dashboard/search-bar.tsx` and `command-palette-trigger.tsx` are
   now unused (replaced by `GlobalSearchBar`).
 - `types/database.ts` is hand-authored; must be updated whenever the schema
-  changes (Supabase CLI cannot run in this environment).
+  changes (or regenerated with `supabase gen types typescript`).
 
 ---
 

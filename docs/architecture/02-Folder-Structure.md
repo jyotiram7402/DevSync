@@ -104,7 +104,7 @@ devsync/
 - **Ownership rule:** Only **cross-feature** state lives here; single-feature state lives in `features/<x>/stores`. Stores hold client/UI state — **never** the authoritative copy of server data (that's server state; see [04](04-State-Management.md)).
 
 ### `supabase/` — Database as code
-- **Purpose:** Version-controlled database artifacts: **migrations**, **RLS policy definitions**, **seed data**, and **generated database TypeScript types**. (These are produced/applied through Supabase tooling by the deploying human, consistent with the no-local-CLI constraint — the folder is their home in the repo.)
+- **Purpose:** Version-controlled database artifacts: **migrations**, **RLS policy definitions**, **seed data**, and **generated database TypeScript types**. (These are produced/applied through Supabase tooling — the folder is their home in the repo.)
 - **Ownership rule:** All schema/policy change flows through here so the database has a reviewable history. Generated DB types here are consumed by `services/` and `types/`.
 - **Note:** This document does not create these files (no SQL per the task); it reserves and explains the folder.
 

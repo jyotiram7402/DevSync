@@ -2,10 +2,9 @@
  * Supabase database types.
  *
  * IMPORTANT: This file mirrors the SQL migrations in `supabase/migrations`. It
- * is authored by hand ONLY because the Supabase type generator cannot run in
- * this environment; it should be replaced by the generator's output when
- * tooling is available (`supabase gen types typescript`). It currently covers
- * the tables consumed by typed queries so far; add tables here as features
+ * is maintained by hand and can be replaced by the generator's output
+ * (`supabase gen types typescript`) whenever that is convenient. It currently
+ * covers the tables consumed by typed queries so far; add tables here as features
  * begin querying them. Storage, Realtime, and Auth APIs are schema-independent
  * and do not require entries here.
  */

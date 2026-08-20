@@ -2,9 +2,9 @@
 
 **Version:** 1.0 · **Last updated:** 2026-07-22
 
-This document defines branching, commit conventions, pull-request rules, releases, and versioning. It is tuned to DevSync's realities: a **small team**, **continuous deployment via GitHub → Vercel**, and the **no-local-build constraint** (Vercel is the first compiler, so CI checks and preview builds are the safety net).
+This document defines branching, commit conventions, pull-request rules, releases, and versioning. It is tuned to DevSync's realities: a **small team** and **continuous deployment via GitHub → Vercel**, where CI checks and preview builds are the safety net.
 
-> The developer pushes to GitHub manually; git is not run on the restricted machine. This document defines the *conventions* the repository and any contributor tooling follow — not commands to execute here.
+> Changes are pushed to GitHub; Vercel builds and deploys. This document defines the *conventions* the repository follows.
 
 ---
 

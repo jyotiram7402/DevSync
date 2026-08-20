@@ -27,5 +27,3 @@ features/<feature>/
 ## Planned modules (per the roadmap)
 
 `auth` → `snippets` → `projects` → `search` → `devices` → `settings` → `sharing` (v1.1) → `collections` (v2) → `teams` (v3).
-
-See `docs/architecture/02-Folder-Structure.md`.

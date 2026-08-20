@@ -7,7 +7,7 @@
 
 ## Preamble
 
-This document is the **single source of truth for how DevSync is engineered**. It governs every future implementation by any contributor — human or AI. It defines not just *what* we build (that is the [PRD](00-README.md)) or the *shape* of the system (that is the [Architecture](architecture/00-README.md)), but the **non-negotiable rules and defaults** every change must obey.
+This document is the **single source of truth for how DevSync is engineered**. It governs every future implementation by every contributor. It defines not just *what* we build (that is the [PRD](00-README.md)) or the *shape* of the system (that is the [Architecture](architecture/00-README.md)), but the **non-negotiable rules and defaults** every change must obey.
 
 ### Precedence
 
@@ -52,7 +52,7 @@ DevSync is developed without a local build/run step. The pipeline is **generate 
 16. [Testing Philosophy](#16-testing-philosophy)
 17. [Git Standards](#17-git-standards)
 18. [Documentation Standards](#18-documentation-standards)
-19. [AI Collaboration Rules](#19-ai-collaboration-rules)
+19. [Contribution Rules](#19-contribution-rules)
 20. [Definition of Done](#20-definition-of-done)
 - [Changelog](#changelog)
 
@@ -64,8 +64,8 @@ These principles are the tie-breakers. When a decision is ambiguous and no speci
 
 | Principle | What it means | Why |
 |-----------|---------------|-----|
-| **Simplicity over cleverness** | Prefer the obvious solution a mid-level engineer can read at a glance. Avoid metaprogramming, deep abstractions, and "smart" one-liners. | Cleverness is a tax paid on every future read and every AI edit. We optimize for the reader, not the author. |
-| **Readability first** | Code is written once and read hundreds of times. Names reveal intent; control flow is linear; no surprises. | The team (and AI contributors) must reason about code *statically* — we cannot lean on a debugger locally. |
+| **Simplicity over cleverness** | Prefer the obvious solution a mid-level engineer can read at a glance. Avoid metaprogramming, deep abstractions, and "smart" one-liners. | Cleverness is a tax paid on every future read and edit. We optimize for the reader, not the author. |
+| **Readability first** | Code is written once and read hundreds of times. Names reveal intent; control flow is linear; no surprises. | The team must be able to reason about code *statically*, from the source alone. |
 | **Composition over inheritance** | Build behavior by composing small functions/components, not class hierarchies. No component inheritance. | Composition is flexible, testable, and matches React's model. |
 | **Convention over configuration** | Follow the established pattern (this document) rather than inventing per-file conventions. | Consistency makes the codebase predictable and safe to change at scale. |
 | **Small, reusable units** | Small functions, small components, single responsibility. Promote to shared only on real reuse. | Small units are easier to read, test, reuse, and review. |
@@ -506,9 +506,9 @@ Additional rules:
 
 ---
 
-## 19. AI Collaboration Rules
+## 19. Contribution Rules
 
-DevSync is built with AI contributors. These rules are binding on any AI-generated change and are enforced in review.
+These rules are binding on every change and are enforced in review.
 
 | Rule | Detail & rationale |
 |------|--------------------|
@@ -522,7 +522,7 @@ DevSync is built with AI contributors. These rules are binding on any AI-generat
 | **Keep changes small and reviewable** | Prefer several small, focused PRs over one large one. Small diffs are easier to reason about statically and to localize if the Vercel build fails. |
 | **Build-clean-first** | Reason about type-safety and the server/client boundary before proposing code; it must compile on Vercel on the first try. Preserve `exactOptionalPropertyTypes` compliance. |
 | **Surface conflicts, don't guess** | If a request conflicts with this Constitution or with existing code, stop and surface it rather than silently producing an inconsistent or destructive change. |
-| **Honor the environment** | Never instruct the operator to run commands. Generate files; the operator pushes to GitHub and Vercel builds. |
+| **Deploy through CI** | Changes land via GitHub and are built and deployed by Vercel; the pipeline is the authoritative build. |
 
 ---
 

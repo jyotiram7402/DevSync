@@ -133,8 +133,8 @@ Device A writes ─▶ Postgres persists ─▶ Realtime emits change ─▶ Dev
 ## 8. Deployment
 
 ```
-Developer (restricted machine)
-   │  generates/edits files (no local build)
+Developer
+   │  commits changes
    ▼
 GitHub repository  ──(push / PR merge)──▶  Vercel
    │                                         │  installs deps, builds Next.js
