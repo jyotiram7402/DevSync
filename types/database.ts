@@ -375,9 +375,96 @@ export interface Database {
         };
         Relationships: [];
       };
+      spaces: {
+        Row: {
+          id: string;
+          code: string;
+          name: string;
+          created_by: string;
+          created_at: string;
+          expires_at: string;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          name?: string;
+          created_by: string;
+          created_at?: string;
+          expires_at?: string;
+        };
+        Update: {
+          id?: string;
+          code?: string;
+          name?: string;
+          created_by?: string;
+          created_at?: string;
+          expires_at?: string;
+        };
+        Relationships: [];
+      };
+      space_members: {
+        Row: {
+          id: string;
+          space_id: string;
+          user_id: string;
+          joined_at: string;
+        };
+        Insert: {
+          id?: string;
+          space_id: string;
+          user_id: string;
+          joined_at?: string;
+        };
+        Update: {
+          id?: string;
+          space_id?: string;
+          user_id?: string;
+          joined_at?: string;
+        };
+        Relationships: [];
+      };
+      space_items: {
+        Row: {
+          id: string;
+          space_id: string;
+          user_id: string;
+          kind: string;
+          content: string;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          space_id: string;
+          user_id: string;
+          kind?: string;
+          content?: string;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          space_id?: string;
+          user_id?: string;
+          kind?: string;
+          content?: string;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      create_space: {
+        Args: { p_name: string };
+        Returns: Database["public"]["Tables"]["spaces"]["Row"];
+      };
+      join_space_by_code: {
+        Args: { p_code: string };
+        Returns: Database["public"]["Tables"]["spaces"]["Row"];
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

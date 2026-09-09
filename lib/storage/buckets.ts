@@ -3,9 +3,14 @@
  * SQL bucket definitions (supabase/migrations *_storage*.sql). Path scope
  * documents the folder convention the RLS policies enforce.
  */
-export type StorageBucket = "avatars" | "workspace-assets" | "snippet-attachments" | "exports";
+export type StorageBucket =
+  | "avatars"
+  | "workspace-assets"
+  | "snippet-attachments"
+  | "space-attachments"
+  | "exports";
 
-export type PathScope = "user" | "workspace";
+export type PathScope = "user" | "workspace" | "space";
 
 export interface BucketDefinition {
   id: StorageBucket;
@@ -39,6 +44,13 @@ export const BUCKETS: Record<StorageBucket, BucketDefinition> = {
     maxSizeBytes: 10 * MB,
     allowedMimeTypes: null,
     pathScope: "workspace",
+  },
+  "space-attachments": {
+    id: "space-attachments",
+    public: false,
+    maxSizeBytes: 10 * MB,
+    allowedMimeTypes: null,
+    pathScope: "space",
   },
   exports: {
     id: "exports",

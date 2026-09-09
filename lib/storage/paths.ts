@@ -32,3 +32,8 @@ export function snippetAttachmentPath(
 export function exportPath(workspaceId: string, fileName: string): string {
   return `${workspaceId}/${sanitizeFileName(fileName)}`;
 }
+
+/** space-attachments/<spaceId>/<itemId>/<file> */
+export function spaceAttachmentPath(spaceId: string, itemId: string, fileName: string): string {
+  return `${spaceId}/${itemId}/${sanitizeFileName(fileName)}`;
+}

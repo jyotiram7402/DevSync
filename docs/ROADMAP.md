@@ -7,6 +7,25 @@ lost between sessions. Ordered by priority within each section.
 
 ---
 
+## 0. Recently shipped
+
+### ✅ Spaces — live cross-user shared rooms
+**What:** `features/spaces/*`, routes `app/dashboard/spaces` + `[id]`, migration
+`supabase/migrations/20260826120000_spaces.sql`. Two+ users join a room by a
+short code; anything shared (text / link / file, incl. images) syncs live via
+`postgres_changes`. First cross-user surface — RLS + SECURITY DEFINER
+`create_space` / `join_space_by_code` / `is_space_member`. Ephemeral: rooms
+auto-expire in 24h and are purged (with files) by pg_cron.
+**Follow-ups (deferred):**
+- 🟡 Live presence with member *names* (currently shows member count; author
+  shown per-item as email prefix to avoid cross-user profile reads).
+- 🟡 Delete an item's storage file immediately on manual delete (today the file
+  is reclaimed only when the room expires via `purge_expired_spaces`).
+- 🟡 Extend `expires_at` on activity so active rooms don't vanish mid-session.
+- 🟡 Presence indicator ("2 people here now") via realtime presence, not just DB count.
+
+---
+
 ## 1. Known bugs & risks
 
 ### 🔴 Monaco editor loads from a CDN — breaks on locked-down networks

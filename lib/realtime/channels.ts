@@ -10,6 +10,7 @@ export const CHANNEL_SCOPES = {
   presence: "presence",
   user: "user",
   device: "device",
+  space: "space",
 } as const;
 
 export type ChannelScope = (typeof CHANNEL_SCOPES)[keyof typeof CHANNEL_SCOPES];
@@ -44,6 +45,11 @@ export function userChannel(userId: string): string {
 /** Per-device channel. */
 export function deviceChannel(deviceId: string): string {
   return build(CHANNEL_SCOPES.device, deviceId);
+}
+
+/** Realtime feed for a shared space (cross-user room). */
+export function spaceChannel(spaceId: string): string {
+  return build(CHANNEL_SCOPES.space, spaceId);
 }
 
 /** Parse a channel name back into its scope and id, if well-formed. */

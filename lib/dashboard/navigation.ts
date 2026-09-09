@@ -12,6 +12,7 @@ import {
   ListTodo,
   Search,
   Settings,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -31,6 +32,7 @@ export const DASHBOARD_PRIMARY_NAV: readonly DashboardNavItem[] = [
   { label: "Projects", href: "/dashboard/projects", icon: FolderKanban },
   { label: "Snippets", href: "/dashboard/snippets", icon: Code2 },
   { label: "Quick Notes", href: "/dashboard/notes", icon: ListTodo },
+  { label: "Spaces", href: "/dashboard/spaces", icon: Users },
   { label: "Collections", href: "/dashboard/collections", icon: Library },
   { label: "Search", href: "/dashboard/search", icon: Search },
   { label: "Images", href: "/dashboard/library/images", icon: Image },
@@ -52,6 +54,7 @@ export const ROUTE_LABELS: Record<string, string> = {
   projects: "Projects",
   snippets: "Snippets",
   notes: "Quick Notes",
+  spaces: "Spaces",
   collections: "Collections",
   search: "Search",
   library: "Library",
