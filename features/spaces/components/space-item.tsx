@@ -12,6 +12,13 @@ import { createSignedUrl, downloadFile } from "@/lib/storage/storage";
 
 const BUCKET = "space-attachments" as const;
 
+const CATEGORY_BADGE: Record<SpaceItem["category"], { label: string; className: string }> = {
+  error: { label: "Error", className: "bg-destructive/10 text-destructive" },
+  code: { label: "Code", className: "bg-brand/10 text-brand" },
+  doc: { label: "Doc", className: "bg-muted text-muted-foreground" },
+  file: { label: "File", className: "bg-muted text-muted-foreground" },
+};
+
 function timeLabel(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
@@ -80,8 +87,12 @@ export function SpaceItemCard({ item, isOwner }: { item: SpaceItem; isOwner: boo
     // On success the realtime refresh removes the card.
   }
 
+  const badge = CATEGORY_BADGE[item.category];
   const meta = (
     <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${badge.className}`}>
+        {badge.label}
+      </span>
       <span>{item.mine ? "You" : (item.author ?? "Someone")}</span>
       <span aria-hidden="true">·</span>
       <time dateTime={item.createdAt}>{timeLabel(item.createdAt)}</time>
@@ -160,7 +171,9 @@ export function SpaceItemCard({ item, isOwner }: { item: SpaceItem; isOwner: boo
           {item.content}
         </a>
       ) : (
-        <p className="whitespace-pre-wrap break-words text-sm">{item.content}</p>
+        <pre className="max-h-80 overflow-auto whitespace-pre-wrap break-words rounded-md bg-muted/50 p-3 font-mono text-xs leading-relaxed">
+          {item.content}
+        </pre>
       )}
     </li>
   );

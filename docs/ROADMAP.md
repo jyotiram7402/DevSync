@@ -9,20 +9,26 @@ lost between sessions. Ordered by priority within each section.
 
 ## 0. Recently shipped
 
-### ✅ Spaces — live cross-user shared rooms
-**What:** `features/spaces/*`, routes `app/dashboard/spaces` + `[id]`, migration
-`supabase/migrations/20260826120000_spaces.sql`. Two+ users join a room by a
-short code; anything shared (text / link / file, incl. images) syncs live via
-`postgres_changes`. First cross-user surface — RLS + SECURITY DEFINER
-`create_space` / `join_space_by_code` / `is_space_member`. Ephemeral: rooms
-auto-expire in 24h and are purged (with files) by pg_cron.
+### ✅ Spaces — permanent project rooms (cross-user)
+**What:** `features/spaces/*`, routes `app/dashboard/spaces` + `[id]`, migrations
+`20260826120000_spaces.sql` + `20260924120000_spaces_project_rooms.sql` (run in
+that order). One room per project; members join by code, invite link, or email
+invite. Items are filed as Error / Code / Doc / File and shown in tabs; sync is
+live via `postgres_changes`. Rooms are permanent until the owner deletes them.
+RLS + SECURITY DEFINER `create_space` / `join_space_by_code` / `is_space_member`
+/ `list_space_members` / `add_space_member_by_email`. Owner can remove members
+and delete the room (files removed via the Storage API); item delete also
+removes its file.
 **Follow-ups (deferred):**
-- 🟡 Live presence with member *names* (currently shows member count; author
-  shown per-item as email prefix to avoid cross-user profile reads).
-- 🟡 Delete an item's storage file immediately on manual delete (today the file
-  is reclaimed only when the room expires via `purge_expired_spaces`).
-- 🟡 Extend `expires_at` on activity so active rooms don't vanish mid-session.
-- 🟡 Presence indicator ("2 people here now") via realtime presence, not just DB count.
+- 🟠 **Storage growth** — rooms are permanent now, so shared files never expire.
+  Add a per-room or per-user storage cap before heavy use (Supabase free tier = 1 GB).
+- 🟡 Mark an error Open / Solved.
+- 🟡 Replies under an item (per-error thread).
+- 🟡 Search + pin inside a room.
+- 🟡 Share into a room directly from the Android share sheet / extension.
+- 🟡 Realtime presence ("2 people here now").
+- 🟡 Email invite reveals whether an address has an account (to fellow room
+  members only) — accepted trade-off; add rate limiting if abused.
 
 ---
 

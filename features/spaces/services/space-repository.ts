@@ -1,11 +1,13 @@
 import type { TypedSupabaseClient } from "@/lib/supabase/types";
-import type { Tables, TablesInsert } from "@/types/database";
+import type { Database, Tables, TablesInsert } from "@/types/database";
 
 /**
  * SpaceRepository — the only layer that issues space queries. Membership and
  * cross-user access are enforced by RLS + SECURITY DEFINER functions in the
  * database; this layer returns raw rows and throws on error.
  */
+
+type MemberRow = Database["public"]["Functions"]["list_space_members"]["Returns"][number];
 
 export async function resolveUser(
   client: TypedSupabaseClient,
@@ -39,6 +41,30 @@ export async function rpcJoinSpace(
   return data;
 }
 
+/** Roster with names/emails (members only — enforced in the DB function). */
+export async function rpcListMembers(
+  client: TypedSupabaseClient,
+  spaceId: string,
+): Promise<MemberRow[]> {
+  const { data, error } = await client.rpc("list_space_members", { p_space_id: spaceId });
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** Add an existing user by email. Returns 'added' or 'already_member'. */
+export async function rpcAddMemberByEmail(
+  client: TypedSupabaseClient,
+  spaceId: string,
+  email: string,
+): Promise<string> {
+  const { data, error } = await client.rpc("add_space_member_by_email", {
+    p_space_id: spaceId,
+    p_email: email,
+  });
+  if (error) throw error;
+  return data ?? "added";
+}
+
 /** A single room the current user belongs to (RLS returns null otherwise). */
 export async function getSpaceRow(
   client: TypedSupabaseClient,
@@ -49,13 +75,11 @@ export async function getSpaceRow(
   return data;
 }
 
-/** Rooms the current user belongs to and that have not expired. */
+/** Rooms the current user belongs to (RLS scopes this to their memberships). */
 export async function listMySpaceRows(client: TypedSupabaseClient): Promise<Tables<"spaces">[]> {
-  const nowIso = new Date().toISOString();
   const { data, error } = await client
     .from("spaces")
     .select("*")
-    .gt("expires_at", nowIso)
     .order("created_at", { ascending: false });
   if (error) throw error;
   return data ?? [];
@@ -74,13 +98,13 @@ export async function listItemRows(
   return data ?? [];
 }
 
-export async function countMembers(client: TypedSupabaseClient, spaceId: string): Promise<number> {
-  const { count, error } = await client
-    .from("space_members")
-    .select("id", { count: "exact", head: true })
-    .eq("space_id", spaceId);
+export async function getItemRow(
+  client: TypedSupabaseClient,
+  id: string,
+): Promise<Tables<"space_items"> | null> {
+  const { data, error } = await client.from("space_items").select("*").eq("id", id).maybeSingle();
   if (error) throw error;
-  return count ?? 0;
+  return data;
 }
 
 export async function insertItemRow(
@@ -97,7 +121,8 @@ export async function deleteItemRow(client: TypedSupabaseClient, id: string): Pr
   if (error) throw error;
 }
 
-export async function leaveSpaceRow(
+/** Remove one member (self = leave; owner may remove anyone — enforced by RLS). */
+export async function deleteMemberRow(
   client: TypedSupabaseClient,
   spaceId: string,
   userId: string,
@@ -107,5 +132,11 @@ export async function leaveSpaceRow(
     .delete()
     .eq("space_id", spaceId)
     .eq("user_id", userId);
+  if (error) throw error;
+}
+
+/** Delete a whole room (owner only — enforced by RLS); cascades members/items. */
+export async function deleteSpaceRow(client: TypedSupabaseClient, spaceId: string): Promise<void> {
+  const { error } = await client.from("spaces").delete().eq("id", spaceId);
   if (error) throw error;
 }

@@ -9,10 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createSpaceAction, joinSpaceAction } from "@/features/spaces/actions";
 
-/** Landing controls: create a new room, or join an existing one by code. */
+/** Landing controls: create a new project room, or join one by code. */
 export function SpaceCreateJoin() {
   const router = useRouter();
   const params = useSearchParams();
+  const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState<null | "create" | "join">(null);
 
@@ -24,7 +25,7 @@ export function SpaceCreateJoin() {
 
   async function create() {
     setBusy("create");
-    const res = await createSpaceAction({});
+    const res = await createSpaceAction({ name: name.trim() });
     setBusy(null);
     if (!res.ok) {
       toast.error(res.error.message);
@@ -36,7 +37,7 @@ export function SpaceCreateJoin() {
   async function join() {
     const value = code.trim();
     if (value.length < 4) {
-      toast.error("Enter the room code your friend shared.");
+      toast.error("Enter the room code you were given.");
       return;
     }
     setBusy("join");
@@ -54,16 +55,28 @@ export function SpaceCreateJoin() {
       <div className="flex flex-col gap-3 rounded-xl border p-5">
         <div className="flex items-center gap-2 text-sm font-medium">
           <Plus className="size-4 text-brand" aria-hidden="true" />
-          Start a new room
+          Create a project room
         </div>
         <p className="text-sm text-muted-foreground">
-          Create a room and share its code. Anything either of you drops in appears instantly for
-          everyone.
+          One room per project. Share errors, code, docs and files there — and invite the people
+          helping you.
         </p>
-        <Button type="button" onClick={() => void create()} disabled={busy !== null}>
-          {busy === "create" ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
-          Create room
-        </Button>
+        <div className="flex items-center gap-2">
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. GeoReminder Android"
+            aria-label="Room name"
+            maxLength={80}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") void create();
+            }}
+          />
+          <Button type="button" onClick={() => void create()} disabled={busy !== null}>
+            {busy === "create" ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
+            Create
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col gap-3 rounded-xl border p-5">
@@ -71,7 +84,7 @@ export function SpaceCreateJoin() {
           <Users className="size-4 text-brand" aria-hidden="true" />
           Join a room
         </div>
-        <p className="text-sm text-muted-foreground">Enter the code your friend shared with you.</p>
+        <p className="text-sm text-muted-foreground">Enter the room code someone shared with you.</p>
         <div className="flex items-center gap-2">
           <Input
             value={code}
@@ -84,12 +97,7 @@ export function SpaceCreateJoin() {
               if (e.key === "Enter") void join();
             }}
           />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => void join()}
-            disabled={busy !== null}
-          >
+          <Button type="button" variant="outline" onClick={() => void join()} disabled={busy !== null}>
             {busy === "join" ? <Loader2 className="size-4 animate-spin" /> : "Join"}
           </Button>
         </div>

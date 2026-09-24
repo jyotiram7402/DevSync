@@ -2,24 +2,34 @@ import "server-only";
 
 import {
   createSpaceSchema,
+  inviteMemberSchema,
   joinSpaceSchema,
   shareFileSchema,
   shareTextSchema,
   toFieldErrors,
   type CreateSpaceValues,
+  type InviteMemberValues,
   type JoinSpaceValues,
   type ShareFileValues,
   type ShareTextValues,
 } from "@/features/spaces/schemas";
-import { mapItemRow, mapItemRows, mapSpaceRow } from "@/features/spaces/services/space-mapper";
+import {
+  mapItemRow,
+  mapItemRows,
+  mapMemberRows,
+  mapSpaceRow,
+} from "@/features/spaces/services/space-mapper";
 import * as repository from "@/features/spaces/services/space-repository";
-import type { Space, SpaceItem, SpaceView } from "@/features/spaces/types";
+import type { Space, SpaceCategory, SpaceItem, SpaceView } from "@/features/spaces/types";
+import { deleteFiles } from "@/lib/storage/storage";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { ActionError, ActionResult } from "@/types/api";
 import { err, ok } from "@/types/api";
 import type { TablesInsert } from "@/types/database";
 
+const BUCKET = "space-attachments" as const;
 const UNAUTHENTICATED: ActionError = { code: "UNAUTHENTICATED", message: "You must be signed in." };
+const NOT_FOUND: ActionError = { code: "NOT_FOUND", message: "Room not found." };
 
 function toActionError(error: unknown): ActionError {
   const message =
@@ -27,9 +37,15 @@ function toActionError(error: unknown): ActionError {
       ? String((error as { message: unknown }).message)
       : "";
   if (/SPACE_NOT_FOUND/.test(message)) {
-    return { code: "NOT_FOUND", message: "That room code isn't valid or has expired." };
+    return { code: "NOT_FOUND", message: "That room code isn't valid." };
   }
-  if (/row-level security|violates row-level|permission denied/i.test(message)) {
+  if (/USER_NOT_FOUND/.test(message)) {
+    return {
+      code: "NOT_FOUND",
+      message: "No CopyAnywhere account uses that email. Ask them to sign up first, or share the room code.",
+    };
+  }
+  if (/NOT_A_MEMBER|row-level security|violates row-level|permission denied/i.test(message)) {
     return { code: "FORBIDDEN", message: "You don't have access to that room." };
   }
   // eslint-disable-next-line no-console
@@ -47,6 +63,11 @@ function authorLabel(email: string | null): string {
 /** Rough text classification: an http(s) link becomes a 'url' item. */
 function classifyText(content: string): "url" | "text" {
   return /^https?:\/\/\S+$/i.test(content.trim()) ? "url" : "text";
+}
+
+/** Files land in the Docs tab (PDF/Office) or the Files tab (everything else). */
+function categoryForFile(kind: string): SpaceCategory {
+  return kind === "pdf" || kind === "office" ? "doc" : "file";
 }
 
 export async function createSpace(values: CreateSpaceValues): Promise<ActionResult<Space>> {
@@ -108,17 +129,17 @@ export async function getSpaceView(spaceId: string): Promise<ActionResult<SpaceV
     if (!user) return err(UNAUTHENTICATED);
 
     const spaceRow = await repository.getSpaceRow(client, spaceId);
-    if (!spaceRow) return err({ code: "NOT_FOUND", message: "Room not found." });
+    if (!spaceRow) return err(NOT_FOUND);
 
-    const [itemRows, memberCount] = await Promise.all([
+    const [itemRows, memberRows] = await Promise.all([
       repository.listItemRows(client, spaceId),
-      repository.countMembers(client, spaceId),
+      repository.rpcListMembers(client, spaceId),
     ]);
 
     return ok({
       space: mapSpaceRow(spaceRow),
       items: mapItemRows(itemRows, user.id),
-      memberCount,
+      members: mapMemberRows(memberRows, user.id),
       isOwner: spaceRow.created_by === user.id,
       currentUserId: user.id,
     });
@@ -144,6 +165,7 @@ export async function shareText(
       space_id: spaceId,
       user_id: user.id,
       kind: classifyText(parsed.data.content),
+      category: parsed.data.category,
       content: parsed.data.content,
       metadata: { by: authorLabel(user.email) },
     };
@@ -171,6 +193,7 @@ export async function shareFile(
       space_id: spaceId,
       user_id: user.id,
       kind: parsed.data.kind,
+      category: categoryForFile(parsed.data.kind),
       content: parsed.data.name,
       metadata: {
         by: authorLabel(user.email),
@@ -187,24 +210,124 @@ export async function shareFile(
   }
 }
 
+/**
+ * Delete one item (author or room owner). Permission is checked HERE before the
+ * file is removed: storage lets any member delete objects in the room folder,
+ * so we must not rely on the row delete (which silently no-ops under RLS).
+ */
 export async function deleteItem(itemId: string): Promise<ActionResult> {
   try {
     const client = await createServerSupabaseClient();
     const user = await repository.resolveUser(client);
     if (!user) return err(UNAUTHENTICATED);
+
+    const item = await repository.getItemRow(client, itemId);
+    if (!item) return err({ code: "NOT_FOUND", message: "That item no longer exists." });
+
+    const space = await repository.getSpaceRow(client, item.space_id);
+    const allowed = item.user_id === user.id || space?.created_by === user.id;
+    if (!allowed) {
+      return err({ code: "FORBIDDEN", message: "Only the person who shared this, or the room owner, can delete it." });
+    }
+
     await repository.deleteItemRow(client, itemId);
+
+    const meta = (item.metadata ?? {}) as Record<string, unknown>;
+    if (typeof meta.path === "string") {
+      // Best-effort: the row is already gone, so a failed file delete only leaves an orphan.
+      await deleteFiles(client, BUCKET, [meta.path]);
+    }
     return ok(undefined);
   } catch (error) {
     return err(toActionError(error));
   }
 }
 
+export async function inviteMember(
+  spaceId: string,
+  values: InviteMemberValues,
+): Promise<ActionResult<{ status: "added" | "already_member" }>> {
+  const parsed = inviteMemberSchema.safeParse(values);
+  if (!parsed.success) {
+    return err({
+      code: "VALIDATION_FAILED",
+      message: "Enter a valid email address.",
+      fieldErrors: toFieldErrors(parsed.error),
+    });
+  }
+  try {
+    const client = await createServerSupabaseClient();
+    const user = await repository.resolveUser(client);
+    if (!user) return err(UNAUTHENTICATED);
+    const status = await repository.rpcAddMemberByEmail(client, spaceId, parsed.data.email);
+    return ok({ status: status === "already_member" ? "already_member" : "added" });
+  } catch (error) {
+    return err(toActionError(error));
+  }
+}
+
+/** Owner removes someone else from the room. */
+export async function removeMember(spaceId: string, userId: string): Promise<ActionResult> {
+  try {
+    const client = await createServerSupabaseClient();
+    const user = await repository.resolveUser(client);
+    if (!user) return err(UNAUTHENTICATED);
+
+    const space = await repository.getSpaceRow(client, spaceId);
+    if (!space) return err(NOT_FOUND);
+    if (space.created_by !== user.id) {
+      return err({ code: "FORBIDDEN", message: "Only the room owner can remove people." });
+    }
+    if (userId === user.id) {
+      return err({ code: "VALIDATION_FAILED", message: "You own this room — delete the room instead." });
+    }
+    await repository.deleteMemberRow(client, spaceId, userId);
+    return ok(undefined);
+  } catch (error) {
+    return err(toActionError(error));
+  }
+}
+
+/** Leave a room. The owner can't leave (the room would have no owner). */
 export async function leaveSpace(spaceId: string): Promise<ActionResult> {
   try {
     const client = await createServerSupabaseClient();
     const user = await repository.resolveUser(client);
     if (!user) return err(UNAUTHENTICATED);
-    await repository.leaveSpaceRow(client, spaceId, user.id);
+
+    const space = await repository.getSpaceRow(client, spaceId);
+    if (space?.created_by === user.id) {
+      return err({ code: "VALIDATION_FAILED", message: "You own this room — delete it instead of leaving." });
+    }
+    await repository.deleteMemberRow(client, spaceId, user.id);
+    return ok(undefined);
+  } catch (error) {
+    return err(toActionError(error));
+  }
+}
+
+/** Owner deletes the room, its shared files, and everything in it. */
+export async function deleteSpace(spaceId: string): Promise<ActionResult> {
+  try {
+    const client = await createServerSupabaseClient();
+    const user = await repository.resolveUser(client);
+    if (!user) return err(UNAUTHENTICATED);
+
+    const space = await repository.getSpaceRow(client, spaceId);
+    if (!space) return err(NOT_FOUND);
+    if (space.created_by !== user.id) {
+      return err({ code: "FORBIDDEN", message: "Only the room owner can delete it." });
+    }
+
+    // Remove files first, while we're still a member (storage policy requires it).
+    const items = await repository.listItemRows(client, spaceId);
+    const paths = items
+      .map((item) => (item.metadata ?? {}) as Record<string, unknown>)
+      .map((meta) => meta.path)
+      .filter((path): path is string => typeof path === "string");
+    if (paths.length > 0) await deleteFiles(client, BUCKET, paths);
+
+    await repository.deleteSpaceRow(client, spaceId);
     return ok(undefined);
   } catch (error) {
     return err(toActionError(error));

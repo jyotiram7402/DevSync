@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import type {
   CreateSpaceValues,
+  InviteMemberValues,
   JoinSpaceValues,
   ShareFileValues,
   ShareTextValues,
@@ -57,8 +58,29 @@ export async function deleteSpaceItemAction(
   return result;
 }
 
+export async function inviteMemberAction(
+  spaceId: string,
+  values: InviteMemberValues,
+): Promise<ActionResult<{ status: "added" | "already_member" }>> {
+  const result = await service.inviteMember(spaceId, values);
+  if (result.ok) revalidatePath(roomPath(spaceId));
+  return result;
+}
+
+export async function removeMemberAction(spaceId: string, userId: string): Promise<ActionResult> {
+  const result = await service.removeMember(spaceId, userId);
+  if (result.ok) revalidatePath(roomPath(spaceId));
+  return result;
+}
+
 export async function leaveSpaceAction(spaceId: string): Promise<ActionResult> {
   const result = await service.leaveSpace(spaceId);
+  if (result.ok) revalidatePath(SPACES_PATH);
+  return result;
+}
+
+export async function deleteSpaceAction(spaceId: string): Promise<ActionResult> {
+  const result = await service.deleteSpace(spaceId);
   if (result.ok) revalidatePath(SPACES_PATH);
   return result;
 }

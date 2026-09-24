@@ -382,7 +382,7 @@ export interface Database {
           name: string;
           created_by: string;
           created_at: string;
-          expires_at: string;
+          expires_at: string | null;
         };
         Insert: {
           id?: string;
@@ -390,7 +390,7 @@ export interface Database {
           name?: string;
           created_by: string;
           created_at?: string;
-          expires_at?: string;
+          expires_at?: string | null;
         };
         Update: {
           id?: string;
@@ -398,7 +398,7 @@ export interface Database {
           name?: string;
           created_by?: string;
           created_at?: string;
-          expires_at?: string;
+          expires_at?: string | null;
         };
         Relationships: [];
       };
@@ -429,6 +429,7 @@ export interface Database {
           space_id: string;
           user_id: string;
           kind: string;
+          category: string;
           content: string;
           metadata: Json;
           created_at: string;
@@ -438,6 +439,7 @@ export interface Database {
           space_id: string;
           user_id: string;
           kind?: string;
+          category?: string;
           content?: string;
           metadata?: Json;
           created_at?: string;
@@ -447,6 +449,7 @@ export interface Database {
           space_id?: string;
           user_id?: string;
           kind?: string;
+          category?: string;
           content?: string;
           metadata?: Json;
           created_at?: string;
@@ -463,6 +466,20 @@ export interface Database {
       join_space_by_code: {
         Args: { p_code: string };
         Returns: Database["public"]["Tables"]["spaces"]["Row"];
+      };
+      list_space_members: {
+        Args: { p_space_id: string };
+        Returns: {
+          user_id: string;
+          email: string | null;
+          display_name: string | null;
+          joined_at: string;
+          is_owner: boolean;
+        }[];
+      };
+      add_space_member_by_email: {
+        Args: { p_space_id: string; p_email: string };
+        Returns: string;
       };
     };
     Enums: Record<string, never>;

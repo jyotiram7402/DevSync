@@ -20,6 +20,7 @@ export function SpaceShareBox({ spaceId }: { spaceId: string }) {
   const supabase = useSupabase();
   const inputRef = useRef<HTMLInputElement>(null);
   const [text, setText] = useState("");
+  const [category, setCategory] = useState<"error" | "code">("error");
   const [sending, setSending] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -27,7 +28,7 @@ export function SpaceShareBox({ spaceId }: { spaceId: string }) {
     const content = text.trim();
     if (content.length === 0) return;
     setSending(true);
-    const res = await shareTextAction(spaceId, { content });
+    const res = await shareTextAction(spaceId, { content, category });
     setSending(false);
     if (!res.ok) {
       toast.error(res.error.message);
@@ -73,7 +74,11 @@ export function SpaceShareBox({ spaceId }: { spaceId: string }) {
       <Textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Share text or a link with the room…  (Ctrl/⌘ + Enter to send)"
+        placeholder={
+          category === "error"
+            ? "Paste an error, stack trace or log…  (Ctrl/⌘ + Enter to send)"
+            : "Paste code, a command or a link…  (Ctrl/⌘ + Enter to send)"
+        }
         rows={2}
         className="resize-none border-0 bg-transparent p-1 shadow-none focus-visible:ring-0"
         onKeyDown={(e) => {
@@ -83,7 +88,25 @@ export function SpaceShareBox({ spaceId }: { spaceId: string }) {
           }
         }}
       />
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
+        <div role="radiogroup" aria-label="Share as" className="flex items-center gap-1 rounded-md bg-muted p-0.5">
+          {(["error", "code"] as const).map((value) => (
+            <button
+              key={value}
+              type="button"
+              role="radio"
+              aria-checked={category === value}
+              onClick={() => setCategory(value)}
+              className={
+                category === value
+                  ? "rounded px-2.5 py-1 text-xs font-medium bg-background shadow-sm"
+                  : "rounded px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground"
+              }
+            >
+              {value === "error" ? "Error" : "Code"}
+            </button>
+          ))}
+        </div>
         <input
           ref={inputRef}
           type="file"
@@ -94,20 +117,27 @@ export function SpaceShareBox({ spaceId }: { spaceId: string }) {
             if (file) void sendFile(file);
           }}
         />
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => inputRef.current?.click()}
-          disabled={uploading}
-        >
-          {uploading ? <Loader2 className="size-4 animate-spin" /> : <Paperclip className="size-4" />}
-          {uploading ? "Uploading…" : "File"}
-        </Button>
-        <Button type="button" size="sm" onClick={() => void sendText()} disabled={sending || text.trim().length === 0}>
-          {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-          Share
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => inputRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? <Loader2 className="size-4 animate-spin" /> : <Paperclip className="size-4" />}
+            {uploading ? "Uploading…" : "File"}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => void sendText()}
+            disabled={sending || text.trim().length === 0}
+          >
+            {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+            Share
+          </Button>
+        </div>
       </div>
     </div>
   );

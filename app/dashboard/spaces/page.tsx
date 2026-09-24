@@ -8,11 +8,10 @@ import { listMySpaces } from "@/features/spaces/services/space-service";
 
 export const metadata = { title: "Spaces" };
 
-function expiresLabel(expiresAt: string): string {
-  const ms = new Date(expiresAt).getTime() - Date.now();
-  if (Number.isNaN(ms) || ms <= 0) return "expired";
-  const hours = Math.floor(ms / 3_600_000);
-  return hours >= 1 ? `expires in ${hours}h` : "expires soon";
+function createdLabel(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return `created ${date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`;
 }
 
 export default async function SpacesPage() {
@@ -23,7 +22,7 @@ export default async function SpacesPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Spaces"
-        description="Live shared rooms. Join with a friend and anything you share syncs instantly for both of you."
+        description="Project rooms. Keep each project's errors, code, docs and files in one place — and solve them together, live."
       />
 
       <Suspense fallback={<div className="h-40 rounded-xl border" />}>
@@ -48,7 +47,7 @@ export default async function SpacesPage() {
                     <span className="text-xs text-muted-foreground">
                       <span className="font-mono tracking-widest">{space.code}</span>
                       {" · "}
-                      {expiresLabel(space.expiresAt)}
+                      {createdLabel(space.createdAt)}
                     </span>
                   </span>
                   <ArrowRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />

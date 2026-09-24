@@ -16,8 +16,8 @@
 -- All membership checks go through a SECURITY DEFINER helper to avoid RLS
 -- recursion on space_members.
 --
--- Ephemeral: rooms auto-expire (default 24h) and are purged (with their files)
--- by pg_cron. Idempotent-ish; intended to run once.
+-- Rooms start with a 24h expiry here; 0014 makes them permanent. No pg_cron
+-- dependency. Intended to run once.
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
@@ -252,8 +252,9 @@ create policy "space-attachments member delete" on storage.objects
   );
 
 -- ----------------------------------------------------------------------------
--- Ephemeral cleanup — purge expired rooms (and their files) daily via pg_cron.
--- Deleting a space cascades to its members and items.
+-- Cleanup helper — deletes rooms that were given an explicit expiry. Rooms are
+-- permanent by default (see 0014), so nothing is scheduled; this can be wired
+-- to pg_cron later if expiring rooms are ever reintroduced.
 -- ----------------------------------------------------------------------------
 create or replace function public.purge_expired_spaces()
 returns integer
@@ -264,13 +265,9 @@ as $$
 declare
   affected integer;
 begin
-  delete from storage.objects o
-   using public.spaces s
-   where o.bucket_id = 'space-attachments'
-     and split_part(o.name, '/', 1) = s.id::text
-     and s.expires_at < now();
-
-  delete from public.spaces where expires_at < now();
+  delete from public.spaces
+   where expires_at is not null
+     and expires_at < now();
 
   get diagnostics affected = row_count;
   return affected;
@@ -278,18 +275,4 @@ end;
 $$;
 
 comment on function public.purge_expired_spaces() is
-  'Permanently deletes expired spaces (cascades to members/items) and their storage files.';
-
-do $$
-begin
-  perform cron.unschedule('devsync-purge-expired-spaces');
-exception
-  when others then null;
-end
-$$;
-
-select cron.schedule(
-  'devsync-purge-expired-spaces',
-  '15 3 * * *',
-  $$select public.purge_expired_spaces()$$
-);
+  'Deletes spaces past an explicit expiry (cascades to members/items). Not scheduled by default.';
