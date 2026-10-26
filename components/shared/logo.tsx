@@ -11,6 +11,8 @@ import { cn } from "@/utils/cn";
 interface LogoProps {
   className?: string;
   showWordmark?: boolean;
+  /** Extra classes for the wordmark (e.g. hide it at narrow widths). */
+  wordmarkClassName?: string;
   href?: string;
 }
 
@@ -39,7 +41,7 @@ function LogoMark({ className }: { className?: string }) {
   );
 }
 
-export function Logo({ className, showWordmark = true, href = "/" }: LogoProps) {
+export function Logo({ className, showWordmark = true, wordmarkClassName, href = "/" }: LogoProps) {
   return (
     <Link
       href={href}
@@ -51,7 +53,7 @@ export function Logo({ className, showWordmark = true, href = "/" }: LogoProps) 
     >
       <LogoMark />
       {showWordmark ? (
-        <span className="text-base font-semibold tracking-tight">{APP_NAME}</span>
+        <span className={cn("text-base font-semibold tracking-tight", wordmarkClassName)}>{APP_NAME}</span>
       ) : null}
     </Link>
   );

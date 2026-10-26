@@ -139,6 +139,17 @@
     background-color: hsl(var(--brand) / 0.25);
   }
 
+  /* iOS Safari zooms into any form field under 16px when it gains focus. Keep
+     form text at 16px on phones so pinch-zoom can stay enabled without that
+     jump. (!important beats text-sm utilities; Monaco's own input is exempt.) */
+  @media (max-width: 767px) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+    select,
+    textarea:not(.inputarea) {
+      font-size: 16px !important;
+    }
+  }
+
   /* Themed, unobtrusive scrollbars. */
   * {
     scrollbar-width: thin;
@@ -176,6 +187,14 @@
   .bg-grid {
     background-image: radial-gradient(hsl(var(--border)) 1px, transparent 1px);
     background-size: 24px 24px;
+  }
+
+  /* Horizontally scrollable rows (tabs, chips) that should swipe without a bar. */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }
 

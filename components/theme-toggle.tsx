@@ -25,7 +25,7 @@ const OPTIONS: ReadonlyArray<{
   { value: "dark", label: "Dark", Icon: Moon },
 ];
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
   const mounted = useMounted();
 
@@ -33,7 +33,10 @@ export function ThemeToggle() {
     <div
       role="radiogroup"
       aria-label="Color theme"
-      className="inline-flex items-center gap-0.5 rounded-full border bg-background/60 p-0.5"
+      className={cn(
+        "inline-flex shrink-0 items-center gap-0.5 rounded-full border bg-background/60 p-0.5",
+        className,
+      )}
     >
       {OPTIONS.map(({ value, label, Icon }) => {
         const active = mounted && theme === value;

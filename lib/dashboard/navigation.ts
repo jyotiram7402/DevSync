@@ -66,4 +66,7 @@ export const ROUTE_LABELS: Record<string, string> = {
   profile: "Profile",
   billing: "Billing",
   help: "Help",
+  share: "Share",
+  new: "New",
+  edit: "Edit",
 };

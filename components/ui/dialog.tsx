@@ -66,7 +66,8 @@ export function Dialog({ open, onClose, title, description, children, className 
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
         className={cn(
-          "relative z-10 flex w-full max-w-md flex-col gap-4 rounded-xl border bg-card p-6 shadow-premium outline-none animate-scale-in",
+          // Height-capped + scrollable so tall dialogs stay usable on short/landscape phones.
+          "relative z-10 flex max-h-[calc(100dvh-2rem)] w-full max-w-md flex-col gap-4 overflow-y-auto rounded-xl border bg-card p-5 shadow-premium outline-none animate-scale-in sm:p-6",
           className,
         )}
       >

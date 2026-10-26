@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 
+import { BreadcrumbLabel } from "@/components/dashboard/breadcrumb-label";
 import { EmptyState } from "@/components/shared/empty-state";
 import {
   SnippetHeader,
@@ -39,6 +40,7 @@ export default async function SnippetDetailPage({
 
   return (
     <div className="flex flex-col gap-6">
+      <BreadcrumbLabel label={snippet.title ?? "Snippet"} />
       <SnippetHeader snippet={snippet} permissions={permissions} />
       {attachmentPath ? (
         // File/image: only the attachment actions (Open / Download the real

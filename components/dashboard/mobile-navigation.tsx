@@ -6,6 +6,7 @@ import { useEffect, useRef } from "react";
 
 import { SidebarItem } from "@/components/dashboard/sidebar-item";
 import { Logo } from "@/components/shared/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { DASHBOARD_PRIMARY_NAV, DASHBOARD_SECONDARY_NAV } from "@/lib/dashboard/navigation";
 import { useUIStore } from "@/stores/ui-store";
@@ -51,6 +52,8 @@ export function MobileNavigation() {
     <div
       className={cn("fixed inset-0 z-50 md:hidden", open ? "" : "pointer-events-none")}
       aria-hidden={!open}
+      // Closed drawer is off-screen: inert keeps its links out of the tab order.
+      inert={!open}
     >
       <div
         className={cn(
@@ -72,7 +75,7 @@ export function MobileNavigation() {
         )}
       >
         <div className="flex items-center justify-between border-b p-4">
-          <Logo />
+          <Logo href="/dashboard/home" />
           <Button type="button" variant="ghost" size="icon" aria-label="Close navigation" onClick={close}>
             <X className="size-5" />
           </Button>
@@ -86,6 +89,14 @@ export function MobileNavigation() {
             <SidebarItem key={item.href} {...item} onNavigate={close} />
           ))}
         </nav>
+        {/* Theme lives here on phones (the top bar is too narrow for it). */}
+        <div
+          className="flex items-center justify-between border-t p-4"
+          style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
+        >
+          <span className="text-sm text-muted-foreground">Theme</span>
+          <ThemeToggle />
+        </div>
       </div>
     </div>
   );

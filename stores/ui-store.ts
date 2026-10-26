@@ -26,6 +26,13 @@ interface UIState {
   mobileNavOpen: boolean;
   setMobileNavOpen: (open: boolean) => void;
   toggleMobileNav: () => void;
+
+  /**
+   * Human label for the current page's final breadcrumb (e.g. a room or item
+   * name), set by detail pages so the trail never shows a raw id.
+   */
+  breadcrumbLabel: string | null;
+  setBreadcrumbLabel: (label: string | null) => void;
 }
 
 export const useUIStore = create<UIState>()((set) => ({
@@ -40,4 +47,7 @@ export const useUIStore = create<UIState>()((set) => ({
   mobileNavOpen: false,
   setMobileNavOpen: (open) => set({ mobileNavOpen: open }),
   toggleMobileNav: () => set((state) => ({ mobileNavOpen: !state.mobileNavOpen })),
+
+  breadcrumbLabel: null,
+  setBreadcrumbLabel: (label) => set({ breadcrumbLabel: label }),
 }));

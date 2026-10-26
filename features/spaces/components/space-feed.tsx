@@ -30,10 +30,12 @@ export function SpaceFeed({ items, isOwner }: { items: SpaceItem[]; isOwner: boo
 
   return (
     <section className="flex flex-col gap-3">
+      {/* Baseline is an inset shadow (not a border + -mb-px overlap) so the
+          scrollable row never overflows vertically and shows no scrollbar. */}
       <div
         role="tablist"
         aria-label="Filter room content"
-        className="flex gap-1 overflow-x-auto border-b"
+        className="no-scrollbar flex gap-1 overflow-x-auto shadow-[inset_0_-1px_0_hsl(var(--border))]"
       >
         {TABS.map((t) => (
           <button
@@ -45,7 +47,7 @@ export function SpaceFeed({ items, isOwner }: { items: SpaceItem[]; isOwner: boo
             aria-controls="space-tab-panel"
             onClick={() => setTab(t.value)}
             className={cn(
-              "-mb-px shrink-0 border-b-2 px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "shrink-0 border-b-2 px-2.5 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:px-3",
               tab === t.value
                 ? "border-brand font-medium text-foreground"
                 : "border-transparent text-muted-foreground hover:text-foreground",

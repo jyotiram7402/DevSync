@@ -2,6 +2,7 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { BreadcrumbLabel } from "@/components/dashboard/breadcrumb-label";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ export default async function LibraryItemPage({
 
   return (
     <div className="flex flex-col gap-6">
+      <BreadcrumbLabel label={name} />
       <Link
         href={`/dashboard/library/${type}`}
         className="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground hover:text-foreground"

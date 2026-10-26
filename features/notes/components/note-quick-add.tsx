@@ -49,7 +49,7 @@ export function NoteQuickAdd({ autoFocus = false }: { autoFocus?: boolean }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        <div className="flex h-10 flex-1 items-center gap-2 rounded-md border bg-background px-3 focus-within:ring-2 focus-within:ring-ring">
+        <div className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-md border bg-background px-3 focus-within:ring-2 focus-within:ring-ring">
           <Plus className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           <input
             ref={inputRef}
@@ -58,7 +58,7 @@ export function NoteQuickAdd({ autoFocus = false }: { autoFocus?: boolean }) {
             placeholder="Add a note…  (e.g. Fix the production bug tomorrow)"
             aria-label="Note title"
             autoFocus={autoFocus}
-            className="h-full flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className="h-full min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
           <button
             type="button"

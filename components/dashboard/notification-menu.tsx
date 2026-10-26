@@ -4,12 +4,13 @@ import { Bell } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/utils/cn";
 
 /**
  * Notification bell (placeholder). Opens an accessible dropdown showing an
  * empty state — no real notifications are wired in this sprint.
  */
-export function NotificationMenu() {
+export function NotificationMenu({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -31,7 +32,7 @@ export function NotificationMenu() {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className={cn("relative", className)}>
       <Button
         type="button"
         variant="ghost"

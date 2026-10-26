@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { BreadcrumbLabel } from "@/components/dashboard/breadcrumb-label";
 import { SpaceFeed } from "@/features/spaces/components/space-feed";
 import { SpaceLiveRefresh } from "@/features/spaces/components/space-live-refresh";
 import { SpaceMembers } from "@/features/spaces/components/space-members";
@@ -20,6 +21,7 @@ export default async function SpaceRoomPage({ params }: { params: Promise<{ id: 
 
   return (
     <div className="flex flex-col gap-4">
+      <BreadcrumbLabel label={space.name} />
       <SpaceLiveRefresh spaceId={space.id} />
 
       <SpaceRoomHeader space={space} memberCount={members.length} isOwner={isOwner} />

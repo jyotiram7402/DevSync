@@ -1,6 +1,6 @@
 "use client";
 
-import { Code2, Home, Plus, Search, Settings, type LucideIcon } from "lucide-react";
+import { Code2, Home, Plus, Search, Users, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -19,11 +19,12 @@ interface Tab {
   icon: LucideIcon;
 }
 
+// Settings stays reachable from the drawer and the account menu.
 const TABS: Tab[] = [
   { href: "/dashboard/home", label: "Home", icon: Home },
   { href: "/dashboard/snippets", label: "Snippets", icon: Code2 },
+  { href: "/dashboard/spaces", label: "Spaces", icon: Users },
   { href: "/dashboard/search", label: "Search", icon: Search },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
 function isActive(pathname: string, href: string): boolean {
@@ -54,7 +55,7 @@ export function BottomTabBar() {
             type="button"
             onClick={open}
             aria-label="Quick add"
-            className="-mt-6 flex size-14 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-glow ring-4 ring-background transition-transform active:scale-95"
+            className="-mt-6 flex size-14 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-glow ring-4 ring-background transition-transform focus-visible:outline-none focus-visible:ring-ring active:scale-95"
           >
             <Plus className="size-6" aria-hidden="true" />
           </button>
@@ -75,7 +76,7 @@ function TabLink({ tab, active }: { tab: Tab; active: boolean }) {
       href={tab.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] font-medium transition-colors",
+        "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         active ? "text-brand" : "text-muted-foreground",
       )}
     >
