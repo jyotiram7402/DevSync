@@ -1,6 +1,6 @@
 import type { AuthError } from "@supabase/supabase-js";
 
-import { absoluteUrl } from "@/lib/auth/redirect";
+import { absoluteUrl, DEFAULT_AUTHENTICATED_REDIRECT } from "@/lib/auth/redirect";
 import type {
   ForgotPasswordInput,
   LoginInput,
@@ -30,7 +30,82 @@ function callbackUrl(next: string): string {
   return absoluteUrl(`${CALLBACK_PATH}?next=${encodeURIComponent(next)}`);
 }
 
+const EXPIRED_LINK: ActionError = {
+  code: "UNAUTHENTICATED",
+  message: "Your link is invalid or has expired. Please request a new one.",
+};
+
+/**
+ * Friendly messages keyed by Supabase Auth error code
+ * (https://supabase.com/docs/guides/auth/debugging/error-codes). Codes are
+ * stable, unlike message text, so they are checked first.
+ */
+const AUTH_ERROR_MESSAGES: Record<string, ActionError> = {
+  invalid_credentials: { code: "UNAUTHENTICATED", message: "Incorrect email or password." },
+  email_not_confirmed: {
+    code: "FORBIDDEN",
+    message: "Please confirm your email address before signing in. Check your inbox and spam folder.",
+  },
+  user_already_exists: {
+    code: "CONFLICT",
+    message: "An account with this email already exists. Try signing in instead.",
+  },
+  email_exists: {
+    code: "CONFLICT",
+    message: "An account with this email already exists. Try signing in instead.",
+  },
+  email_address_invalid: {
+    code: "VALIDATION_FAILED",
+    message:
+      "This email address can't be used. Test addresses (like @example.com) are blocked — use a real email you can receive mail at.",
+  },
+  email_address_not_authorized: {
+    code: "FORBIDDEN",
+    message:
+      "We can't send a confirmation email to this address yet. Please continue with Google or GitHub, or try again later.",
+  },
+  over_email_send_rate_limit: {
+    code: "RATE_LIMITED",
+    message: "Too many emails were sent recently. Please wait a few minutes and try again.",
+  },
+  over_request_rate_limit: {
+    code: "RATE_LIMITED",
+    message: "Too many attempts. Please wait a moment and try again.",
+  },
+  weak_password: {
+    code: "VALIDATION_FAILED",
+    message: "That password is too weak. Use a longer password with letters, numbers and symbols.",
+  },
+  same_password: {
+    code: "VALIDATION_FAILED",
+    message: "Your new password must be different from your current one.",
+  },
+  signup_disabled: { code: "FORBIDDEN", message: "New sign-ups are currently turned off." },
+  email_provider_disabled: {
+    code: "FORBIDDEN",
+    message: "Email sign-up is turned off. Please continue with Google or GitHub.",
+  },
+  provider_disabled: { code: "FORBIDDEN", message: "That sign-in method isn't enabled yet." },
+  otp_expired: EXPIRED_LINK,
+  flow_state_expired: EXPIRED_LINK,
+  flow_state_not_found: EXPIRED_LINK,
+  session_not_found: EXPIRED_LINK,
+};
+
 function mapAuthError(error: AuthError): ActionError {
+  const code = error.code ?? "";
+  const known = AUTH_ERROR_MESSAGES[code];
+  if (known) return known;
+
+  // Supabase unreachable (offline, or blocked by a network filter).
+  if (error.name === "AuthRetryableFetchError" || error.status === 0) {
+    return {
+      code: "NETWORK_ERROR",
+      message: "Can't reach the server. Check your internet connection and try again.",
+    };
+  }
+
+  // Fallback on message text for responses without a recognised code.
   const message = error.message ?? "";
 
   if (/invalid login credentials/i.test(message)) {
@@ -58,10 +133,16 @@ function mapAuthError(error: AuthError): ActionError {
     };
   }
 
-  // Developer diagnostic (message only — never secrets/content).
+  // Developer diagnostic (code/status/message only — never secrets/content).
   // eslint-disable-next-line no-console
-  console.error("[auth] Unhandled auth error:", message);
-  return { code: "INTERNAL", message: "Something went wrong. Please try again." };
+  console.error("[auth] Unhandled auth error:", code || "(no code)", error.status ?? "", message);
+  return {
+    code: "INTERNAL",
+    // The Supabase code is safe to show and makes support/debugging possible.
+    message: code
+      ? `Something went wrong (${code}). Please try again.`
+      : "Something went wrong. Please try again.",
+  };
 }
 
 export async function signInWithPassword(
@@ -83,7 +164,7 @@ export async function signUpWithPassword(
   const { data, error } = await supabase.auth.signUp({
     email: values.email,
     password: values.password,
-    options: { emailRedirectTo: callbackUrl("/") },
+    options: { emailRedirectTo: callbackUrl(DEFAULT_AUTHENTICATED_REDIRECT) },
   });
   if (error) return err(mapAuthError(error));
   return ok({ needsEmailConfirmation: data.session === null });
@@ -115,7 +196,7 @@ export async function signInWithMagicLink(
 ): Promise<ActionResult> {
   const { error } = await supabase.auth.signInWithOtp({
     email: values.email,
-    options: { emailRedirectTo: callbackUrl("/"), shouldCreateUser: true },
+    options: { emailRedirectTo: callbackUrl(DEFAULT_AUTHENTICATED_REDIRECT), shouldCreateUser: true },
   });
   if (error) return err(mapAuthError(error));
   return ok(undefined);
