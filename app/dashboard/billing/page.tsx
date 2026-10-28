@@ -1,7 +1,6 @@
 import { DashboardCard } from "@/components/shared/dashboard-card";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 export const metadata = {
   title: "Billing",
@@ -10,19 +9,12 @@ export const metadata = {
 export default function BillingPage() {
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Billing" description="Manage your plan and usage." />
-      <DashboardCard
-        title="Current plan"
-        action={<Badge variant="muted">Free</Badge>}
-      >
-        <p className="text-sm text-muted-foreground">
-          You are on the Free plan. Paid plans and usage-based billing arrive in an upcoming sprint.
+      <PageHeader title="Billing" description="Your plan." />
+      <DashboardCard title="Current plan" action={<Badge variant="muted">Free</Badge>}>
+        <p className="max-w-prose text-sm text-muted-foreground">
+          You&apos;re on the free plan. Everything in CopyAnywhere is free to use right now, and there&apos;s nothing to
+          pay.
         </p>
-        <div className="mt-4">
-          <Button size="sm" disabled>
-            Upgrade to Pro
-          </Button>
-        </div>
       </DashboardCard>
     </div>
   );

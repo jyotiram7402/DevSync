@@ -35,8 +35,23 @@ export const PROJECT_ICON_KEYS = Object.keys(PROJECT_ICONS) as ProjectIconKey[];
 
 export const DEFAULT_PROJECT_ICON: ProjectIconKey = "folder";
 
+/** Accessible names for the icon picker. */
+export const PROJECT_ICON_LABELS: Record<ProjectIconKey, string> = {
+  folder: "Folder",
+  code: "Code",
+  database: "Database",
+  cloud: "Cloud",
+  bug: "Bug",
+  terminal: "Terminal",
+  rocket: "Rocket",
+  box: "Box",
+  layers: "Layers",
+  zap: "Lightning",
+};
+
+// Own keys only, so a stored value like "constructor" never resolves to Object.prototype.
 function isIconKey(key: string): key is ProjectIconKey {
-  return key in PROJECT_ICONS;
+  return Object.prototype.hasOwnProperty.call(PROJECT_ICONS, key);
 }
 
 /** Resolve an icon key (possibly null/unknown) to a Lucide component. */

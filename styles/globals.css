@@ -58,6 +58,17 @@
     --kind-doc: 180 83 9;
     --kind-note: 107 122 31;
 
+    /* Project colors (categorical, chosen per project): icon on a 10% tint, picker swatch. */
+    --project-zinc: 82 82 91;
+    --project-red: 220 38 38;
+    --project-orange: 194 65 12;
+    --project-amber: 180 83 9;
+    --project-green: 4 120 87;
+    --project-blue: 37 99 235;
+    --project-indigo: 79 70 229;
+    --project-violet: 124 58 237;
+    --project-pink: 219 39 119;
+
     color-scheme: light;
   }
 
@@ -98,6 +109,16 @@
     --kind-image: 197 155 255;
     --kind-doc: 245 165 36;
     --kind-note: 195 212 90;
+
+    --project-zinc: 161 161 170;
+    --project-red: 248 113 113;
+    --project-orange: 251 146 60;
+    --project-amber: 251 191 36;
+    --project-green: 52 211 153;
+    --project-blue: 96 165 250;
+    --project-indigo: 129 140 248;
+    --project-violet: 167 139 250;
+    --project-pink: 244 114 182;
 
     color-scheme: dark;
   }

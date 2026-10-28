@@ -1,37 +1,45 @@
 "use client";
 
-import { getProjectIcon, PROJECT_ICON_KEYS } from "@/features/projects/icons";
+import { useRovingRadio } from "@/features/projects/hooks/use-roving-radio";
+import { getProjectIcon, PROJECT_ICON_KEYS, PROJECT_ICON_LABELS } from "@/features/projects/icons";
 import { cn } from "@/utils/cn";
 
 /**
- * Accessible icon picker (radiogroup). Controlled via value/onChange so it can
- * be wired into React Hook Form.
+ * Icon picker: a radiogroup of icon buttons (arrow keys move and select).
+ * Controlled via value/onChange so it can be wired into React Hook Form.
  */
 export function ProjectIconPicker({
   value,
   onChange,
+  "aria-labelledby": labelledBy,
 }: {
   value: string;
   onChange: (value: string) => void;
+  "aria-labelledby"?: string;
 }) {
+  const { tabStop, onKeyDown, setRef } = useRovingRadio(PROJECT_ICON_KEYS, value, onChange);
+
   return (
-    <div role="radiogroup" aria-label="Project icon" className="flex flex-wrap gap-2">
-      {PROJECT_ICON_KEYS.map((key) => {
+    <div role="radiogroup" aria-labelledby={labelledBy} className="flex flex-wrap gap-2">
+      {PROJECT_ICON_KEYS.map((key, index) => {
         const Icon = getProjectIcon(key);
         const active = value === key;
         return (
           <button
             key={key}
+            ref={setRef(index)}
             type="button"
             role="radio"
             aria-checked={active}
-            aria-label={key}
+            aria-label={PROJECT_ICON_LABELS[key]}
+            tabIndex={index === tabStop ? 0 : -1}
             onClick={() => onChange(key)}
+            onKeyDown={(event) => onKeyDown(event, index)}
             className={cn(
-              "flex size-9 items-center justify-center rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "flex size-9 items-center justify-center rounded-md border transition-colors duration-fast active:bg-accent pointer-coarse:size-11",
               active
-                ? "border-primary bg-primary/10 text-primary-ink"
-                : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                ? "border-primary bg-wash text-primary-ink"
+                : "border-border text-muted-foreground hover:bg-accent hover:text-foreground",
             )}
           >
             <Icon className="size-4" aria-hidden="true" />

@@ -1,15 +1,17 @@
 "use client";
 
-import { ArrowUpDown } from "lucide-react";
+import { useId } from "react";
 
+import { Select } from "@/components/ui/select";
 import { SEARCH_SORT_OPTIONS } from "@/features/search/constants";
 import type { SearchSortKey } from "@/features/search/types";
 import { cn } from "@/utils/cn";
 
-/**
- * SortSelector — chooses the result ordering. Native <select> for built-in
- * keyboard and screen-reader support.
- */
+function isSortKey(value: string): value is SearchSortKey {
+  return SEARCH_SORT_OPTIONS.some((option) => option.value === value);
+}
+
+/** SortSelector — result order, as a labeled native select. */
 export function SortSelector({
   value,
   onChange,
@@ -19,21 +21,28 @@ export function SortSelector({
   onChange: (value: SearchSortKey) => void;
   className?: string;
 }) {
+  const id = useId();
+
   return (
-    <label className={cn("inline-flex items-center gap-1.5 text-sm", className)}>
-      <ArrowUpDown className="size-4 text-muted-foreground" aria-hidden="true" />
-      <span className="sr-only">Sort results by</span>
-      <select
+    <div className={cn("flex min-w-0 items-center gap-2", className)}>
+      <label htmlFor={id} className="shrink-0 text-sm text-muted-foreground">
+        Sort
+      </label>
+      <Select
+        id={id}
         value={value}
-        onChange={(event) => onChange(event.target.value as SearchSortKey)}
-        className="h-9 rounded-md border border-input bg-background px-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        onChange={(event) => {
+          const next = event.target.value;
+          if (isSortKey(next)) onChange(next);
+        }}
+        className="w-auto min-w-40"
       >
         {SEARCH_SORT_OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
-      </select>
-    </label>
+      </Select>
+    </div>
   );
 }

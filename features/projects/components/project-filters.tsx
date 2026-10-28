@@ -1,14 +1,21 @@
 "use client";
 
-import { LayoutGrid, Table as TableIcon } from "lucide-react";
+import { LayoutGrid, List } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
-import { DEFAULT_PROJECT_STATUS, PROJECT_STATUS_OPTIONS } from "@/features/projects/constants";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Select } from "@/components/ui/select";
+import {
+  DEFAULT_PROJECT_STATUS,
+  PROJECT_STATUS_OPTIONS,
+  parseProjectView,
+  type ProjectView,
+} from "@/features/projects/constants";
 
 /**
- * Status filter + view toggle (grid/table). Both write to the URL so the
- * server component re-renders; the status change resets pagination.
+ * Status filter (Active / Archived) and the Grid / List toggle. Both live in
+ * the URL so the server re-renders; changing the status goes back to page 1.
+ * The toggle is there on every screen size.
  */
 export function ProjectFilters() {
   const router = useRouter();
@@ -16,54 +23,43 @@ export function ProjectFilters() {
   const searchParams = useSearchParams();
 
   const status = searchParams.get("status") ?? DEFAULT_PROJECT_STATUS;
-  const view = searchParams.get("view") === "table" ? "table" : "grid";
+  const view = parseProjectView(searchParams.get("view"));
 
-  function setParam(key: string, value: string, resetPage = false) {
+  function setParam(key: string, value: string | null, resetPage = false) {
     const params = new URLSearchParams(searchParams.toString());
-    params.set(key, value);
+    if (value) params.set(key, value);
+    else params.delete(key);
     if (resetPage) params.delete("page");
-    router.replace(`${pathname}?${params.toString()}`);
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <select
-        aria-label="Filter by status"
+    <div className="flex flex-wrap items-center gap-2">
+      <Select
+        aria-label="Show"
         value={status}
-        onChange={(event) => setParam("status", event.target.value, true)}
-        className="h-9 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        onChange={(event) =>
+          setParam("status", event.target.value === DEFAULT_PROJECT_STATUS ? null : event.target.value, true)
+        }
+        className="w-auto"
       >
         {PROJECT_STATUS_OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
-      </select>
+      </Select>
 
-      <div className="hidden items-center rounded-md border p-0.5 sm:flex" role="group" aria-label="View">
-        <Button
-          type="button"
-          variant={view === "grid" ? "secondary" : "ghost"}
-          size="icon"
-          aria-label="Grid view"
-          aria-pressed={view === "grid"}
-          className="size-7"
-          onClick={() => setParam("view", "grid")}
-        >
-          <LayoutGrid className="size-4" />
-        </Button>
-        <Button
-          type="button"
-          variant={view === "table" ? "secondary" : "ghost"}
-          size="icon"
-          aria-label="Table view"
-          aria-pressed={view === "table"}
-          className="size-7"
-          onClick={() => setParam("view", "table")}
-        >
-          <TableIcon className="size-4" />
-        </Button>
-      </div>
+      <SegmentedControl<ProjectView>
+        aria-label="View"
+        value={view}
+        onValueChange={(next) => setParam("view", next === "list" ? "list" : null)}
+        options={[
+          { value: "grid", label: "Grid", icon: LayoutGrid, iconOnly: true },
+          { value: "list", label: "List", icon: List, iconOnly: true },
+        ]}
+      />
     </div>
   );
 }

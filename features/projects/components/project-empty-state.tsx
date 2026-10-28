@@ -1,26 +1,50 @@
-import { FolderKanban, Plus } from "lucide-react";
+import { Archive, FolderKanban, SearchX } from "lucide-react";
 import Link from "next/link";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
+import { CreateProjectButton } from "@/features/projects/components/create-project-button";
 
 /**
- * Empty state for the projects list. Differentiates "no matches for filters"
- * from "no projects yet" and offers a create action when permitted.
+ * What the projects list says when it's empty: no matches for a search (with
+ * a way to clear it), no archived projects, or no projects yet (with the same
+ * create dialog as the page header).
  */
 export function ProjectEmptyState({
-  filtered,
+  search,
+  archived,
   canCreate,
 }: {
-  filtered: boolean;
+  search: string | undefined;
+  archived: boolean;
   canCreate: boolean;
 }) {
-  if (filtered) {
+  if (search) {
     return (
       <EmptyState
-        icon={FolderKanban}
-        title="No projects found"
-        description="No projects match your current search and filters. Try adjusting them."
+        icon={SearchX}
+        title="No projects match"
+        description={`Nothing ${archived ? "archived " : ""}matches "${search}". Check the spelling, or try a shorter word.`}
+        action={
+          <Button asChild variant="outline">
+            <Link href={archived ? "/dashboard/projects?status=archived" : "/dashboard/projects"}>Clear search</Link>
+          </Button>
+        }
+      />
+    );
+  }
+
+  if (archived) {
+    return (
+      <EmptyState
+        icon={Archive}
+        title="No archived projects"
+        description="Projects you archive show up here. Archiving hides a project without deleting it."
+        action={
+          <Button asChild variant="outline">
+            <Link href="/dashboard/projects">Show active projects</Link>
+          </Button>
+        }
       />
     );
   }
@@ -29,17 +53,8 @@ export function ProjectEmptyState({
     <EmptyState
       icon={FolderKanban}
       title="No projects yet"
-      description="Create your first project to start organizing your snippets."
-      action={
-        canCreate ? (
-          <Button asChild size="sm">
-            <Link href="/dashboard/projects/new">
-              <Plus />
-              New project
-            </Link>
-          </Button>
-        ) : null
-      }
+      description="Make a project for each thing you work on, then file snippets into it from the snippet editor."
+      action={<CreateProjectButton canCreate={canCreate} />}
     />
   );
 }

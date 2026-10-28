@@ -93,6 +93,17 @@ const config: Config = {
           doc: color("kind-doc"),
           note: color("kind-note"),
         },
+        project: {
+          zinc: color("project-zinc"),
+          red: color("project-red"),
+          orange: color("project-orange"),
+          amber: color("project-amber"),
+          green: color("project-green"),
+          blue: color("project-blue"),
+          indigo: color("project-indigo"),
+          violet: color("project-violet"),
+          pink: color("project-pink"),
+        },
         // shadcn-style names used across existing screens, mapped onto the tokens.
         card: {
           DEFAULT: color("surface"),

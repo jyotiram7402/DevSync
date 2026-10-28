@@ -70,6 +70,13 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
     },
     onClose,
   });
+  const activeOptionId =
+    hasQuery && results.length > 0 ? `${LIST_ID}-opt-${navigation.activeIndex}` : undefined;
+
+  // Keep the highlighted result in view while moving with the arrow keys.
+  useEffect(() => {
+    if (activeOptionId) document.getElementById(activeOptionId)?.scrollIntoView({ block: "nearest" });
+  }, [activeOptionId]);
 
   // Focus management + scroll lock while open; restore focus on close.
   useEffect(() => {
@@ -86,9 +93,20 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
 
   if (!open) return null;
 
+  // Escape closes from anywhere in the panel; arrows and Enter only drive the
+  // results from the search box (Enter on a focused tab or link does its own thing).
   function onPanelKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    navigation.handleKeyDown(event);
+    if (event.key === "Escape") {
+      event.preventDefault();
+      onClose();
+      return;
+    }
     trapTab(event, panelRef.current);
+  }
+
+  function onInputKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Escape") return;
+    navigation.handleKeyDown(event);
   }
 
   function openFullSearch() {
@@ -118,6 +136,9 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
             role="combobox"
             aria-expanded={hasQuery}
             aria-controls={LIST_ID}
+            aria-activedescendant={activeOptionId}
+            aria-autocomplete="list"
+            onKeyDown={onInputKeyDown}
             aria-label="Search snippets, projects, collections, and tags"
             placeholder="Search everything…"
             autoCapitalize="none"
@@ -146,7 +167,7 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
           </div>
         ) : null}
 
-        <div id={LIST_ID} className="min-h-0 flex-1 overflow-y-auto p-2">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2">
           {hasQuery ? (
             <SearchResults
               results={results}
@@ -161,6 +182,7 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
               onSelect={goTo}
               hasMore={search.hasMore}
               onLoadMore={search.loadMore}
+              onRetry={search.refresh}
             />
           ) : recent.recent.length > 0 ? (
             <RecentSearches

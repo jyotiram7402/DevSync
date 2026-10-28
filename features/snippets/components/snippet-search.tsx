@@ -2,33 +2,50 @@
 
 import { Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 
-/** Debounced snippet search over title + content. Writes `?search=`. */
+const DEBOUNCE_MS = 350;
+
+/**
+ * Debounced snippet search over title + content. Writes `?search=` (and goes
+ * back to page 1) once typing pauses. It only writes when the text differs
+ * from the URL, so opening page 2 never resets the page, and Back/Forward put
+ * their own search back in the box.
+ */
 export function SnippetSearch() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [value, setValue] = useState(searchParams.get("search") ?? "");
+  const urlValue = searchParams.get("search") ?? "";
+  const [value, setValue] = useState(urlValue);
+  /** The search this box last wrote to the URL, so its own update isn't mistaken for Back/Forward. */
+  const written = useRef<string | null>(null);
+
+  // The URL changed: if it wasn't this box, show what the URL says.
+  useEffect(() => {
+    if (written.current !== null && written.current === urlValue) {
+      written.current = null;
+      return;
+    }
+    setValue(urlValue);
+  }, [urlValue]);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
+    const next = value.trim();
+    if (next === urlValue) return;
+    const timeout = window.setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
-      const trimmed = value.trim();
-      if (trimmed) {
-        params.set("search", trimmed);
-      } else {
-        params.delete("search");
-      }
+      if (next) params.set("search", next);
+      else params.delete("search");
       params.delete("page");
-      router.replace(`${pathname}?${params.toString()}`);
-    }, 350);
-
-    return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+      written.current = next;
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname);
+    }, DEBOUNCE_MS);
+    return () => window.clearTimeout(timeout);
+  }, [value, urlValue, searchParams, pathname, router]);
 
   return (
     <div className="relative w-full min-w-0 lg:max-w-xs">

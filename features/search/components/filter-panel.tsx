@@ -1,18 +1,18 @@
 "use client";
 
 import { SlidersHorizontal, X } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { SearchFilters } from "@/features/search/components/search-filters";
 import { activeFilterCount } from "@/features/search/services/filter-builder";
 import type { SearchFilters as SearchFiltersModel } from "@/features/search/types";
 import type { SelectOption } from "@/features/snippets/types";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 
 /**
- * FilterPanel — collapsible container around the filter controls. Shows the
- * active-filter count and a clear action.
+ * FilterPanel — a Filters button (with how many are on) that opens the filter
+ * controls, plus Clear while any filter is on.
  */
 export function FilterPanel({
   filters,
@@ -32,37 +32,38 @@ export function FilterPanel({
   className?: string;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const panelId = useId();
   const count = activeFilterCount(filters);
 
   return (
-    <section className={cn("rounded-xl border", className)} aria-label="Search filters">
-      <div className="flex items-center justify-between gap-2 p-3">
+    <section aria-label="Search filters" className={cn("flex flex-col gap-3", className)}>
+      <div className="flex flex-wrap items-center gap-2">
         <Button
           type="button"
-          variant="ghost"
-          size="sm"
+          variant="outline"
           aria-expanded={open}
+          aria-controls={panelId}
           onClick={() => setOpen((value) => !value)}
-          className="gap-1.5"
         >
-          <SlidersHorizontal className="size-4" aria-hidden="true" />
+          <SlidersHorizontal aria-hidden="true" />
           Filters
           {count > 0 ? (
-            <span className="rounded-full bg-primary/10 px-1.5 text-xs font-medium text-primary-ink">
+            <span className="rounded-full bg-primary/10 px-1.5 text-xs font-medium tabular-nums text-primary-ink">
               {count}
+              <span className="sr-only"> on</span>
             </span>
           ) : null}
         </Button>
         {count > 0 ? (
-          <Button type="button" variant="ghost" size="sm" onClick={onClear} className="gap-1">
-            <X className="size-3.5" aria-hidden="true" />
-            Clear
+          <Button type="button" variant="ghost" onClick={onClear}>
+            <X aria-hidden="true" />
+            Clear filters
           </Button>
         ) : null}
       </div>
 
       {open ? (
-        <div className="border-t p-4">
+        <div id={panelId} className="rounded-lg border border-border bg-card p-4">
           <SearchFilters
             filters={filters}
             onChange={onChange}
