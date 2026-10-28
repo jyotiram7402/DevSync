@@ -188,6 +188,12 @@ const config: Config = {
           from: { transform: "translateX(-100%)" },
           to: { transform: "translateX(300%)" },
         },
+        /* Auth background: a column of six identical item sets moves up by one set per loop
+           (COPIES in components/auth/auth-backdrop.tsx). */
+        stream: {
+          from: { transform: "translateY(0)" },
+          to: { transform: "translateY(calc(-100% / 6))" },
+        },
         /* Landing page only (rebuilt in a later phase). */
         "accordion-down": {
           from: { height: "0" },
@@ -241,6 +247,7 @@ const config: Config = {
         arrive: "arrive 220ms var(--ease-out) both",
         pop: "pop var(--duration-fast) var(--ease-out) both",
         "progress-indeterminate": "progress-indeterminate 1.2s ease-in-out infinite",
+        stream: "stream var(--stream-duration, 60s) linear var(--stream-delay, 0s) infinite",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.2s ease-out",
