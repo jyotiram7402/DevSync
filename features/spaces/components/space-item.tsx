@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { deleteSpaceItemAction } from "@/features/spaces/actions";
 import type { SpaceItem } from "@/features/spaces/types";
 import { useSupabase } from "@/hooks/use-supabase";
+import { isSafeToOpenInline, safeWebUrl } from "@/lib/safe-url";
 import { createSignedUrl, downloadFile } from "@/lib/storage/storage";
 
 const BUCKET = "space-attachments" as const;
@@ -39,13 +40,15 @@ export function SpaceItemCard({ item, isOwner }: { item: SpaceItem; isOwner: boo
   useEffect(() => {
     if (!isFile || !item.path) return;
     let active = true;
-    void createSignedUrl(supabase, BUCKET, item.path, 3600).then((res) => {
+    // Files that could run code when opened (HTML, SVG…) are served as downloads.
+    const options = isSafeToOpenInline(item.mimeType) ? undefined : { download: item.content || true };
+    void createSignedUrl(supabase, BUCKET, item.path, 3600, options).then((res) => {
       if (active && res.ok) setSignedUrl(res.data.signedUrl);
     });
     return () => {
       active = false;
     };
-  }, [supabase, item.path, isFile]);
+  }, [supabase, item.path, item.mimeType, item.content, isFile]);
 
   async function copyText() {
     try {
@@ -161,9 +164,9 @@ export function SpaceItemCard({ item, isOwner }: { item: SpaceItem; isOwner: boo
             </p>
           </div>
         </div>
-      ) : item.kind === "url" ? (
+      ) : item.kind === "url" && safeWebUrl(item.content) ? (
         <a
-          href={item.content}
+          href={safeWebUrl(item.content) ?? undefined}
           target="_blank"
           rel="noreferrer"
           className="break-all text-sm text-primary-ink hover:underline"

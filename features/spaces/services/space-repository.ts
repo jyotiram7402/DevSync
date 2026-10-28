@@ -37,7 +37,16 @@ export async function rpcJoinSpace(
 ): Promise<Tables<"spaces">> {
   const { data, error } = await client.rpc("join_space_by_code", { p_code: code });
   if (error) throw error;
-  if (!data) throw new Error("join_space_by_code returned no row");
+  // A wrong code comes back empty (the DB records the attempt for throttling).
+  if (!data || !data.id) throw new Error("SPACE_NOT_FOUND");
+  return data;
+}
+
+/** Owner gives the room a new join code; the old one stops working. */
+export async function rpcRotateCode(client: TypedSupabaseClient, spaceId: string): Promise<string> {
+  const { data, error } = await client.rpc("rotate_space_code", { p_space_id: spaceId });
+  if (error) throw error;
+  if (!data) throw new Error("rotate_space_code returned no code");
   return data;
 }
 
@@ -51,7 +60,7 @@ export async function rpcListMembers(
   return data ?? [];
 }
 
-/** Add an existing user by email. Returns 'added' or 'already_member'. */
+/** Add an existing user by email. The DB answers 'requested' either way (no account lookup). */
 export async function rpcAddMemberByEmail(
   client: TypedSupabaseClient,
   spaceId: string,

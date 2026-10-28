@@ -39,6 +39,12 @@ function toActionError(error: unknown): ActionError {
   if (/SPACE_NOT_FOUND/.test(message)) {
     return { code: "NOT_FOUND", message: "That room code isn't valid." };
   }
+  if (/TOO_MANY_ATTEMPTS/.test(message)) {
+    return { code: "RATE_LIMITED", message: "Too many tries. Wait a few minutes, then try again." };
+  }
+  if (/NOT_OWNER/.test(message)) {
+    return { code: "FORBIDDEN", message: "Only the room owner can do that." };
+  }
   if (/USER_NOT_FOUND/.test(message)) {
     return {
       code: "NOT_FOUND",
@@ -243,10 +249,14 @@ export async function deleteItem(itemId: string): Promise<ActionResult> {
   }
 }
 
+/**
+ * Add someone by email. The answer is the same whether or not the address has
+ * an account, so the form can't be used to find out who uses CopyAnywhere.
+ */
 export async function inviteMember(
   spaceId: string,
   values: InviteMemberValues,
-): Promise<ActionResult<{ status: "added" | "already_member" }>> {
+): Promise<ActionResult<{ status: "requested" }>> {
   const parsed = inviteMemberSchema.safeParse(values);
   if (!parsed.success) {
     return err({
@@ -259,8 +269,8 @@ export async function inviteMember(
     const client = await createServerSupabaseClient();
     const user = await repository.resolveUser(client);
     if (!user) return err(UNAUTHENTICATED);
-    const status = await repository.rpcAddMemberByEmail(client, spaceId, parsed.data.email);
-    return ok({ status: status === "already_member" ? "already_member" : "added" });
+    await repository.rpcAddMemberByEmail(client, spaceId, parsed.data.email);
+    return ok({ status: "requested" });
   } catch (error) {
     return err(toActionError(error));
   }
@@ -282,7 +292,27 @@ export async function removeMember(spaceId: string, userId: string): Promise<Act
       return err({ code: "VALIDATION_FAILED", message: "You own this room — delete the room instead." });
     }
     await repository.deleteMemberRow(client, spaceId, userId);
+    // A new code, so the removed person can't rejoin with the one they know.
+    // Best effort: the removal itself already succeeded.
+    try {
+      await repository.rpcRotateCode(client, spaceId);
+    } catch (rotateError) {
+      console.error("[spaces] could not rotate the room code:", toActionError(rotateError).code);
+    }
     return ok(undefined);
+  } catch (error) {
+    return err(toActionError(error));
+  }
+}
+
+/** Owner gives the room a new join code (old code and invite links stop working). */
+export async function rotateCode(spaceId: string): Promise<ActionResult<{ code: string }>> {
+  try {
+    const client = await createServerSupabaseClient();
+    const user = await repository.resolveUser(client);
+    if (!user) return err(UNAUTHENTICATED);
+    const code = await repository.rpcRotateCode(client, spaceId);
+    return ok({ code });
   } catch (error) {
     return err(toActionError(error));
   }

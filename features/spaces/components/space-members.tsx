@@ -40,9 +40,8 @@ export function SpaceMembers({
       return;
     }
     setEmail("");
-    toast.success(
-      res.data.status === "already_member" ? "They're already in this room." : `Added ${value} to the room.`,
-    );
+    // Same message either way, so this can't reveal who has an account.
+    toast.success(`If ${value} has a CopyAnywhere account, they're in the room now. If not, send them the room code.`);
   }
 
   function confirmRemove() {
@@ -54,7 +53,7 @@ export function SpaceMembers({
         toast.error(res.error.message);
         return;
       }
-      toast.success(`Removed ${memberName(target)}.`);
+      toast.success(`Removed ${memberName(target)}. The room has a new code, so they can't rejoin with the old one.`);
       setToRemove(null);
     });
   }

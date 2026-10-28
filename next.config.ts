@@ -3,14 +3,21 @@ import type { NextConfig } from "next";
 /**
  * Security headers applied to every response.
  *
- * NOTE: A full Content-Security-Policy is intentionally NOT set in this
- * foundation sprint. A correct CSP for this app requires per-request nonces
- * (Next.js injects inline scripts for hydration) and an allow-list for the
- * Supabase REST + Realtime origins. That is introduced alongside the auth
- * sprint via middleware, as specified in docs/architecture/10-Security-Architecture.md.
- * The headers below are safe, non-breaking hardening that can ship today.
+ * The Content-Security-Policy below only uses directives that can't break the
+ * app: no embedding by other sites, no <base> or plugin tricks, and forms post
+ * only to this site. A script/connect allow-list would need per-request nonces
+ * (Next.js injects inline scripts for hydration) and the Supabase REST +
+ * Realtime origins, so it is left for later.
  */
+const contentSecurityPolicy = [
+  "frame-ancestors 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "form-action 'self'",
+].join("; ");
+
 const securityHeaders = [
+  { key: "Content-Security-Policy", value: contentSecurityPolicy },
   { key: "X-DNS-Prefetch-Control", value: "on" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "SAMEORIGIN" },

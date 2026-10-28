@@ -61,8 +61,14 @@ export async function deleteSpaceItemAction(
 export async function inviteMemberAction(
   spaceId: string,
   values: InviteMemberValues,
-): Promise<ActionResult<{ status: "added" | "already_member" }>> {
+): Promise<ActionResult<{ status: "requested" }>> {
   const result = await service.inviteMember(spaceId, values);
+  if (result.ok) revalidatePath(roomPath(spaceId));
+  return result;
+}
+
+export async function rotateCodeAction(spaceId: string): Promise<ActionResult<{ code: string }>> {
+  const result = await service.rotateCode(spaceId);
   if (result.ok) revalidatePath(roomPath(spaceId));
   return result;
 }

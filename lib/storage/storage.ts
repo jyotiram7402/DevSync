@@ -91,8 +91,10 @@ export async function createSignedUrl(
   bucket: StorageBucket,
   path: string,
   expiresInSeconds = 3600,
+  /** Serve as a download (optionally under this file name) instead of opening inline. */
+  options?: { download?: string | boolean },
 ): Promise<ActionResult<{ signedUrl: string }>> {
-  const { data, error } = await client.storage.from(bucket).createSignedUrl(path, expiresInSeconds);
+  const { data, error } = await client.storage.from(bucket).createSignedUrl(path, expiresInSeconds, options);
   if (error || !data) return err(mapStorageError(error));
   return ok({ signedUrl: data.signedUrl });
 }
