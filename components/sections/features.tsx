@@ -1,124 +1,86 @@
-import {
-  Clipboard,
-  FolderKanban,
-  Library,
-  Search,
-  ShieldCheck,
-  Upload,
-  WifiOff,
-  Zap,
-  type LucideIcon,
-} from "lucide-react";
+import { ListTodo, Pin, Search, Users, type LucideIcon } from "lucide-react";
 
+import { SectionHeading } from "@/components/sections/section-heading";
 import { Container } from "@/components/shared/container";
-import { SectionHeader } from "@/components/shared/section-header";
-import { cn } from "@/utils/cn";
+import { KindIcon } from "@/components/ui/kind-badge";
+import type { ItemKind } from "@/lib/item-kinds";
+import { RETENTION_DAYS } from "@/lib/retention";
 
-interface Feature {
-  title: string;
-  description: string;
-  icon: LucideIcon;
-  gradient: string;
-  span?: string;
-}
+const KINDS: ReadonlyArray<{ kind: ItemKind; title: string; body: string }> = [
+  { kind: "text", title: "Text", body: "Addresses, messages, notes, anything you'd paste." },
+  { kind: "code", title: "Code and commands", body: "Every space and line break kept, so it runs." },
+  { kind: "error", title: "Errors and logs", body: "Stack traces in full, to read where your editor is." },
+  { kind: "link", title: "Links", body: "Open them on the other device in one tap." },
+  { kind: "image", title: "Photos and screenshots", body: "The full-quality file, not a squashed copy." },
+  { kind: "doc", title: "PDFs and documents", body: "Word, Excel and PowerPoint files too." },
+  { kind: "file", title: "Any other file", body: "Archives, audio and video, up to 10 MB each." },
+];
 
-const FEATURES: Feature[] = [
+const EXTRAS: ReadonlyArray<{ icon: LucideIcon; title: string; body: string }> = [
   {
-    title: "Universal clipboard",
-    description:
-      "Copy on your phone, paste on your laptop. Text, code, and links move the moment you save them.",
-    icon: Clipboard,
-    gradient: "from-blue-500 to-indigo-500",
-    span: "lg:col-span-2",
+    icon: Users,
+    title: "Spaces, for working with others",
+    body: "Make a room for a project and invite people with a link or a code. Paste an error there and everyone in the room sees it right away.",
   },
   {
-    title: "Sync any file",
-    description: "Images, PDFs, Word, Excel, ZIP, audio, video. If you can share it, it syncs.",
-    icon: Upload,
-    gradient: "from-violet-500 to-purple-500",
+    icon: ListTodo,
+    title: "Quick Notes",
+    body: "To-dos and reminders that follow you from your phone to your laptop.",
   },
   {
-    title: "Realtime by default",
-    description: "Changes appear on every signed-in device in about a second. No refresh button.",
-    icon: Zap,
-    gradient: "from-amber-400 to-orange-500",
-  },
-  {
-    title: "Projects",
-    description: "Group related content so work, side projects, and study stay separate.",
-    icon: FolderKanban,
-    gradient: "from-emerald-400 to-teal-500",
-  },
-  {
-    title: "Collections",
-    description: "Curate reusable sets of snippets and files you reach for again and again.",
-    icon: Library,
-    gradient: "from-pink-500 to-rose-500",
-  },
-  {
-    title: "Search everything",
-    description:
-      "Full-text search across text, code, filenames and tags — with instant results as you type.",
     icon: Search,
-    gradient: "from-cyan-400 to-sky-500",
-    span: "lg:col-span-2",
+    title: "Search",
+    body: "Find anything you've saved by a word in it.",
   },
   {
-    title: "Works offline",
-    description: "Save without a connection. Everything queues and syncs the moment you are back.",
-    icon: WifiOff,
-    gradient: "from-slate-400 to-slate-600",
-  },
-  {
-    title: "Private by design",
-    description:
-      "Row-level security isolates every workspace in the database itself. Your data stays yours.",
-    icon: ShieldCheck,
-    gradient: "from-brand to-brand-accent",
+    icon: Pin,
+    title: "Keeps itself tidy",
+    body: `Snippets and files clear themselves after ${RETENTION_DAYS} days. Pin or favorite anything you want to keep.`,
   },
 ];
 
-function FeatureCard({ feature }: { feature: Feature }) {
-  const Icon = feature.icon;
-  return (
-    <article
-      className={cn(
-        "group relative overflow-hidden rounded-2xl border bg-card p-6 transition-all duration-300",
-        "hover:-translate-y-1 hover:border-brand/40 hover:shadow-premium",
-        feature.span,
-      )}
-    >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-16 -top-16 size-40 rounded-full bg-brand/10 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
-      />
-      <div
-        className={cn(
-          "relative mb-4 flex size-11 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-soft transition-transform duration-300 group-hover:scale-110",
-          feature.gradient,
-        )}
-      >
-        <Icon className="size-5" aria-hidden="true" />
-      </div>
-      <h3 className="relative mb-1.5 text-base font-semibold">{feature.title}</h3>
-      <p className="relative text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
-    </article>
-  );
-}
-
+/** What you can send (every kind the app handles), and what else comes with it. */
 export function Features() {
   return (
-    <section id="features" className="py-24">
-      <Container className="flex flex-col gap-12">
-        <SectionHeader
-          eyebrow="Everything you need"
-          title="One place for everything you move"
-          description="Built for the hundred small transfers you make every day — between your phone, your laptop, and the machine you are not allowed to install anything on."
-        />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((feature) => (
-            <FeatureCard key={feature.title} feature={feature} />
-          ))}
+    <section id="features" aria-labelledby="features-title" className="scroll-mt-20 border-b border-border">
+      <Container className="flex flex-col gap-12 px-4 py-16 sm:px-6 sm:py-24">
+        <div className="flex flex-col gap-10">
+          <SectionHeading
+            id="features-title"
+            title="Not just text"
+            description="Whatever you copy or share on one device, you can pick up on the other."
+          />
+          <ul className="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+            {KINDS.map((item) => (
+              <li key={item.kind} className="flex gap-3">
+                <KindIcon kind={item.kind} />
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <h3 className="text-base font-medium">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground">{item.body}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="flex flex-col gap-6 border-t border-border pt-10">
+          <h3 className="text-lg font-semibold">More than a clipboard</h3>
+          <ul className="grid gap-x-12 gap-y-6 md:grid-cols-2">
+            {EXTRAS.map((extra) => {
+              const Icon = extra.icon;
+              return (
+                <li key={extra.title} className="flex gap-3">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-wash text-primary-ink">
+                    <Icon className="size-5" aria-hidden="true" />
+                  </span>
+                  <div className="flex min-w-0 flex-col gap-0.5">
+                    <h4 className="text-base font-medium">{extra.title}</h4>
+                    <p className="text-sm text-muted-foreground">{extra.body}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       </Container>
     </section>

@@ -33,6 +33,11 @@ function GoogleIcon() {
   );
 }
 
+/**
+ * Google and GitHub sign-in, following each brand's button guidance (their
+ * own mark on a neutral button, "Continue with …"). The pressed button shows a
+ * spinner while the browser heads to the provider; both stay disabled meanwhile.
+ */
 export function OAuthButtons({ next }: { next?: string | undefined }) {
   const supabase = useSupabase();
   const [pending, setPending] = useState<OAuthProvider | null>(null);
@@ -52,20 +57,22 @@ export function OAuthButtons({ next }: { next?: string | undefined }) {
       <Button
         type="button"
         variant="outline"
-        onClick={() => handleSignIn("github")}
+        onClick={() => handleSignIn("google")}
         disabled={pending !== null}
+        loading={pending === "google"}
       >
-        <Github />
-        Continue with GitHub
+        {pending === "google" ? null : <GoogleIcon />}
+        Continue with Google
       </Button>
       <Button
         type="button"
         variant="outline"
-        onClick={() => handleSignIn("google")}
+        onClick={() => handleSignIn("github")}
         disabled={pending !== null}
+        loading={pending === "github"}
       >
-        <GoogleIcon />
-        Continue with Google
+        {pending === "github" ? null : <Github aria-hidden="true" />}
+        Continue with GitHub
       </Button>
     </div>
   );

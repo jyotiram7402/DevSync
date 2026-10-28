@@ -281,17 +281,6 @@
 }
 
 @layer utilities {
-  /* Subtle monochrome gradient for large display headings (landing page). */
-  .text-gradient {
-    @apply bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent;
-  }
-
-  /* Faint dotted grid used as a decorative backdrop (landing page). */
-  .bg-grid {
-    background-image: radial-gradient(rgb(var(--border)) 1px, transparent 1px);
-    background-size: 24px 24px;
-  }
-
   /* Horizontally scrollable rows (tabs, chips) that should swipe without a bar. */
   .no-scrollbar {
     scrollbar-width: none;

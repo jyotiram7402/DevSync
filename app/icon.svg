@@ -1,20 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" rx="7" fill="#18181b" />
+  <rect width="32" height="32" rx="7" fill="#5B5FFF" />
   <path
-    d="M10 10 L16 16 L10 22"
+    d="M10 9 L17 16 L10 23"
     fill="none"
-    stroke="#fafafa"
-    stroke-width="2.5"
+    stroke="#FFFFFF"
+    stroke-width="2.75"
     stroke-linecap="round"
     stroke-linejoin="round"
+    transform="translate(-1.5 0)"
   />
   <path
-    d="M17 10 L23 16 L17 22"
+    d="M18 9 L25 16 L18 23"
     fill="none"
-    stroke="#fafafa"
-    stroke-width="2.5"
+    stroke="#FFFFFF"
+    stroke-width="2.75"
     stroke-linecap="round"
     stroke-linejoin="round"
     opacity="0.55"
+    transform="translate(-1.5 0)"
   />
 </svg>

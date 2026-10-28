@@ -8,9 +8,11 @@ import { useForm } from "react-hook-form";
 
 import { FormError } from "@/components/auth/form-error";
 import { OAuthButtons } from "@/components/auth/oauth-buttons";
+import { OrDivider } from "@/components/auth/or-divider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password-input";
 import { useSupabase } from "@/hooks/use-supabase";
 import { signInWithPassword } from "@/lib/auth/auth";
 import { sanitizeRedirect } from "@/lib/auth/redirect";
@@ -51,14 +53,7 @@ export function LoginForm({
     <div className="flex flex-col gap-6">
       <OAuthButtons next={next} />
 
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center" aria-hidden="true">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-2 text-muted-foreground">or</span>
-        </div>
-      </div>
+      <OrDivider />
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
         {formError ? <FormError message={formError} /> : null}
@@ -68,7 +63,10 @@ export function LoginForm({
           <Input
             id="email"
             type="email"
+            inputMode="email"
             autoComplete="email"
+            autoCapitalize="none"
+            spellCheck={false}
             aria-invalid={errors.email ? true : undefined}
             aria-describedby={errors.email ? "email-error" : undefined}
             {...register("email")}
@@ -90,10 +88,10 @@ export function LoginForm({
               Forgot password?
             </Link>
           </div>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="current-password"
+            enterKeyHint="go"
             aria-invalid={errors.password ? true : undefined}
             aria-describedby={errors.password ? "password-error" : undefined}
             {...register("password")}
@@ -105,7 +103,7 @@ export function LoginForm({
           ) : null}
         </div>
 
-        <Button type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
+        <Button type="submit" loading={isSubmitting}>
           {isSubmitting ? "Signing in…" : "Sign in"}
         </Button>
       </form>

@@ -1,14 +1,16 @@
 "use client";
 
+import { RotateCw } from "lucide-react";
+import Link from "next/link";
 import { useEffect } from "react";
 
+import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
 
 /**
- * Segment-level error boundary. Next.js renders this when a Server or Client
- * Component in this segment throws. It keeps the failure contained and offers
- * a recovery path via `reset()`. Detailed logging/monitoring is wired in a
- * later sprint (see docs/architecture/09-Error-Handling.md).
+ * Error boundary for pages outside the app (landing, sign-in, legal). Says
+ * what happened, offers Try again and a way home. Only the error's id is
+ * logged, never its message (it could contain what was being saved).
  */
 export default function Error({
   error,
@@ -19,17 +21,27 @@ export default function Error({
 }) {
   useEffect(() => {
     // eslint-disable-next-line no-console
-    console.error(error);
+    console.error("Page error", error.digest ?? error.name);
   }, [error]);
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-4 px-6 text-center">
-      <h1 className="text-2xl font-semibold">Something went wrong</h1>
-      <p className="max-w-md text-sm text-muted-foreground">
-        An unexpected error occurred. You can try again, and if the problem persists please contact
-        support.
-      </p>
-      <Button onClick={reset}>Try again</Button>
-    </div>
+    <main className="flex min-h-dvh flex-col items-center justify-center gap-6 px-6 py-12 text-center">
+      <Logo />
+      <div className="flex max-w-md flex-col gap-2">
+        <h1 className="text-2xl font-semibold tracking-tight">Something went wrong</h1>
+        <p className="text-sm text-muted-foreground">
+          This page didn&apos;t load. Try again; if it keeps happening, come back in a few minutes.
+        </p>
+      </div>
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <Button type="button" onClick={reset}>
+          <RotateCw aria-hidden="true" />
+          Try again
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/">Go to the home page</Link>
+        </Button>
+      </div>
+    </main>
   );
 }

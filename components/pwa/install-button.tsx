@@ -6,6 +6,7 @@ import { useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import { useInstallPrompt } from "@/hooks/use-install-prompt";
 import { promptInstall } from "@/lib/pwa/install-prompt";
+import { detectPlatform, isStandalone, noSubscribe, type Platform } from "@/lib/pwa/platform";
 
 /**
  * InstallAppButton — install CopyAnywhere as an app, the right way for this
@@ -14,23 +15,6 @@ import { promptInstall } from "@/lib/pwa/install-prompt";
  * menu or address-bar steps elsewhere. Already installed? It says so.
  * Platform checks run in the browser only (no hydration mismatch).
  */
-type Platform = "ios" | "android" | "desktop";
-
-function detectPlatform(): Platform {
-  const ua = navigator.userAgent;
-  // iPadOS reports itself as a Mac; touch support gives it away.
-  if (/iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1)) return "ios";
-  if (/Android/i.test(ua)) return "android";
-  return "desktop";
-}
-
-function isStandalone(): boolean {
-  const iosStandalone = (navigator as Navigator & { standalone?: boolean }).standalone === true;
-  return iosStandalone || window.matchMedia("(display-mode: standalone)").matches;
-}
-
-const noSubscribe = () => () => {};
-
 export function InstallAppButton() {
   const { canPrompt, installed } = useInstallPrompt();
   const platform = useSyncExternalStore<Platform | null>(noSubscribe, detectPlatform, () => null);

@@ -4,7 +4,8 @@
  * Navigation, footer, and external-link content for the marketing surface.
  * Centralized here so structure and copy live in one typed place and components
  * stay presentational. Every href below resolves to a real section, route, or
- * address — no placeholder ("#") links.
+ * address — no placeholder ("#") links. Section links start with "/" so they
+ * also work from /privacy and /terms.
  */
 export interface NavLink {
   label: string;
@@ -12,9 +13,9 @@ export interface NavLink {
 }
 
 export const NAV_LINKS: readonly NavLink[] = [
-  { label: "Features", href: "#features" },
-  { label: "How it works", href: "#how-it-works" },
-  { label: "FAQ", href: "#faq" },
+  { label: "How it works", href: "/#how-it-works" },
+  { label: "Privacy", href: "/#privacy" },
+  { label: "FAQ", href: "/#faq" },
 ];
 
 export interface FooterLink {
@@ -35,15 +36,16 @@ export const FOOTER_SECTIONS: readonly FooterSection[] = [
   {
     title: "Product",
     links: [
-      { label: "Features", href: "#features" },
-      { label: "How it works", href: "#how-it-works" },
-      { label: "FAQ", href: "#faq" },
+      { label: "How it works", href: "/#how-it-works" },
+      { label: "What you can send", href: "/#features" },
+      { label: "FAQ", href: "/#faq" },
+      { label: "Sign in", href: "/login" },
     ],
   },
   {
     title: "Legal",
     links: [
-      { label: "Privacy", href: "/privacy" },
+      { label: "Privacy policy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
       { label: "Contact", href: `mailto:${SUPPORT_EMAIL}` },
     ],

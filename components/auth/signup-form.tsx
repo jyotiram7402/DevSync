@@ -1,15 +1,18 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { FormError } from "@/components/auth/form-error";
 import { OAuthButtons } from "@/components/auth/oauth-buttons";
+import { OrDivider } from "@/components/auth/or-divider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password-input";
 import { useSupabase } from "@/hooks/use-supabase";
 import { resendSignupConfirmation, signUpWithPassword } from "@/lib/auth/auth";
 import { signupSchema, type SignupInput } from "@/lib/auth/schemas";
@@ -17,7 +20,7 @@ import { signupSchema, type SignupInput } from "@/lib/auth/schemas";
 /** Supabase accepts one confirmation email per address per minute. */
 const RESEND_COOLDOWN_SECONDS = 60;
 
-export function SignupForm() {
+export function SignupForm({ next }: { next?: string | undefined }) {
   const supabase = useSupabase();
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
@@ -108,8 +111,8 @@ export function SignupForm() {
           type="button"
           variant="outline"
           onClick={handleResend}
-          disabled={resending || cooldown > 0}
-          aria-busy={resending}
+          disabled={cooldown > 0}
+          loading={resending}
         >
           {resending ? "Sending…" : cooldown > 0 ? `Send again in ${cooldown}s` : "Send the email again"}
         </Button>
@@ -126,16 +129,9 @@ export function SignupForm() {
 
   return (
     <div className="flex flex-col gap-6">
-      <OAuthButtons />
+      <OAuthButtons next={next} />
 
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center" aria-hidden="true">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-2 text-muted-foreground">or</span>
-        </div>
-      </div>
+      <OrDivider />
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
         {formError ? <FormError message={formError} /> : null}
@@ -145,7 +141,10 @@ export function SignupForm() {
           <Input
             id="email"
             type="email"
+            inputMode="email"
             autoComplete="email"
+            autoCapitalize="none"
+            spellCheck={false}
             aria-invalid={errors.email ? true : undefined}
             aria-describedby={errors.email ? "email-error" : undefined}
             {...register("email")}
@@ -159,26 +158,28 @@ export function SignupForm() {
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="password">Password</Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="new-password"
             aria-invalid={errors.password ? true : undefined}
-            aria-describedby={errors.password ? "password-error" : undefined}
+            aria-describedby={errors.password ? "password-error" : "password-hint"}
             {...register("password")}
           />
           {errors.password ? (
             <p id="password-error" role="alert" className="text-sm text-destructive">
               {errors.password.message}
             </p>
-          ) : null}
+          ) : (
+            <p id="password-hint" className="text-xs text-muted-foreground">
+              At least 8 characters.
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="confirmPassword">Confirm password</Label>
-          <Input
+          <PasswordInput
             id="confirmPassword"
-            type="password"
             autoComplete="new-password"
             aria-invalid={errors.confirmPassword ? true : undefined}
             aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
@@ -191,9 +192,21 @@ export function SignupForm() {
           ) : null}
         </div>
 
-        <Button type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
+        <Button type="submit" loading={isSubmitting}>
           {isSubmitting ? "Creating account…" : "Create account"}
         </Button>
+
+        <p className="text-center text-xs text-muted-foreground">
+          By creating an account you agree to the{" "}
+          <Link href="/terms" className="underline underline-offset-4 hover:text-foreground">
+            Terms
+          </Link>{" "}
+          and the{" "}
+          <Link href="/privacy" className="underline underline-offset-4 hover:text-foreground">
+            Privacy Policy
+          </Link>
+          .
+        </p>
       </form>
     </div>
   );

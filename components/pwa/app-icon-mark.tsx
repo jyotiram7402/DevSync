@@ -1,17 +1,16 @@
 /**
- * The CopyAnywhere app-icon mark, drawn with plain divs so it renders inside
- * Next.js `ImageResponse` (which supports only a subset of CSS — flexbox,
- * absolute positioning, solid colors and gradients).
+ * The CopyAnywhere app icon for generated PNGs (home screen, install, iPhone),
+ * matching the logo in the app (components/shared/logo.tsx) and the favicon
+ * (app/icon.svg): the double chevron in white on the brand color.
  *
- * Design: brand gradient tile with two offset rounded squares — the "copy"
- * motif — connected by a dot, echoing content moving between devices.
- * Everything is sized relative to `size`, and the mark is inset ~22% so it
- * survives Android's maskable/adaptive-icon cropping.
+ * Plain elements and inline SVG only, so it renders inside Next.js
+ * `ImageResponse`. Full-bleed square (iOS and Android round the corners
+ * themselves); the mark stays well inside the maskable safe zone.
  */
+export const BRAND_COLOR = "#5B5FFF";
+
 export function AppIconMark({ size }: { size: number }) {
-  const unit = size / 100;
-  const card = 40 * unit;
-  const radius = 10 * unit;
+  const mark = Math.round(size * 0.72);
 
   return (
     <div
@@ -21,44 +20,27 @@ export function AppIconMark({ size }: { size: number }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #5B5FFF 0%, #8B5CF6 100%)",
+        background: BRAND_COLOR,
       }}
     >
-      <div
-        style={{
-          position: "relative",
-          width: card * 1.55,
-          height: card * 1.55,
-          display: "flex",
-        }}
-      >
-        {/* Back card (the "source") */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: card,
-            height: card,
-            borderRadius: radius,
-            background: "rgba(255,255,255,0.45)",
-            display: "flex",
-          }}
+      {/* viewBox shifted 1.5 units so the pair of chevrons sits optically centered. */}
+      <svg width={mark} height={mark} viewBox="1.5 0 32 32" fill="none">
+        <path
+          d="M10 9 L17 16 L10 23"
+          stroke="#FFFFFF"
+          strokeWidth={2.75}
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
-        {/* Front card (the "destination") */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            right: 0,
-            width: card,
-            height: card,
-            borderRadius: radius,
-            background: "#FFFFFF",
-            display: "flex",
-          }}
+        <path
+          d="M18 9 L25 16 L18 23"
+          stroke="#FFFFFF"
+          strokeWidth={2.75}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity={0.55}
         />
-      </div>
+      </svg>
     </div>
   );
 }

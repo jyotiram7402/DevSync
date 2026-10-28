@@ -1,231 +1,160 @@
-import {
-  Code2,
-  FileText,
-  FolderKanban,
-  HardDrive,
-  Image as ImageIcon,
-  Library,
-  Link2,
-  MonitorSmartphone,
-  Plus,
-  RefreshCw,
-  Zap,
-} from "lucide-react";
+import { ClipboardPaste } from "lucide-react";
 import Link from "next/link";
 
-import { DashboardCard } from "@/components/shared/dashboard-card";
+import { ArrivalFeed } from "@/components/items/arrival-feed";
+import { InstallCard } from "@/components/pwa/install-card";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorState } from "@/components/shared/error-state";
 import { PageHeader } from "@/components/shared/page-header";
-import { StatCard } from "@/components/shared/stat-card";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { LibraryStrip } from "@/features/dashboard/components/library-strip";
 import { LiveRefresh } from "@/features/dashboard/components/live-refresh";
-import { RecentSyncList } from "@/features/dashboard/components/recent-sync-list";
 import { getDashboardOverview } from "@/features/dashboard/services/overview-service";
 import { NotesWidget } from "@/features/notes/components/notes-widget";
 import { getNoteBuckets } from "@/features/notes/services/note-service";
+import { DeviceList } from "@/features/settings/components/device-list";
+import { getSnippetPermissions } from "@/features/snippets";
+import { SnippetRow } from "@/features/snippets/components/snippet-row";
+import { listSnippets } from "@/features/snippets/services/snippet-service";
 import { getServerUser } from "@/lib/auth/session";
-import { formatBytes, formatRelativeTime } from "@/utils/formatters";
+import { formatBytes } from "@/utils/formatters";
 
 export const metadata = {
   title: "Home",
 };
 
-const CLIENT_LABEL: Record<string, string> = {
-  web: "Web",
-  mobile: "Android app",
-  extension: "Browser extension",
-  vscode: "VS Code",
-  cli: "CLI",
-};
+const LATEST_COUNT = 5;
 
+/**
+ * Home — what you saved most recently, ready to copy on this device; the
+ * Library at a glance; your notes; and where you're signed in. Live: anything
+ * saved on another device slides in here within a second.
+ */
 export default async function DashboardHomePage() {
-  const user = await getServerUser();
-  const firstName = user?.displayName?.split(" ")[0] ?? "there";
-  const [result, notesResult] = await Promise.all([getDashboardOverview(), getNoteBuckets()]);
+  const [user, overviewResult, latestResult, notesResult] = await Promise.all([
+    getServerUser(),
+    getDashboardOverview(),
+    listSnippets({ pageSize: LATEST_COUNT }),
+    getNoteBuckets(),
+  ]);
+  const firstName = user?.displayName?.split(" ")[0];
+  const title = firstName ? `Welcome back, ${firstName}` : "Welcome back";
 
-  if (!result.ok) {
+  if (!overviewResult.ok) {
     return (
       <div className="flex flex-col gap-6">
-        <PageHeader title={`Welcome back, ${firstName}`} />
-        <EmptyState title="Unable to load your workspace" description={result.error.message} />
+        <PageHeader title={title} />
+        <ErrorState title="Couldn't load your workspace" description={overviewResult.error.message}>
+          <Button asChild variant="outline">
+            <Link href="/dashboard/home">Try again</Link>
+          </Button>
+        </ErrorState>
       </div>
     );
   }
 
-  const overview = result.data;
+  const overview = overviewResult.data;
   const { counts, storageUsedBytes, storageLimitBytes } = overview;
   const storagePercent =
-    storageLimitBytes > 0
-      ? Math.min(100, Math.round((storageUsedBytes / storageLimitBytes) * 100))
-      : 0;
-  const onlineCount = overview.devices.filter((device) => device.online).length;
-
-  const contentStats = [
-    { label: "Snippets", value: counts.snippets, icon: Code2, hint: "Text & code" },
-    { label: "Images", value: counts.images, icon: ImageIcon, hint: "Synced images" },
-    { label: "Links", value: counts.links, icon: Link2, hint: "Saved URLs" },
-    {
-      label: "Docs & files",
-      value: counts.docs + counts.files,
-      icon: FileText,
-      hint: "Attachments",
-    },
-  ];
-
-  const workspaceStats = [
-    { label: "Projects", value: counts.projects, icon: FolderKanban, hint: "Active" },
-    { label: "Collections", value: counts.collections, icon: Library, hint: "In this workspace" },
-    {
-      label: "Devices",
-      value: counts.devices,
-      icon: MonitorSmartphone,
-      hint: `${onlineCount} online`,
-    },
-  ];
+    storageLimitBytes > 0 ? Math.min(100, Math.round((storageUsedBytes / storageLimitBytes) * 100)) : 0;
+  const online = overview.devices.filter((device) => device.online).length;
 
   return (
     <div className="flex flex-col gap-8">
-      {/* Live: refreshes this server-rendered page whenever anything syncs. */}
+      {/* Live: anything saved on another device shows up here without a reload. */}
       <LiveRefresh workspaceId={overview.workspaceId} />
 
-      <PageHeader
-        title={`Welcome back, ${firstName}`}
-        description={`Here is what is happening across ${overview.workspaceName}.`}
-        actions={
-          <>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/dashboard/projects/new">
-                <Plus />
-                New project
-              </Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/dashboard/snippets/new">
-                <Plus />
-                New snippet
-              </Link>
-            </Button>
-          </>
-        }
-      />
+      <PageHeader title={title} description="Your latest, ready to copy on this device." />
 
-      <section aria-label="Content overview" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {contentStats.map((stat) => (
-          <StatCard
-            key={stat.label}
-            label={stat.label}
-            value={String(stat.value)}
-            icon={stat.icon}
-            hint={stat.hint}
+      <InstallCard />
+
+      <section aria-labelledby="home-latest" className="flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-3">
+          <h2 id="home-latest" className="text-base font-semibold">
+            Latest snippets
+          </h2>
+          <Button asChild variant="ghost" size="sm" className="-mr-2">
+            <Link href="/dashboard/snippets">All snippets</Link>
+          </Button>
+        </div>
+        {!latestResult.ok ? (
+          <ErrorState title="Couldn't load your snippets" description={latestResult.error.message}>
+            <Button asChild variant="outline">
+              <Link href="/dashboard/home">Try again</Link>
+            </Button>
+          </ErrorState>
+        ) : latestResult.data.snippets.length === 0 ? (
+          <EmptyState
+            icon={ClipboardPaste}
+            title="Nothing saved yet"
+            description="Paste an error, a command or some code with Add (Quick add on a computer). It shows up on your other devices right away."
+            action={
+              <Button asChild>
+                <Link href="/dashboard/snippets/new">New snippet</Link>
+              </Button>
+            }
           />
-        ))}
+        ) : (
+          <ArrivalFeed
+            label="Latest snippets"
+            resetKey="home"
+            entries={latestResult.data.snippets.map((snippet) => ({
+              id: snippet.id,
+              node: (
+                <SnippetRow
+                  snippet={snippet}
+                  permissions={getSnippetPermissions(latestResult.data.role)}
+                  selectable={false}
+                />
+              ),
+            }))}
+          />
+        )}
       </section>
 
-      <section aria-label="Workspace overview" className="grid gap-4 sm:grid-cols-3">
-        {workspaceStats.map((stat) => (
-          <StatCard
-            key={stat.label}
-            label={stat.label}
-            value={String(stat.value)}
-            icon={stat.icon}
-            hint={stat.hint}
-          />
-        ))}
+      <section aria-labelledby="home-library" className="flex flex-col gap-3">
+        <h2 id="home-library" className="text-base font-semibold">
+          Library
+        </h2>
+        <LibraryStrip counts={counts} />
       </section>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <DashboardCard
-          title="Recent sync"
-          description="Your latest synced items, newest first."
-          className="lg:col-span-2"
-          action={<Zap className="size-4 text-muted-foreground" aria-hidden="true" />}
-        >
-          <RecentSyncList items={overview.recent} />
-        </DashboardCard>
-
-        <DashboardCard title="Sync status">
-          <div className="flex items-center gap-3">
-            <span className="flex size-9 items-center justify-center rounded-full bg-success/10 text-success">
-              <RefreshCw className="size-4" aria-hidden="true" />
-            </span>
-            <div>
-              <p className="text-sm font-medium">
-                {overview.lastSyncedAt ? "All changes synced" : "Nothing synced yet"}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {overview.lastSyncedAt
-                  ? `Last synced ${formatRelativeTime(overview.lastSyncedAt)}`
-                  : "Sync your first item to get started."}
-              </p>
-            </div>
-          </div>
-        </DashboardCard>
-      </div>
 
       {notesResult.ok ? <NotesWidget buckets={notesResult.data} /> : null}
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <DashboardCard
-          title="Storage"
-          description={`${formatBytes(storageUsedBytes)} of ${formatBytes(storageLimitBytes)} used`}
-          action={<HardDrive className="size-4 text-muted-foreground" aria-hidden="true" />}
-        >
-          <div
-            role="progressbar"
-            aria-label="Storage used"
-            aria-valuenow={storagePercent}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            className="h-2 w-full overflow-hidden rounded-full bg-secondary"
-          >
-            <div className="h-full rounded-full bg-primary" style={{ width: `${storagePercent}%` }} />
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">{storagePercent}% of your free plan.</p>
-        </DashboardCard>
-
-        <DashboardCard
-          title="Connected devices"
-          action={
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/dashboard/settings">Manage</Link>
+        <section aria-labelledby="home-devices" className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-3">
+            <h2 id="home-devices" className="text-base font-semibold">
+              Devices{" "}
+              <span className="text-sm font-normal text-muted-foreground">
+                {online > 0 ? `· ${online} active now` : null}
+              </span>
+            </h2>
+            <Button asChild variant="ghost" size="sm" className="-mr-2">
+              <Link href="/dashboard/settings#devices">Manage</Link>
             </Button>
-          }
-        >
+          </div>
           {overview.devices.length === 0 ? (
-            <p className="py-4 text-sm text-muted-foreground">
-              No devices registered yet. Sign in on the Android app or the browser extension to see
-              them here.
+            <p className="text-sm text-muted-foreground">
+              Sign in on your phone or another computer and it shows up here.
             </p>
           ) : (
-            <ul className="flex flex-col divide-y">
-              {overview.devices.map((device) => (
-                <li key={device.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary text-muted-foreground">
-                    <MonitorSmartphone className="size-4" aria-hidden="true" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{device.name}</p>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {[
-                        CLIENT_LABEL[device.clientType] ?? device.clientType,
-                        device.os,
-                        device.online ? "active now" : formatRelativeTime(device.lastSeenAt),
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </p>
-                  </div>
-                  {device.online ? (
-                    <span
-                      className="size-2 shrink-0 rounded-full bg-success"
-                      aria-label="Online"
-                    />
-                  ) : null}
-                </li>
-              ))}
-            </ul>
+            <DeviceList devices={overview.devices.slice(0, 3)} />
           )}
-        </DashboardCard>
+        </section>
+
+        <section aria-labelledby="home-storage" className="flex flex-col gap-3">
+          <h2 id="home-storage" className="text-base font-semibold">
+            Storage
+          </h2>
+          <div className="flex flex-col gap-2 rounded-lg border border-border p-4">
+            <Progress value={storagePercent} label="Storage used" />
+            <p className="text-sm text-muted-foreground">
+              {formatBytes(storageUsedBytes)} of {formatBytes(storageLimitBytes)} used ({storagePercent}%)
+            </p>
+          </div>
+        </section>
       </div>
     </div>
   );

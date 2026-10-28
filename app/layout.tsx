@@ -3,7 +3,7 @@ import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { RegisterServiceWorker } from "@/components/pwa/register-service-worker";
-import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE, SITE_URL } from "@/lib/constants";
+import { APP_NAME, APP_TAGLINE, SITE_URL } from "@/lib/constants";
 import { THEME_COLOR } from "@/lib/theme";
 import { Providers } from "@/providers";
 
@@ -26,13 +26,17 @@ const fontMono = JetBrains_Mono({
   preload: false,
 });
 
+/** Search and link-preview text: what it does, for whom, without jargon. */
+const SHARE_DESCRIPTION =
+  "Copy on one device, paste on any other. Text, code, errors, links, images and files, live in any browser — even on a locked-down work laptop, with nothing to install.";
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: `${APP_NAME} — ${APP_TAGLINE}`,
     template: `%s · ${APP_NAME}`,
   },
-  description: APP_DESCRIPTION,
+  description: SHARE_DESCRIPTION,
   applicationName: APP_NAME,
   appleWebApp: {
     capable: true,
@@ -40,12 +44,12 @@ export const metadata: Metadata = {
     title: APP_NAME,
   },
   keywords: [
-    "developer tools",
     "clipboard sync",
+    "copy paste between devices",
+    "send text from phone to computer",
+    "send files to yourself",
+    "cross-device clipboard",
     "code snippets",
-    "cross-device sync",
-    "debugging",
-    "stack traces",
   ],
   authors: [{ name: APP_NAME }],
   creator: APP_NAME,
@@ -54,12 +58,12 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: APP_NAME,
     title: `${APP_NAME} — ${APP_TAGLINE}`,
-    description: APP_DESCRIPTION,
+    description: SHARE_DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
     title: `${APP_NAME} — ${APP_TAGLINE}`,
-    description: APP_DESCRIPTION,
+    description: SHARE_DESCRIPTION,
   },
   robots: {
     index: true,

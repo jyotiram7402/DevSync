@@ -12,8 +12,19 @@ import type { SnippetPermissions } from "@/features/snippets/permissions";
 import type { Snippet } from "@/features/snippets/types";
 import { ITEM_KINDS, isCodeLikeKind, resolveItemKind } from "@/lib/item-kinds";
 
-/** A snippet in the Snippets feed, from the shared item family. */
-export function SnippetRow({ snippet, permissions }: { snippet: Snippet; permissions: SnippetPermissions }) {
+/**
+ * A snippet in a feed, from the shared item family. `selectable` adds the
+ * checkbox for bulk actions (lists that have the bulk action bar).
+ */
+export function SnippetRow({
+  snippet,
+  permissions,
+  selectable = true,
+}: {
+  snippet: Snippet;
+  permissions: SnippetPermissions;
+  selectable?: boolean;
+}) {
   const kind = resolveItemKind(snippet.type);
   const { title, preview } = snippetTitleAndPreview(snippet);
   const language = snippet.language && snippet.language !== "plaintext" ? getLanguageLabel(snippet.language) : null;
@@ -23,13 +34,28 @@ export function SnippetRow({ snippet, permissions }: { snippet: Snippet; permiss
       kind={kind}
       title={title}
       href={`/dashboard/snippets/${snippet.id}`}
-      leading={<SnippetSelectCheckbox snippetId={snippet.id} label={title} />}
+      leading={selectable ? <SnippetSelectCheckbox snippetId={snippet.id} label={title} /> : undefined}
       badges={
         snippet.pinned || snippet.favorite || snippet.archived ? (
           <>
-            {snippet.pinned ? <Pin className="size-3.5 fill-current text-muted-foreground" aria-label="Pinned" /> : null}
-            {snippet.favorite ? <Star className="size-3.5 fill-current text-favorite" aria-label="Favorite" /> : null}
-            {snippet.archived ? <Archive className="size-3.5 text-muted-foreground" aria-label="Archived" /> : null}
+            {snippet.pinned ? (
+              <>
+                <Pin className="size-3.5 fill-current text-muted-foreground" aria-hidden="true" />
+                <span className="sr-only">Pinned</span>
+              </>
+            ) : null}
+            {snippet.favorite ? (
+              <>
+                <Star className="size-3.5 fill-current text-favorite" aria-hidden="true" />
+                <span className="sr-only">Favorite</span>
+              </>
+            ) : null}
+            {snippet.archived ? (
+              <>
+                <Archive className="size-3.5 text-muted-foreground" aria-hidden="true" />
+                <span className="sr-only">Archived</span>
+              </>
+            ) : null}
           </>
         ) : null
       }

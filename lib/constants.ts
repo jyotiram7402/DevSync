@@ -12,7 +12,7 @@ export const APP_NAME = "CopyAnywhere" as const;
 export const APP_TAGLINE = "Copy Once. Access Anywhere." as const;
 
 export const APP_DESCRIPTION =
-  "CopyAnywhere instantly synchronizes text, code, images, documents, files and links across your devices in real time — from Android to web, from browser to desktop. Stop emailing yourself." as const;
+  "Copy on one device, paste on another. CopyAnywhere syncs text, code, links, photos and files across your devices in about a second, in any browser, with nothing to install." as const;
 
 /** Short value proposition for compact places (OG cards, footer, manifest). */
 export const APP_PITCH =

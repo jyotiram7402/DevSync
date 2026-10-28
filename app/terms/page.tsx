@@ -8,7 +8,7 @@ import { PageWrapper } from "@/components/shared/page-wrapper";
 import { APP_NAME } from "@/lib/constants";
 import { SUPPORT_EMAIL } from "@/lib/site-config";
 
-const LAST_UPDATED = "August 20, 2026";
+const LAST_UPDATED = "October 28, 2026";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -85,9 +85,16 @@ export default function TermsPage() {
 
             <Section title="Termination">
               <p>
-                You may stop using {APP_NAME} and delete your account at any time. We may suspend or
-                terminate accounts that violate these terms or that put the service or its users at
-                risk.
+                You may stop using {APP_NAME} at any time. To delete your account and everything in
+                it, email us at{" "}
+                <a
+                  href={`mailto:${SUPPORT_EMAIL}`}
+                  className="font-medium text-foreground underline underline-offset-4"
+                >
+                  {SUPPORT_EMAIL}
+                </a>{" "}
+                from the address you sign in with, and we will delete it. We may suspend or terminate
+                accounts that violate these terms or that put the service or its users at risk.
               </p>
             </Section>
 
