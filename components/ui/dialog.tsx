@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect, useId, useRef, type ReactNode, type RefObject } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 
 import { Button } from "@/components/ui/button";
@@ -25,10 +25,40 @@ import { cn } from "@/utils/cn";
 /** Open modals, innermost last: only the top one reacts to Escape. */
 const openModals: HTMLElement[] = [];
 
+/**
+ * Page scroll lock shared by every open modal: taken by the first, released by
+ * the last, so modals closing in any order never leave the page locked.
+ */
+let scrollLocks = 0;
+let unlockedOverflow = "";
+let unlockedPaddingRight = "";
+
+function lockScroll() {
+  if (scrollLocks === 0) {
+    const html = document.documentElement;
+    unlockedOverflow = html.style.overflow;
+    unlockedPaddingRight = document.body.style.paddingRight;
+    // Keep the layout from shifting where the scrollbar was.
+    const scrollbarWidth = window.innerWidth - html.clientWidth;
+    html.style.overflow = "hidden";
+    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
+  }
+  scrollLocks += 1;
+}
+
+function unlockScroll() {
+  scrollLocks = Math.max(0, scrollLocks - 1);
+  if (scrollLocks === 0) {
+    document.documentElement.style.overflow = unlockedOverflow;
+    document.body.style.paddingRight = unlockedPaddingRight;
+  }
+}
+
 function useModalBehavior(
   active: boolean,
   rootRef: RefObject<HTMLDivElement | null>,
   panelRef: RefObject<HTMLDivElement | null>,
+  restoreTarget: HTMLElement | null,
   onClose: () => void,
 ) {
   // Callers often pass an inline onClose; keep the latest without re-running the effect.
@@ -42,8 +72,6 @@ function useModalBehavior(
     const panel = panelRef.current;
     if (!active || !root || !panel) return;
 
-    const restoreTarget = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-
     // Everything else becomes inert; live regions stay so announcements still reach screen readers.
     const madeInert: HTMLElement[] = [];
     for (const element of Array.from(document.body.children)) {
@@ -53,14 +81,7 @@ function useModalBehavior(
       madeInert.push(element);
     }
 
-    // Lock page scroll without shifting the layout where the scrollbar was.
-    const html = document.documentElement;
-    const previousOverflow = html.style.overflow;
-    const previousPaddingRight = document.body.style.paddingRight;
-    const scrollbarWidth = window.innerWidth - html.clientWidth;
-    html.style.overflow = "hidden";
-    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
-
+    lockScroll();
     openModals.push(root);
 
     if (!panel.contains(document.activeElement)) {
@@ -81,11 +102,10 @@ function useModalBehavior(
       const index = openModals.lastIndexOf(root);
       if (index !== -1) openModals.splice(index, 1);
       for (const element of madeInert) element.removeAttribute("inert");
-      html.style.overflow = previousOverflow;
-      document.body.style.paddingRight = previousPaddingRight;
+      unlockScroll();
       if (restoreTarget?.isConnected) restoreTarget.focus({ preventScroll: true });
     };
-  }, [active, rootRef, panelRef]);
+  }, [active, rootRef, panelRef, restoreTarget]);
 }
 
 const SIZES = {
@@ -124,7 +144,16 @@ export function ResponsiveDialog({
   const descriptionId = useId();
   const active = open && mounted;
 
-  useModalBehavior(active, rootRef, panelRef, onClose);
+  // Remember what had focus in the render that opens the dialog — before an
+  // autoFocus field inside it takes focus — so closing returns focus there.
+  const [opener, setOpener] = useState<HTMLElement | null>(null);
+  const [wasActive, setWasActive] = useState(false);
+  if (active !== wasActive) {
+    setWasActive(active);
+    setOpener(active && document.activeElement instanceof HTMLElement ? document.activeElement : null);
+  }
+
+  useModalBehavior(active, rootRef, panelRef, opener, onClose);
 
   if (!active) return null;
 

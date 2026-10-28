@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import { KIND_TONE_TILE } from "@/components/ui/kind-badge";
-import { fileExtension, ITEM_KINDS, kindFromFile } from "@/lib/item-kinds";
+import { fileExtension, ITEM_KINDS, kindFromFile, type ItemKind } from "@/lib/item-kinds";
 import { cn } from "@/utils/cn";
 
 /**
@@ -20,41 +20,42 @@ import { cn } from "@/utils/cn";
  * spreadsheet, slides, archive, audio, video, image, code). Its accessible
  * label is the file type, e.g. "PDF file".
  */
-const EXTENSION_ICONS: Record<string, LucideIcon> = {
-  xls: FileSpreadsheet,
-  xlsx: FileSpreadsheet,
-  ods: FileSpreadsheet,
-  csv: FileSpreadsheet,
-  ppt: Presentation,
-  pptx: Presentation,
-  odp: Presentation,
-  key: Presentation,
-  js: FileCode,
-  jsx: FileCode,
-  ts: FileCode,
-  tsx: FileCode,
-  json: FileCode,
-  py: FileCode,
-  java: FileCode,
-  kt: FileCode,
-  go: FileCode,
-  rs: FileCode,
-  rb: FileCode,
-  php: FileCode,
-  cs: FileCode,
-  c: FileCode,
-  cpp: FileCode,
-  h: FileCode,
-  sh: FileCode,
-  sql: FileCode,
-  yml: FileCode,
-  yaml: FileCode,
-  xml: FileCode,
-  html: FileCode,
-  css: FileCode,
-};
+const SPREADSHEET_EXTENSIONS = ["xls", "xlsx", "ods", "csv"];
+const SLIDES_EXTENSIONS = ["ppt", "pptx", "odp", "key"];
+const CODE_EXTENSIONS = [
+  "js",
+  "jsx",
+  "ts",
+  "tsx",
+  "json",
+  "py",
+  "java",
+  "kt",
+  "go",
+  "rs",
+  "rb",
+  "php",
+  "cs",
+  "c",
+  "cpp",
+  "h",
+  "sh",
+  "sql",
+  "yml",
+  "yaml",
+  "xml",
+  "html",
+  "css",
+];
 
-const KIND_FILE_ICONS: Partial<Record<string, LucideIcon>> = {
+// A Map (not an object literal) so names like "x.constructor" never hit Object.prototype.
+const EXTENSION_ICONS = new Map<string, LucideIcon>([
+  ...SPREADSHEET_EXTENSIONS.map((extension): [string, LucideIcon] => [extension, FileSpreadsheet]),
+  ...SLIDES_EXTENSIONS.map((extension): [string, LucideIcon] => [extension, Presentation]),
+  ...CODE_EXTENSIONS.map((extension): [string, LucideIcon] => [extension, FileCode]),
+]);
+
+const KIND_FILE_ICONS: Partial<Record<ItemKind, LucideIcon>> = {
   image: FileImage,
   doc: FileText,
   archive: FileArchive,
@@ -78,8 +79,9 @@ interface FileIconProps {
 export function FileIcon({ name, mimeType, size = "md", className }: FileIconProps) {
   const extension = fileExtension(name);
   const kind = kindFromFile(name, mimeType);
-  const Icon = EXTENSION_ICONS[extension] ?? KIND_FILE_ICONS[kind] ?? GenericFile;
-  const tone = EXTENSION_ICONS[extension] === FileCode ? "code" : ITEM_KINDS[kind].tone;
+  const extensionIcon = EXTENSION_ICONS.get(extension);
+  const Icon = extensionIcon ?? KIND_FILE_ICONS[kind] ?? GenericFile;
+  const tone = extensionIcon === FileCode ? "code" : ITEM_KINDS[kind].tone;
   const label = extension ? `${extension.toUpperCase()} file` : ITEM_KINDS[kind].label;
 
   return (

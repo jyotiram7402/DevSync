@@ -262,7 +262,8 @@ export function Menu({ label, items, align = "end", trigger, className }: MenuPr
               tabIndex={-1}
               onKeyDown={handleMenuKeyDown}
               style={position ? { top: position.top, left: position.left } : { top: 0, left: 0, visibility: "hidden" }}
-              className="fixed z-overlay flex min-w-48 max-w-[calc(100vw-1rem)] flex-col rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-overlay outline-none animate-menu-in"
+              // Modal layer, later in the DOM than any open dialog, so a menu opened from a dialog sits above it.
+              className="fixed z-modal flex min-w-48 max-w-[calc(100vw-1rem)] flex-col rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-overlay outline-none animate-menu-in"
             >
               {renderEntries("popover")}
             </div>,

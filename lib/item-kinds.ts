@@ -43,72 +43,73 @@ export const ITEM_KINDS: Record<ItemKind, { label: string; tone: KindTone }> = {
   note: { label: "Note", tone: "note" },
 };
 
-const RAW_KINDS: Record<string, ItemKind> = {
-  text: "text",
-  code: "code",
-  command: "command",
-  error: "error",
-  stacktrace: "stacktrace",
-  log: "log",
-  url: "link",
-  link: "link",
-  image: "image",
-  pdf: "doc",
-  office: "doc",
-  doc: "doc",
-  file: "file",
-  archive: "archive",
-  audio: "audio",
-  video: "video",
-  note: "note",
-};
+// Maps (not object literals) so values like "constructor" never hit Object.prototype.
+const RAW_KINDS = new Map<string, ItemKind>([
+  ["text", "text"],
+  ["code", "code"],
+  ["command", "command"],
+  ["error", "error"],
+  ["stacktrace", "stacktrace"],
+  ["log", "log"],
+  ["url", "link"],
+  ["link", "link"],
+  ["image", "image"],
+  ["pdf", "doc"],
+  ["office", "doc"],
+  ["doc", "doc"],
+  ["file", "file"],
+  ["archive", "archive"],
+  ["audio", "audio"],
+  ["video", "video"],
+  ["note", "note"],
+]);
 
 /** Display kind for a stored value (snippet type, metadata.kind, Space category). */
 export function resolveItemKind(raw: string | null | undefined, fallback: ItemKind = "text"): ItemKind {
   if (!raw) return fallback;
-  return RAW_KINDS[raw.toLowerCase()] ?? fallback;
+  return RAW_KINDS.get(raw.toLowerCase()) ?? fallback;
 }
 
-const EXTENSION_KINDS: Record<string, ItemKind> = {
-  pdf: "doc",
-  doc: "doc",
-  docx: "doc",
-  odt: "doc",
-  rtf: "doc",
-  xls: "doc",
-  xlsx: "doc",
-  ods: "doc",
-  csv: "doc",
-  ppt: "doc",
-  pptx: "doc",
-  odp: "doc",
-  key: "doc",
-  zip: "archive",
-  rar: "archive",
-  "7z": "archive",
-  tar: "archive",
-  gz: "archive",
-  tgz: "archive",
-  mp3: "audio",
-  wav: "audio",
-  m4a: "audio",
-  aac: "audio",
-  ogg: "audio",
-  flac: "audio",
-  mp4: "video",
-  mov: "video",
-  webm: "video",
-  mkv: "video",
-  avi: "video",
-  png: "image",
-  jpg: "image",
-  jpeg: "image",
-  gif: "image",
-  webp: "image",
-  svg: "image",
-  heic: "image",
-  avif: "image",
-};
+const EXTENSION_KINDS = new Map<string, ItemKind>([
+  ["pdf", "doc"],
+  ["doc", "doc"],
+  ["docx", "doc"],
+  ["odt", "doc"],
+  ["rtf", "doc"],
+  ["xls", "doc"],
+  ["xlsx", "doc"],
+  ["ods", "doc"],
+  ["csv", "doc"],
+  ["ppt", "doc"],
+  ["pptx", "doc"],
+  ["odp", "doc"],
+  ["key", "doc"],
+  ["zip", "archive"],
+  ["rar", "archive"],
+  ["7z", "archive"],
+  ["tar", "archive"],
+  ["gz", "archive"],
+  ["tgz", "archive"],
+  ["mp3", "audio"],
+  ["wav", "audio"],
+  ["m4a", "audio"],
+  ["aac", "audio"],
+  ["ogg", "audio"],
+  ["flac", "audio"],
+  ["mp4", "video"],
+  ["mov", "video"],
+  ["webm", "video"],
+  ["mkv", "video"],
+  ["avi", "video"],
+  ["png", "image"],
+  ["jpg", "image"],
+  ["jpeg", "image"],
+  ["gif", "image"],
+  ["webp", "image"],
+  ["svg", "image"],
+  ["heic", "image"],
+  ["avif", "image"],
+]);
 
 /** Lower-case extension without the dot ("" when there is none). */
 export function fileExtension(name: string): string {
@@ -133,5 +134,5 @@ export function kindFromFile(name: string, mimeType?: string | null): ItemKind {
     return "doc";
   }
   if (mime.includes("zip") || mime.includes("compressed") || mime.includes("x-tar")) return "archive";
-  return EXTENSION_KINDS[fileExtension(name)] ?? "file";
+  return EXTENSION_KINDS.get(fileExtension(name)) ?? "file";
 }
