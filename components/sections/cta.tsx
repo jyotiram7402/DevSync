@@ -12,7 +12,7 @@ export function CTA() {
           {/* Animated brand gradient wash */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,hsl(var(--brand)/0.16),transparent_40%,hsl(var(--accent-brand)/0.16))] bg-[length:200%_200%] motion-safe:animate-gradient-pan"
+            className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgb(var(--primary)/0.16),transparent_40%,rgb(var(--primary)/0.16))] bg-[length:200%_200%] motion-safe:animate-gradient-pan"
           />
           <div
             aria-hidden="true"

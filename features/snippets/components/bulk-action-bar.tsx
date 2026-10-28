@@ -35,7 +35,7 @@ export function BulkActionBar({ permissions }: { permissions: SnippetPermissions
     <div
       role="region"
       aria-label="Bulk actions"
-      className="sticky bottom-4 z-30 mx-auto flex w-fit items-center gap-1 rounded-full border bg-popover px-3 py-2 text-popover-foreground shadow-premium"
+      className="sticky bottom-4 z-sticky mx-auto flex w-fit items-center gap-1 rounded-full border bg-popover px-3 py-2 text-popover-foreground shadow-overlay"
     >
       <span className="px-1 text-sm font-medium">{selectedIds.length} selected</span>
       {permissions.canArchive ? (

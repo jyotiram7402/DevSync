@@ -14,7 +14,7 @@ const BUCKET = "space-attachments" as const;
 
 const CATEGORY_BADGE: Record<SpaceItem["category"], { label: string; className: string }> = {
   error: { label: "Error", className: "bg-destructive/10 text-destructive" },
-  code: { label: "Code", className: "bg-brand/10 text-brand" },
+  code: { label: "Code", className: "bg-primary/10 text-primary-ink" },
   doc: { label: "Doc", className: "bg-muted text-muted-foreground" },
   file: { label: "File", className: "bg-muted text-muted-foreground" },
 };
@@ -90,7 +90,7 @@ export function SpaceItemCard({ item, isOwner }: { item: SpaceItem; isOwner: boo
   const badge = CATEGORY_BADGE[item.category];
   const meta = (
     <div className="flex items-center gap-2 text-xs text-muted-foreground">
-      <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${badge.className}`}>
+      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${badge.className}`}>
         {badge.label}
       </span>
       <span>{item.mine ? "You" : (item.author ?? "Someone")}</span>
@@ -106,7 +106,7 @@ export function SpaceItemCard({ item, isOwner }: { item: SpaceItem; isOwner: boo
         <div className="flex shrink-0 items-center gap-1">
           {!isFile ? (
             <Button type="button" variant="ghost" size="icon" onClick={() => void copyText()} aria-label="Copy">
-              {copied ? <Check className="size-4 text-brand" /> : <Copy className="size-4" />}
+              {copied ? <Check className="size-4 text-primary-ink" /> : <Copy className="size-4" />}
             </Button>
           ) : null}
           {isFile ? (
@@ -166,7 +166,7 @@ export function SpaceItemCard({ item, isOwner }: { item: SpaceItem; isOwner: boo
           href={item.content}
           target="_blank"
           rel="noreferrer"
-          className="break-all text-sm text-brand hover:underline"
+          className="break-all text-sm text-primary-ink hover:underline"
         >
           {item.content}
         </a>

@@ -36,7 +36,7 @@ export function FavoriteButton({
       aria-label={value ? "Remove favorite" : "Add favorite"}
       onClick={toggle}
     >
-      <Star className={cn("size-4", value && "fill-current text-amber-500")} />
+      <Star className={cn("size-4", value && "fill-current text-favorite")} />
       {size !== "icon" ? (value ? "Favorited" : "Favorite") : null}
     </Button>
   );

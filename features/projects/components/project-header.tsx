@@ -39,7 +39,7 @@ export function ProjectHeader({
               <Pin className="size-4 fill-current text-muted-foreground" aria-label="Pinned" />
             ) : null}
             {project.favorite ? (
-              <Star className="size-4 fill-current text-amber-500" aria-label="Favorite" />
+              <Star className="size-4 fill-current text-favorite" aria-label="Favorite" />
             ) : null}
             {project.archived ? <Badge variant="muted">Archived</Badge> : null}
           </div>

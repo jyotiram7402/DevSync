@@ -26,7 +26,7 @@ export function dueMeta(
 }
 
 export const PRIORITY_TONE: Record<NotePriority, string> = {
-  high: "text-red-500 bg-red-500/10",
-  medium: "text-amber-500 bg-amber-500/10",
+  high: "text-destructive bg-destructive/10",
+  medium: "text-warning bg-warning/10",
   low: "text-muted-foreground bg-muted",
 };

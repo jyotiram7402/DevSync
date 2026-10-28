@@ -63,7 +63,7 @@ export function ProjectTable({
                         <Pin className="size-3 fill-current text-muted-foreground" aria-label="Pinned" />
                       ) : null}
                       {project.favorite ? (
-                        <Star className="size-3 fill-current text-amber-500" aria-label="Favorite" />
+                        <Star className="size-3 fill-current text-favorite" aria-label="Favorite" />
                       ) : null}
                     </div>
                   </div>

@@ -59,7 +59,7 @@ export function ProjectCard({
       <div className="mt-auto flex items-center gap-2 text-xs text-muted-foreground">
         {project.archived ? <Badge variant="muted">Archived</Badge> : null}
         {project.favorite ? (
-          <Star className="size-3.5 fill-current text-amber-500" aria-label="Favorite" />
+          <Star className="size-3.5 fill-current text-favorite" aria-label="Favorite" />
         ) : null}
         <span className="truncate">Updated {formatRelativeTime(project.updatedAt)}</span>
       </div>

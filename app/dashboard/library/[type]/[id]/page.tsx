@@ -62,7 +62,7 @@ export default async function LibraryItemPage({
             href={snippet.content}
             target="_blank"
             rel="noreferrer"
-            className="break-all text-sm text-brand hover:underline"
+            className="break-all text-sm text-primary-ink hover:underline"
           >
             {snippet.content}
           </a>

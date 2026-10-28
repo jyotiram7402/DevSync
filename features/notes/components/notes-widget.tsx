@@ -12,8 +12,8 @@ import { cn } from "@/utils/cn";
 export function NotesWidget({ buckets }: { buckets: NoteBuckets }) {
   const focus = [...buckets.overdue, ...buckets.today].slice(0, 4);
   const stats = [
-    { label: "Overdue", value: buckets.overdue.length, tone: "text-red-500" },
-    { label: "Today", value: buckets.today.length, tone: "text-brand" },
+    { label: "Overdue", value: buckets.overdue.length, tone: "text-destructive" },
+    { label: "Today", value: buckets.today.length, tone: "text-primary-ink" },
     { label: "Upcoming", value: buckets.upcoming.length, tone: "text-muted-foreground" },
   ];
 
@@ -35,15 +35,15 @@ export function NotesWidget({ buckets }: { buckets: NoteBuckets }) {
           {stats.map((stat) => (
             <div key={stat.label} className="rounded-lg border p-2 text-center">
               <p className={cn("text-lg font-semibold tabular-nums", stat.tone)}>{stat.value}</p>
-              <p className="text-[11px] text-muted-foreground">{stat.label}</p>
+              <p className="text-xs text-muted-foreground">{stat.label}</p>
             </div>
           ))}
           <div className="rounded-lg border p-2 text-center">
-            <p className="flex items-center justify-center gap-1 text-lg font-semibold tabular-nums text-emerald-500">
+            <p className="flex items-center justify-center gap-1 text-lg font-semibold tabular-nums text-success">
               <CheckCircle2 className="size-4" aria-hidden="true" />
               {buckets.completedCount}
             </p>
-            <p className="text-[11px] text-muted-foreground">Done</p>
+            <p className="text-xs text-muted-foreground">Done</p>
           </div>
         </div>
 

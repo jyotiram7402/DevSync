@@ -27,7 +27,7 @@ export function GlobalSearchBar({ className }: { className?: string }) {
       >
         <Search className="size-4 shrink-0" aria-hidden="true" />
         <span className="flex-1 text-left">Search…</span>
-        <kbd className="pointer-events-none rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+        <kbd className="pointer-events-none rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground">
           ⌘K
         </kbd>
       </button>

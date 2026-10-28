@@ -12,8 +12,8 @@ import type { Note } from "@/features/notes/types";
 import { cn } from "@/utils/cn";
 
 const TONE: Record<"overdue" | "today" | "upcoming", string> = {
-  overdue: "text-red-500 bg-red-500/10",
-  today: "text-brand bg-brand/10",
+  overdue: "text-destructive bg-destructive/10",
+  today: "text-primary-ink bg-primary/10",
   upcoming: "text-muted-foreground bg-muted",
 };
 
@@ -36,7 +36,7 @@ function IconButton({
       className={cn(
         "rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        active && "text-brand",
+        active && "text-primary-ink",
       )}
     >
       {children}
@@ -86,7 +86,7 @@ export function NoteItem({ note }: { note: Note }) {
         onClick={() => void patch({ status: completed ? "pending" : "completed" })}
         className={cn(
           "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors",
-          completed ? "border-brand bg-brand text-brand-foreground" : "border-input hover:border-brand",
+          completed ? "border-primary bg-primary text-primary-foreground" : "border-input hover:border-primary",
         )}
       >
         {completed ? <Check className="size-3" aria-hidden="true" /> : null}
@@ -101,20 +101,20 @@ export function NoteItem({ note }: { note: Note }) {
         ) : null}
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           {due ? (
-            <span className={cn("rounded-full px-2 py-0.5 text-[11px] font-medium", TONE[due.tone])}>
+            <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", TONE[due.tone])}>
               {due.label}
             </span>
           ) : null}
           <span
             className={cn(
-              "rounded-full px-2 py-0.5 text-[11px] font-medium capitalize",
+              "rounded-full px-2 py-0.5 text-xs font-medium capitalize",
               PRIORITY_TONE[note.priority],
             )}
           >
             {note.priority}
           </span>
           {note.tags.map((tag) => (
-            <span key={tag} className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+            <span key={tag} className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
               #{tag}
             </span>
           ))}

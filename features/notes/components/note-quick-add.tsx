@@ -67,7 +67,7 @@ export function NoteQuickAdd({ autoFocus = false }: { autoFocus?: boolean }) {
             aria-pressed={showDue}
             className={cn(
               "rounded p-1 text-muted-foreground transition-colors hover:text-foreground",
-              showDue && "text-brand",
+              showDue && "text-primary-ink",
             )}
           >
             <CalendarClock className="size-4" aria-hidden="true" />

@@ -10,3 +10,16 @@ export const THEME_STORAGE_KEY = "devsync-theme" as const;
 export const DEFAULT_THEME = "system" as const;
 
 export type ThemeValue = "system" | "light" | "dark";
+
+export function isThemeValue(value: string | undefined): value is ThemeValue {
+  return value === "system" || value === "light" || value === "dark";
+}
+
+/**
+ * Browser and installed-app chrome color (`<meta name="theme-color">`) per
+ * resolved theme. Must match `--background` in styles/globals.css.
+ */
+export const THEME_COLOR = {
+  light: "#FAFAFB",
+  dark: "#0E0F13",
+} as const;

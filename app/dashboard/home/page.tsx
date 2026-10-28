@@ -145,7 +145,7 @@ export default async function DashboardHomePage() {
 
         <DashboardCard title="Sync status">
           <div className="flex items-center gap-3">
-            <span className="flex size-9 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
+            <span className="flex size-9 items-center justify-center rounded-full bg-success/10 text-success">
               <RefreshCw className="size-4" aria-hidden="true" />
             </span>
             <div>
@@ -178,7 +178,7 @@ export default async function DashboardHomePage() {
             aria-valuemax={100}
             className="h-2 w-full overflow-hidden rounded-full bg-secondary"
           >
-            <div className="h-full rounded-full bg-brand" style={{ width: `${storagePercent}%` }} />
+            <div className="h-full rounded-full bg-primary" style={{ width: `${storagePercent}%` }} />
           </div>
           <p className="mt-2 text-xs text-muted-foreground">{storagePercent}% of your free plan.</p>
         </DashboardCard>
@@ -217,7 +217,7 @@ export default async function DashboardHomePage() {
                   </div>
                   {device.online ? (
                     <span
-                      className="size-2 shrink-0 rounded-full bg-emerald-500"
+                      className="size-2 shrink-0 rounded-full bg-success"
                       aria-label="Online"
                     />
                   ) : null}

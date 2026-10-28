@@ -1,23 +1,29 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { RegisterServiceWorker } from "@/components/pwa/register-service-worker";
 import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE, SITE_URL } from "@/lib/constants";
+import { THEME_COLOR } from "@/lib/theme";
 import { Providers } from "@/providers";
 
 import "../styles/globals.css";
 
-const fontSans = Inter({
+// UI type: IBM Plex Sans — technical but warm, very clear at small sizes.
+const fontSans = IBM_Plex_Sans({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   variable: "--font-sans",
   display: "swap",
 });
 
+// Code, commands, logs and invite codes only: dotted zero, distinct 1/l/I.
+// Not preloaded — most first screens show no monospace text.
 const fontMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -68,9 +74,13 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  // Android: the on-screen keyboard resizes the layout, so fields and their
+  // submit buttons stay above it.
+  interactiveWidget: "resizes-content",
+  // Follows the OS until the app knows the chosen theme (see ThemeColorSync).
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
+    { media: "(prefers-color-scheme: light)", color: THEME_COLOR.light },
+    { media: "(prefers-color-scheme: dark)", color: THEME_COLOR.dark },
   ],
 };
 
@@ -78,7 +88,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${fontSans.variable} ${fontMono.variable} min-h-screen bg-background font-sans antialiased`}
+        className={`${fontSans.variable} ${fontMono.variable} bg-background font-sans antialiased`}
       >
         <RegisterServiceWorker />
         <Providers>{children}</Providers>

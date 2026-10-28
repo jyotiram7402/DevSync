@@ -57,7 +57,7 @@ export function UserDropdown({ user }: { user: AuthUser }) {
         <div
           role="menu"
           aria-label="Account"
-          className="absolute right-0 z-50 mt-2 w-60 rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
+          className="absolute right-0 z-overlay mt-2 w-60 rounded-md border bg-popover p-1 text-popover-foreground shadow-overlay"
         >
           <div className="px-2 py-1.5">
             <p className="truncate text-sm font-medium">{user.displayName ?? "Account"}</p>

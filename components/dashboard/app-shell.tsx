@@ -15,7 +15,7 @@ import type { AuthUser } from "@/types/auth";
  */
 export function AppShell({ user, children }: { user: AuthUser; children: ReactNode }) {
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-dvh bg-background">
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar user={user} />

@@ -30,7 +30,7 @@ export function ProjectIconPicker({
             className={cn(
               "flex size-9 items-center justify-center rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               active
-                ? "border-brand bg-brand/10 text-brand"
+                ? "border-primary bg-primary/10 text-primary-ink"
                 : "text-muted-foreground hover:bg-secondary hover:text-foreground",
             )}
           >

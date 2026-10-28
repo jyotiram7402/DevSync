@@ -66,7 +66,7 @@ export function SnippetMenu({
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 z-50 mt-1 w-48 rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
+          className="absolute right-0 z-overlay mt-1 w-48 rounded-md border bg-popover p-1 text-popover-foreground shadow-overlay"
         >
           {permissions.canEdit ? (
             <Link
@@ -105,7 +105,7 @@ export function SnippetMenu({
               }}
               className={ITEM_CLASS}
             >
-              <Star className={cn("size-4", snippet.favorite && "fill-current text-amber-500")} aria-hidden="true" />
+              <Star className={cn("size-4", snippet.favorite && "fill-current text-favorite")} aria-hidden="true" />
               {snippet.favorite ? "Remove favorite" : "Favorite"}
             </button>
           ) : null}

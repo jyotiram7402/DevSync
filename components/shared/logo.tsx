@@ -20,7 +20,7 @@ function LogoMark({ className }: { className?: string }) {
   return (
     <span
       className={cn(
-        "inline-flex size-7 items-center justify-center rounded-lg bg-brand text-brand-foreground",
+        "inline-flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground",
         className,
       )}
       aria-hidden="true"

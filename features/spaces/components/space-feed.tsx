@@ -35,7 +35,7 @@ export function SpaceFeed({ items, isOwner }: { items: SpaceItem[]; isOwner: boo
       <div
         role="tablist"
         aria-label="Filter room content"
-        className="no-scrollbar flex gap-1 overflow-x-auto shadow-[inset_0_-1px_0_hsl(var(--border))]"
+        className="no-scrollbar flex gap-1 overflow-x-auto shadow-[inset_0_-1px_0_rgb(var(--border))]"
       >
         {TABS.map((t) => (
           <button
@@ -49,7 +49,7 @@ export function SpaceFeed({ items, isOwner }: { items: SpaceItem[]; isOwner: boo
             className={cn(
               "shrink-0 border-b-2 px-2.5 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:px-3",
               tab === t.value
-                ? "border-brand font-medium text-foreground"
+                ? "border-primary font-medium text-foreground"
                 : "border-transparent text-muted-foreground hover:text-foreground",
             )}
           >

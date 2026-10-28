@@ -25,7 +25,7 @@ export function TopBar({ user }: { user: AuthUser }) {
   const setMobileNavOpen = useUIStore((state) => state.setMobileNavOpen);
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background/80 px-3 backdrop-blur-md sm:px-4">
+    <header className="sticky top-0 z-nav flex h-14 items-center gap-2 border-b bg-background/80 px-3 backdrop-blur-md sm:px-4">
       <Button
         type="button"
         variant="ghost"

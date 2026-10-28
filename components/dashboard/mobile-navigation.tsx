@@ -50,14 +50,14 @@ export function MobileNavigation() {
 
   return (
     <div
-      className={cn("fixed inset-0 z-50 md:hidden", open ? "" : "pointer-events-none")}
+      className={cn("fixed inset-0 z-modal md:hidden", open ? "" : "pointer-events-none")}
       aria-hidden={!open}
       // Closed drawer is off-screen: inert keeps its links out of the tab order.
       inert={!open}
     >
       <div
         className={cn(
-          "absolute inset-0 bg-black/50 transition-opacity duration-200",
+          "absolute inset-0 bg-scrim/50 transition-opacity duration-200",
           open ? "opacity-100" : "opacity-0",
         )}
         onClick={close}

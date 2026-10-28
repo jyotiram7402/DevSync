@@ -64,7 +64,7 @@ export function SpaceMembers({
     <details className="group rounded-xl border bg-card">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-medium marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <span className="flex items-center gap-2">
-          <Users className="size-4 text-brand" aria-hidden="true" />
+          <Users className="size-4 text-primary-ink" aria-hidden="true" />
           People ({members.length})
         </span>
         <span className="text-xs text-muted-foreground group-open:hidden">Show</span>
@@ -114,7 +114,7 @@ export function SpaceMembers({
                 ) : null}
               </span>
               {member.isOwner ? (
-                <span className="shrink-0 rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-medium text-brand">
+                <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary-ink">
                   Owner
                 </span>
               ) : isOwner ? (

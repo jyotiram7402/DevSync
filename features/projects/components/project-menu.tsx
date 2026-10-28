@@ -65,7 +65,7 @@ export function ProjectMenu({
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 z-50 mt-1 w-48 rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
+          className="absolute right-0 z-overlay mt-1 w-48 rounded-md border bg-popover p-1 text-popover-foreground shadow-overlay"
         >
           {permissions.canEdit ? (
             <Link
@@ -89,7 +89,7 @@ export function ProjectMenu({
               }}
               className={ITEM_CLASS}
             >
-              <Star className={cn("size-4", project.favorite && "fill-current text-amber-500")} aria-hidden="true" />
+              <Star className={cn("size-4", project.favorite && "fill-current text-favorite")} aria-hidden="true" />
               {project.favorite ? "Remove favorite" : "Favorite"}
             </button>
           ) : null}

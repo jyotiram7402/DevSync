@@ -41,7 +41,8 @@ export function BottomTabBar() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border/80 bg-background/90 backdrop-blur-md md:hidden"
+      data-bottom-nav=""
+      className="fixed inset-x-0 bottom-0 z-nav border-t border-border/80 bg-background/90 backdrop-blur-md md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="mx-auto flex h-14 max-w-md items-stretch justify-between px-2">
@@ -55,7 +56,7 @@ export function BottomTabBar() {
             type="button"
             onClick={open}
             aria-label="Quick add"
-            className="-mt-6 flex size-14 items-center justify-center rounded-full bg-brand text-brand-foreground shadow-glow ring-4 ring-background transition-transform focus-visible:outline-none focus-visible:ring-ring active:scale-95"
+            className="-mt-6 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground ring-4 ring-background transition-transform focus-visible:outline-none focus-visible:ring-ring active:scale-95"
           >
             <Plus className="size-6" aria-hidden="true" />
           </button>
@@ -76,8 +77,8 @@ function TabLink({ tab, active }: { tab: Tab; active: boolean }) {
       href={tab.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-lg text-[10px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        active ? "text-brand" : "text-muted-foreground",
+        "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-lg text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        active ? "text-primary-ink" : "text-muted-foreground",
       )}
     >
       <Icon className="size-5" aria-hidden="true" />

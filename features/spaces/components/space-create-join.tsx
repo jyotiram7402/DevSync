@@ -54,7 +54,7 @@ export function SpaceCreateJoin() {
     <div className="grid gap-4 sm:grid-cols-2">
       <div className="flex flex-col gap-3 rounded-xl border p-5">
         <div className="flex items-center gap-2 text-sm font-medium">
-          <Plus className="size-4 text-brand" aria-hidden="true" />
+          <Plus className="size-4 text-primary-ink" aria-hidden="true" />
           Create a project room
         </div>
         <p className="text-sm text-muted-foreground">
@@ -81,7 +81,7 @@ export function SpaceCreateJoin() {
 
       <div className="flex flex-col gap-3 rounded-xl border p-5">
         <div className="flex items-center gap-2 text-sm font-medium">
-          <Users className="size-4 text-brand" aria-hidden="true" />
+          <Users className="size-4 text-primary-ink" aria-hidden="true" />
           Join a room
         </div>
         <p className="text-sm text-muted-foreground">Enter the room code someone shared with you.</p>

@@ -23,7 +23,7 @@ export function Sidebar() {
     <aside
       aria-label="Sidebar"
       className={cn(
-        "sticky top-0 hidden h-screen shrink-0 flex-col border-r bg-background transition-[width] duration-200 md:flex",
+        "sticky top-0 hidden h-dvh shrink-0 flex-col border-r bg-background transition-[width] duration-200 md:flex",
         collapsed ? "md:w-16" : "md:w-16 lg:w-64",
       )}
     >

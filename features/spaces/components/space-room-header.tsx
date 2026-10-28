@@ -71,7 +71,7 @@ export function SpaceRoomHeader({
           >
             {space.code}
             {copied === "code" ? (
-              <Check className="size-3.5 text-brand" aria-hidden="true" />
+              <Check className="size-3.5 text-primary-ink" aria-hidden="true" />
             ) : (
               <Copy className="size-3.5 text-muted-foreground" aria-hidden="true" />
             )}

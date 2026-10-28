@@ -35,7 +35,7 @@ export function SnippetCard({
             <Pin className="size-3.5 fill-current text-muted-foreground" aria-label="Pinned" />
           ) : null}
           {snippet.favorite ? (
-            <Star className="size-3.5 fill-current text-amber-500" aria-label="Favorite" />
+            <Star className="size-3.5 fill-current text-favorite" aria-label="Favorite" />
           ) : null}
         </div>
         <div className="relative z-10 flex items-center gap-1">

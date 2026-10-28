@@ -58,7 +58,7 @@ export function SnippetTable({
                       <Pin className="size-3 fill-current text-muted-foreground" aria-label="Pinned" />
                     ) : null}
                     {snippet.favorite ? (
-                      <Star className="size-3 fill-current text-amber-500" aria-label="Favorite" />
+                      <Star className="size-3 fill-current text-favorite" aria-label="Favorite" />
                     ) : null}
                   </div>
                 </td>

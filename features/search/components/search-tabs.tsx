@@ -44,7 +44,7 @@ export function SearchTabs({
             )}
           >
             <span>{tab.label}</span>
-            <span className="rounded bg-muted px-1 text-[10px] tabular-nums text-muted-foreground">
+            <span className="rounded bg-muted px-1 text-xs tabular-nums text-muted-foreground">
               {countFor(tab.value)}
             </span>
           </button>

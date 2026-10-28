@@ -65,7 +65,7 @@ export function SearchResultCard({
           />
           {result.pinned ? <Pin className="size-3 text-muted-foreground" aria-label="Pinned" /> : null}
           {result.favorite ? (
-            <Star className="size-3 fill-amber-400 text-amber-400" aria-label="Favorite" />
+            <Star className="size-3 fill-current text-favorite" aria-label="Favorite" />
           ) : null}
         </span>
 
@@ -77,7 +77,7 @@ export function SearchResultCard({
           />
         ) : null}
 
-        <span className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
+        <span className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
           {result.subtitle ? <span>{result.subtitle}</span> : null}
           {result.language ? (
             <Badge variant="muted" className="px-1.5 py-0">

@@ -51,7 +51,7 @@ export function RecentSearches({
               type="button"
               aria-label={`Remove ${entry.query} from recent searches`}
               onClick={() => onRemove(entry.query)}
-              className="rounded-md p-1 text-muted-foreground opacity-0 hover:text-foreground focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover:opacity-100"
+              className="rounded-md p-1 text-muted-foreground opacity-0 hover:text-foreground focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover:opacity-100 pointer-coarse:opacity-100"
             >
               <X className="size-3.5" aria-hidden="true" />
             </button>

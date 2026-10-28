@@ -49,7 +49,7 @@ export function NotificationMenu({ className }: { className?: string }) {
         <div
           role="menu"
           aria-label="Notifications"
-          className="absolute right-0 z-50 mt-2 w-72 rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
+          className="absolute right-0 z-overlay mt-2 w-72 rounded-md border bg-popover p-1 text-popover-foreground shadow-overlay"
         >
           <div className="px-3 py-2 text-sm font-medium">Notifications</div>
           <div className="my-1 h-px bg-border" role="separator" />

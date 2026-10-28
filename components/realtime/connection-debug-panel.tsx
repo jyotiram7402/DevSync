@@ -42,11 +42,11 @@ export function ConnectionDebugPanel({ className }: { className?: string }) {
   if (!allowed) return null;
 
   return (
-    <div className={cn("fixed bottom-4 right-4 z-50", className)}>
+    <div className={cn("fixed bottom-4 right-4 z-overlay", className)}>
       {open ? (
         <section
           aria-label="Realtime debug panel"
-          className="w-64 rounded-lg border bg-card p-3 text-xs shadow-premium"
+          className="w-64 rounded-lg border bg-card p-3 text-xs shadow-overlay"
         >
           <header className="mb-2 flex items-center justify-between">
             <span className="font-semibold">Realtime</span>

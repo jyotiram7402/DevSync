@@ -54,7 +54,7 @@ export function HowItWorks() {
                   <div className="relative flex size-14 items-center justify-center rounded-2xl border bg-card shadow-soft">
                     <Icon className="size-6 text-brand" aria-hidden="true" />
                   </div>
-                  <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-accent text-[10px] font-bold text-white">
+                  <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-accent text-[10px] font-semibold text-white">
                     {index + 1}
                   </span>
                 </div>

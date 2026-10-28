@@ -35,7 +35,7 @@ export function SearchHighlight({
     <span className={className}>
       {parts.map((part, index) =>
         matcher.test(part) ? (
-          <mark key={index} className="rounded bg-brand/20 px-0.5 text-foreground">
+          <mark key={index} className="rounded bg-primary/20 px-0.5 text-foreground">
             {part}
           </mark>
         ) : (

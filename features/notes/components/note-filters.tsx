@@ -103,7 +103,7 @@ export function NoteFilters({ params }: { params: NoteListParams }) {
               onClick={() => apply({ due: active ? undefined : chip.value })}
               className={cn(
                 "rounded-full border px-3 py-1 text-xs transition-colors",
-                active ? "border-brand bg-brand/10 text-brand" : "text-muted-foreground hover:bg-secondary/50",
+                active ? "border-primary bg-primary/10 text-primary-ink" : "text-muted-foreground hover:bg-secondary/50",
               )}
             >
               {chip.label}

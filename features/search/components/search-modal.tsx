@@ -98,8 +98,8 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[10vh]">
-      <div className="absolute inset-0 bg-black/50 animate-fade-in" onClick={onClose} aria-hidden="true" />
+    <div className="fixed inset-0 z-modal flex items-start justify-center p-4 pt-[10dvh]">
+      <div className="absolute inset-0 bg-scrim/50 animate-fade-in" onClick={onClose} aria-hidden="true" />
 
       <div
         ref={panelRef}
@@ -107,7 +107,7 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
         aria-modal="true"
         aria-label="Search"
         onKeyDown={onPanelKeyDown}
-        className="relative z-10 flex max-h-[80vh] w-full max-w-xl flex-col overflow-hidden rounded-xl border bg-card shadow-premium animate-scale-in"
+        className="relative z-10 flex max-h-[80dvh] w-full max-w-xl flex-col overflow-hidden rounded-xl border bg-card shadow-overlay animate-scale-in"
       >
         <div className="flex items-center gap-2 border-b px-3">
           <SearchIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -170,7 +170,7 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
             <button
               type="button"
               onClick={openFullSearch}
-              className="text-xs font-medium text-brand hover:underline focus-visible:outline-none focus-visible:underline"
+              className="text-xs font-medium text-primary-ink hover:underline focus-visible:outline-none focus-visible:underline"
             >
               Full search
             </button>

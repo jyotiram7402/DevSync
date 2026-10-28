@@ -48,7 +48,7 @@ export function FilterPanel({
           <SlidersHorizontal className="size-4" aria-hidden="true" />
           Filters
           {count > 0 ? (
-            <span className="rounded-full bg-brand/10 px-1.5 text-[10px] font-medium text-brand">
+            <span className="rounded-full bg-primary/10 px-1.5 text-xs font-medium text-primary-ink">
               {count}
             </span>
           ) : null}

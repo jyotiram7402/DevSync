@@ -186,7 +186,7 @@ export function QuickCapture({ open, onClose }: { open: boolean; onClose: () => 
         onDragLeave={() => setDragOver(false)}
         className={cn(
           "flex flex-col gap-3 rounded-lg border border-dashed p-1 transition-colors",
-          dragOver ? "border-brand bg-brand/5" : "border-transparent",
+          dragOver ? "border-primary bg-primary/5" : "border-transparent",
         )}
       >
         {file ? (

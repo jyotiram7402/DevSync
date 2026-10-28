@@ -94,8 +94,8 @@ export function LibraryItemRow({ item }: { item: LibraryItem }) {
 
       <span
         className={cn(
-          "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium",
-          item.kept ? "bg-brand/10 text-brand" : "bg-muted text-muted-foreground",
+          "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
+          item.kept ? "bg-primary/10 text-primary-ink" : "bg-muted text-muted-foreground",
         )}
       >
         {expiryLabel(item.createdAt, item.kept)}
