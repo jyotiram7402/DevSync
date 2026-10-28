@@ -66,7 +66,8 @@ const AUTH_ERROR_MESSAGES: Record<string, ActionError> = {
   },
   over_email_send_rate_limit: {
     code: "RATE_LIMITED",
-    message: "Too many emails were sent recently. Please wait a few minutes and try again.",
+    message:
+      "Too many sign-up emails were sent recently. Please try again later, or continue with Google or GitHub.",
   },
   over_request_rate_limit: {
     code: "RATE_LIMITED",
