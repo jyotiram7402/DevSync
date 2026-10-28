@@ -9,17 +9,20 @@ import { useSupabase } from "@/hooks/use-supabase";
 import { downloadFile } from "@/lib/storage/storage";
 
 /**
- * Downloads a synced file's real bytes through the signed-in client, so it
- * keeps its name and never depends on a link that may have expired.
+ * Downloads a synced or shared file's real bytes through the signed-in
+ * client, so it keeps its name and never depends on a link that may have
+ * expired.
  */
 export function FileDownloadButton({
   path,
   name,
+  bucket = "snippet-attachments",
   size = "sm",
   variant = "outline",
 }: {
   path: string;
   name: string;
+  bucket?: "snippet-attachments" | "space-attachments";
   size?: ButtonProps["size"];
   variant?: ButtonProps["variant"];
 }) {
@@ -29,7 +32,7 @@ export function FileDownloadButton({
   async function download() {
     if (busy) return;
     setBusy(true);
-    const result = await downloadFile(supabase, "snippet-attachments", path);
+    const result = await downloadFile(supabase, bucket, path);
     setBusy(false);
     if (!result.ok) {
       toast.error("Couldn't download the file. Check your connection and try again.");

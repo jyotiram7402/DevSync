@@ -221,8 +221,19 @@
    text field has focus — with interactive-widget=resizes-content (Android) the
    keyboard would otherwise lift it over the field being typed in. */
 @media (max-width: 767px) {
+  /* A docked composer ([data-dock], e.g. in a Space) sits right above the tab bar
+     (set without :has, so it also holds in browsers that lack it). */
+  :root {
+    --dock-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  }
+
   :root:has([data-bottom-nav]) {
     --toast-offset-bottom: calc(var(--bottom-nav-height) + 2rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Toasts clear a docked composer too (it reports its height as --dock-height). */
+  :root:has([data-bottom-nav]):has([data-dock]) {
+    --toast-offset-bottom: calc(var(--dock-bottom) + var(--dock-height, 4rem) + 1rem);
   }
 
   :root:has(
@@ -234,6 +245,17 @@
     )
     [data-bottom-nav] {
     display: none;
+  }
+
+  /* While typing the tab bar is hidden, so the dock drops to the bottom edge. */
+  :root:has(
+      :is(
+          input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="button"], [type="submit"], [type="reset"], [type="color"]),
+          textarea,
+          [contenteditable="true"]
+        ):focus
+    ) {
+    --dock-bottom: 0px;
   }
 }
 

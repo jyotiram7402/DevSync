@@ -11,6 +11,9 @@ import { cn } from "@/utils/cn";
 /** Segments that are grouping folders with no page of their own (never linked). */
 const NO_INDEX_SEGMENTS = new Set(["library"]);
 
+/** Segments whose next segment is a value, not a page (a room code after "join"); the trail ends there. */
+const VALUE_SEGMENTS = new Set(["join"]);
+
 /** What a record id means, by the segment that precedes it. */
 const ID_LABELS: Record<string, string> = {
   spaces: "Room",
@@ -54,7 +57,8 @@ export function useBreadcrumbTrail(): Crumb[] {
 
   const all = pathname.split("/").filter(Boolean);
   const offset = all[0] === "dashboard" ? 1 : 0;
-  const segments = all.slice(offset);
+  const valueAt = all.slice(offset).findIndex((segment) => VALUE_SEGMENTS.has(segment));
+  const segments = all.slice(offset, valueAt === -1 ? undefined : offset + valueAt + 1);
 
   return segments.map((segment, index) => {
     const isLast = index === segments.length - 1;

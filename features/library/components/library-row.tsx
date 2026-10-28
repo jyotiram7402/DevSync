@@ -68,6 +68,7 @@ export function LibraryRow({ item }: { item: LibraryItem }) {
     <ItemRow
       kind={kind}
       title={item.name}
+      titleLines={2}
       href={href}
       media={<FileIcon name={item.name} mimeType={item.mimeType} size="sm" />}
       meta={meta}

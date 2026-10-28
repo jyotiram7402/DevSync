@@ -20,6 +20,8 @@ import { cn } from "@/utils/cn";
 interface ItemRowProps {
   kind: ItemKind;
   title: string;
+  /** File names wrap onto a second line so more of the name shows; text titles stay on one. */
+  titleLines?: 1 | 2;
   href?: string;
   /** Replaces the kind tile, e.g. an image thumbnail. */
   media?: ReactNode;
@@ -37,6 +39,7 @@ interface ItemRowProps {
 export function ItemRow({
   kind,
   title,
+  titleLines = 1,
   href,
   media,
   leading,
@@ -59,7 +62,12 @@ export function ItemRow({
         {leading ? <div className="relative z-10 flex h-8 shrink-0 items-center">{leading}</div> : null}
         {media ?? <KindIcon kind={kind} size="sm" />}
         <div className="flex min-h-8 min-w-0 flex-1 items-center gap-2">
-          <h3 className="min-w-0 truncate text-sm font-medium text-foreground">
+          <h3
+            className={cn(
+              "min-w-0 text-sm font-medium text-foreground",
+              titleLines === 2 ? "line-clamp-2 [overflow-wrap:anywhere]" : "truncate",
+            )}
+          >
             {href ? (
               <Link
                 href={href}

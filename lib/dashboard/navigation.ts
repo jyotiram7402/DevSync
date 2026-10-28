@@ -74,6 +74,7 @@ export const ROUTE_LABELS: Record<string, string> = {
   snippets: "Snippets",
   notes: "Quick Notes",
   spaces: "Spaces",
+  join: "Join a room",
   collections: "Collections",
   search: "Search",
   library: "Library",
