@@ -11,7 +11,10 @@ import { FormError } from "@/components/auth/form-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { createSnippetAction, updateSnippetAction } from "@/features/snippets/actions";
 import { CollectionSelector } from "@/features/snippets/components/collection-selector";
 import { LanguageSelector } from "@/features/snippets/components/language-selector";
@@ -44,6 +47,10 @@ export function SnippetForm({
 }: SnippetFormProps) {
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
+  // Touch screens get a plain text box (Monaco is awkward to type in on a
+  // phone); mouse and keyboard get the Monaco editor. Starts as the text box,
+  // so phones never download the editor.
+  const hasMouse = useMediaQuery("(pointer: fine)");
 
   const {
     register,
@@ -107,20 +114,22 @@ export function SnippetForm({
         <Label htmlFor="title">Title</Label>
         <Input
           id="title"
-          placeholder="Optional title"
+          placeholder="Optional — the first line is used if you leave it empty"
+          enterKeyHint="next"
           aria-invalid={errors.title ? true : undefined}
+          aria-describedby={errors.title ? "title-error" : undefined}
           {...register("title")}
         />
         {errors.title ? (
-          <p role="alert" className="text-sm text-destructive">
+          <p id="title-error" role="alert" className="text-sm text-destructive">
             {errors.title.message}
           </p>
         ) : null}
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-2">
-          <Label htmlFor="language">Content</Label>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <Label htmlFor={hasMouse ? "language" : "content"}>Content</Label>
           <div className="w-44">
             <LanguageSelector
               id="language"
@@ -129,13 +138,31 @@ export function SnippetForm({
             />
           </div>
         </div>
-        <SnippetEditor
-          value={content}
-          language={language}
-          onChange={(next) => setValue("content", next, { shouldDirty: true, shouldValidate: true })}
-        />
+        {hasMouse ? (
+          <SnippetEditor
+            value={content}
+            language={language}
+            onChange={(next) => setValue("content", next, { shouldDirty: true, shouldValidate: true })}
+          />
+        ) : (
+          <Textarea
+            id="content"
+            value={content}
+            onChange={(event) =>
+              setValue("content", event.target.value, { shouldDirty: true, shouldValidate: true })
+            }
+            rows={12}
+            placeholder="Paste an error, a command or some code"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            aria-invalid={errors.content ? true : undefined}
+            aria-describedby={errors.content ? "content-error" : undefined}
+            className="font-mono text-sm leading-6"
+          />
+        )}
         {errors.content ? (
-          <p role="alert" className="text-sm text-destructive">
+          <p id="content-error" role="alert" className="text-sm text-destructive">
             {errors.content.message}
           </p>
         ) : null}
@@ -153,23 +180,21 @@ export function SnippetForm({
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="visibility">Visibility</Label>
-          <select
+          <Select
             id="visibility"
-            aria-label="Visibility"
             value={visibility}
             onChange={(event) =>
               setValue("visibility", event.target.value as SnippetFormValues["visibility"], {
                 shouldDirty: true,
               })
             }
-            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
             {SNIPPET_VISIBILITY_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
       </div>
 
@@ -187,9 +212,11 @@ export function SnippetForm({
         />
       </div>
 
-      <div className="flex justify-end gap-2">
-        <Button type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
-          {isSubmitting ? "Saving…" : mode === "edit" ? "Save changes" : "Create snippet"}
+      {/* Stays in reach at the bottom of the screen while the form scrolls (and,
+          on Android, above the keyboard). */}
+      <div className="sticky bottom-0 z-sticky -mx-4 flex justify-end gap-2 border-t border-border bg-background/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur md:static md:mx-0 md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
+        <Button type="submit" loading={isSubmitting} className="w-full md:w-auto">
+          {isSubmitting ? "Saving…" : mode === "edit" ? "Save changes" : "Save snippet"}
         </Button>
       </div>
     </form>

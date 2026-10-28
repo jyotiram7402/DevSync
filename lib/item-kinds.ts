@@ -111,6 +111,11 @@ const EXTENSION_KINDS = new Map<string, ItemKind>([
   ["avif", "image"],
 ]);
 
+/** Kinds shown in monospace with whitespace preserved (code, commands, errors, logs). */
+export function isCodeLikeKind(kind: ItemKind): boolean {
+  return kind === "code" || kind === "command" || kind === "error" || kind === "stacktrace" || kind === "log";
+}
+
 /** Lower-case extension without the dot ("" when there is none). */
 export function fileExtension(name: string): string {
   const dot = name.lastIndexOf(".");

@@ -1,15 +1,19 @@
 "use client";
 
-import Editor from "@monaco-editor/react";
+import Editor, { loader } from "@monaco-editor/react";
 import { useTheme } from "next-themes";
 
 import { useMounted } from "@/hooks/use-mounted";
 import { cn } from "@/utils/cn";
 
+// Load Monaco from this site (copied into public/ at build time by
+// scripts/copy-monaco.mjs), never from a CDN that office networks may block.
+loader.config({ paths: { vs: "/monaco/vs" } });
+
 /**
- * Monaco-based code editor. Read-only or editable, theme-integrated, word-wrap
- * on, minimap off. Loaded lazily by consumers via next/dynamic (ssr: false).
- * Architecture is ready for future minimap/diff/AI enhancements via `options`.
+ * Monaco-based code editor for writing snippets on desktop. Theme-integrated,
+ * word-wrap on, minimap off. Loaded lazily by consumers via next/dynamic
+ * (ssr: false); viewing uses the lightweight CodeBlock instead.
  */
 export interface SnippetEditorProps {
   value: string;
@@ -35,7 +39,7 @@ export function SnippetEditor({
   const theme = mounted && resolvedTheme === "dark" ? "vs-dark" : "vs";
 
   return (
-    <div className={cn("overflow-hidden rounded-md border", className)}>
+    <div className={cn("overflow-hidden rounded-md border border-input", className)}>
       <Editor
         height={height}
         language={language ?? "plaintext"}

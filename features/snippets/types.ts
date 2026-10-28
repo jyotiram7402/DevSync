@@ -50,6 +50,8 @@ export interface SnippetListResult {
   pageSize: number;
   totalPages: number;
   role: WorkspaceRole;
+  /** For the live-update subscription on the list page. */
+  workspaceId: string;
 }
 
 export interface SelectOption {

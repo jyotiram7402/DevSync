@@ -1,12 +1,14 @@
 "use client";
 
-import { Link2, Loader2, Plus } from "lucide-react";
+import { Link2, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { DialogFooter, ResponsiveDialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { kindFromMime, LIBRARY_ADD, type LibraryType } from "@/features/library/config";
 import {
   createPendingFileSnippetAction,
@@ -19,7 +21,7 @@ import { uploadFile } from "@/lib/storage/storage";
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
 
-/** Category-scoped add: a file picker for images/docs/files, a URL box for links. */
+/** Category-scoped add: a file picker for images/docs/files, a link box (in a sheet on phones) for links. */
 export function LibraryAdd({ type }: { type: LibraryType }) {
   const router = useRouter();
   const supabase = useSupabase();
@@ -31,7 +33,7 @@ export function LibraryAdd({ type }: { type: LibraryType }) {
 
   async function handleFile(file: File) {
     if (file.size > MAX_FILE_BYTES) {
-      toast.error("File is too large (max 10 MB).");
+      toast.error("That file is over 10 MB. Files can be up to 10 MB.");
       return;
     }
     setBusy(true);
@@ -69,7 +71,7 @@ export function LibraryAdd({ type }: { type: LibraryType }) {
       toast.error(finalized.error.message);
       return;
     }
-    toast.success("Synced to CopyAnywhere.");
+    toast.success("Uploaded. It's on your other devices now.");
     router.refresh();
   }
 
@@ -85,37 +87,55 @@ export function LibraryAdd({ type }: { type: LibraryType }) {
     }
     setUrl("");
     setLinkOpen(false);
-    toast.success("Link saved.");
+    toast.success("Link saved. It's on your other devices now.");
     router.refresh();
   }
 
   if (config.isLink) {
-    if (!linkOpen) {
-      return (
-        <Button type="button" onClick={() => setLinkOpen(true)}>
-          <Link2 className="size-4" aria-hidden="true" />
+    return (
+      <>
+        <Button type="button" size="sm" onClick={() => setLinkOpen(true)}>
+          <Link2 aria-hidden="true" />
           {config.label}
         </Button>
-      );
-    }
-    return (
-      <div className="flex w-full max-w-md items-center gap-2">
-        <Input
-          type="url"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://…"
-          aria-label="Link URL"
-          autoFocus
-          onKeyDown={(e) => {
-            if (e.key === "Enter") void handleLink();
-            if (e.key === "Escape") setLinkOpen(false);
-          }}
-        />
-        <Button type="button" onClick={() => void handleLink()} disabled={busy}>
-          {busy ? <Loader2 className="size-4 animate-spin" /> : "Save"}
-        </Button>
-      </div>
+        <ResponsiveDialog
+          open={linkOpen}
+          onClose={() => setLinkOpen(false)}
+          title="Add a link"
+          description="Paste a web address. It shows up on all your devices."
+          size="sm"
+          footer={
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setLinkOpen(false)} disabled={busy}>
+                Cancel
+              </Button>
+              <Button type="button" onClick={() => void handleLink()} loading={busy}>
+                {busy ? "Saving…" : "Save link"}
+              </Button>
+            </DialogFooter>
+          }
+        >
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="library-link">Link</Label>
+            <Input
+              id="library-link"
+              type="url"
+              inputMode="url"
+              autoCapitalize="none"
+              autoComplete="off"
+              spellCheck={false}
+              enterKeyHint="done"
+              placeholder="https://…"
+              value={url}
+              data-autofocus=""
+              onChange={(event) => setUrl(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") void handleLink();
+              }}
+            />
+          </div>
+        </ResponsiveDialog>
+      </>
     );
   }
 
@@ -126,14 +146,14 @@ export function LibraryAdd({ type }: { type: LibraryType }) {
         type="file"
         hidden
         accept={config.accept}
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          e.target.value = "";
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = "";
           if (file) void handleFile(file);
         }}
       />
-      <Button type="button" onClick={() => inputRef.current?.click()} disabled={busy} aria-busy={busy}>
-        {busy ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" aria-hidden="true" />}
+      <Button type="button" size="sm" onClick={() => inputRef.current?.click()} loading={busy}>
+        {busy ? null : <Plus aria-hidden="true" />}
         {busy ? "Uploading…" : config.label}
       </Button>
     </>

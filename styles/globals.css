@@ -374,6 +374,36 @@
   }
 }
 
+/* An item that just arrived from another device (set by ArrivalFeed on its
+   list entry): it slides into place and the selection wash sweeps across it. */
+[data-arrived="true"] > * {
+  position: relative;
+  isolation: isolate;
+  animation: item-arrive 220ms var(--ease-out) both;
+}
+[data-arrived="true"] > *::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-color: rgb(var(--wash));
+  transform-origin: left center;
+  pointer-events: none;
+  animation: wash 1200ms var(--ease-out) both;
+}
+
+@keyframes item-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Decorative motion can be paused (WCAG 2.2.2): data-motion="paused" on an ancestor. */
 [data-motion="paused"] .animate-stream,
 [data-motion="paused"] .animate-wash-loop::before {
@@ -393,7 +423,8 @@
   }
 
   /* No movement, but the highlight still fades so the change stays visible. */
-  .animate-wash::before {
+  .animate-wash::before,
+  [data-arrived="true"] > *::before {
     animation: wash-fade var(--wash-duration, 1200ms) linear both !important;
   }
 }

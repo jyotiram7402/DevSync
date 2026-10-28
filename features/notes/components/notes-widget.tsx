@@ -50,7 +50,9 @@ export function NotesWidget({ buckets }: { buckets: NoteBuckets }) {
         {focus.length > 0 ? (
           <ul className="flex flex-col gap-2">
             {focus.map((note) => (
-              <NoteItem key={note.id} note={note} />
+              <li key={note.id}>
+                <NoteItem note={note} />
+              </li>
             ))}
           </ul>
         ) : (

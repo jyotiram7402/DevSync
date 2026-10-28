@@ -137,7 +137,8 @@ export function QuickCapture({
   }
 
   async function submitText(): Promise<boolean> {
-    const result = await createTextCaptureAction(text.trim());
+    // Sent exactly as typed or pasted: Copy must give back the original.
+    const result = await createTextCaptureAction(text);
     if (!result.ok) {
       toast.error(result.error.message);
       return false;

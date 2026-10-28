@@ -120,6 +120,7 @@ export async function listSnippets(
       pageSize,
       totalPages: Math.max(1, Math.ceil(count / pageSize)),
       role: context.role,
+      workspaceId: context.workspaceId,
     });
   } catch (error) {
     return err(toActionError(error));
@@ -157,7 +158,9 @@ function readMetaString(metadata: unknown, key: string): string | null {
  * workspace items and projects them by `metadata.kind`. Kind filtering is done
  * in memory (kind lives in the jsonb metadata) over a bounded, RLS-scoped set.
  */
-export async function listLibraryItems(kinds: string[]): Promise<ActionResult<LibraryItem[]>> {
+export async function listLibraryItems(
+  kinds: string[],
+): Promise<ActionResult<{ items: LibraryItem[]; workspaceId: string }>> {
   try {
     const client = await createServerSupabaseClient();
     const context = await repository.resolveContext(client);
@@ -186,7 +189,7 @@ export async function listLibraryItems(kinds: string[]): Promise<ActionResult<Li
       }))
       .filter((item) => kinds.includes(item.kind));
 
-    return ok(items);
+    return ok({ items, workspaceId: context.workspaceId });
   } catch (error) {
     return err(toActionError(error));
   }
@@ -277,9 +280,14 @@ function isUrl(value: string): boolean {
  * in Snippets (kind "text"). The manual snippet form does NOT auto-classify.
  */
 export async function createTextCapture(content: string): Promise<ActionResult<Snippet>> {
+  // Text is stored exactly as pasted — indentation and trailing newlines matter
+  // for code and commands, and Copy must give back the original. Trimming is
+  // only used to reject empty input and to recognize (and tidy) a lone link.
   const trimmed = content.trim();
   if (trimmed.length === 0) return err({ code: "VALIDATION_FAILED", message: "Nothing to capture." });
-  if (trimmed.length > 100_000) {
+  const isLink = isUrl(trimmed);
+  const stored = isLink ? trimmed : content;
+  if (stored.length > 100_000) {
     return err({ code: "VALIDATION_FAILED", message: "Content exceeds the maximum size." });
   }
 
@@ -293,14 +301,14 @@ export async function createTextCapture(content: string): Promise<ActionResult<S
 
     const insert: TablesInsert<"snippets"> = {
       workspace_id: context.workspaceId,
-      content: trimmed,
+      content: stored,
       title: null,
       type: "text",
       tags: [],
       visibility: DEFAULT_SNIPPET_VISIBILITY,
       created_by: context.userId,
       updated_by: context.userId,
-      metadata: { kind: isUrl(trimmed) ? "url" : "text", source: "web" },
+      metadata: { kind: isLink ? "url" : "text", source: "web" },
     };
     const row = await repository.insertSnippetRow(client, insert);
     return ok(mapSnippetRow(row, []));

@@ -99,6 +99,26 @@ export async function createSignedUrl(
   return ok({ signedUrl: data.signedUrl });
 }
 
+/**
+ * Signed URLs for several objects in one request (e.g. a grid of thumbnails).
+ * Returns a map from path to URL; paths that failed are simply missing.
+ */
+export async function createSignedUrls(
+  client: TypedSupabaseClient,
+  bucket: StorageBucket,
+  paths: string[],
+  expiresInSeconds = 3600,
+): Promise<ActionResult<Map<string, string>>> {
+  if (paths.length === 0) return ok(new Map());
+  const { data, error } = await client.storage.from(bucket).createSignedUrls(paths, expiresInSeconds);
+  if (error || !data) return err(mapStorageError(error));
+  const urls = new Map<string, string>();
+  for (const entry of data) {
+    if (entry.path && entry.signedUrl && !entry.error) urls.set(entry.path, entry.signedUrl);
+  }
+  return ok(urls);
+}
+
 /** Public URL for objects in PUBLIC buckets (e.g. avatars). Synchronous. */
 export function getPublicUrl(
   client: TypedSupabaseClient,

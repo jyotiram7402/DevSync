@@ -1,4 +1,4 @@
-import { Code2, Plus } from "lucide-react";
+import { Code2, Plus, SearchX } from "lucide-react";
 import Link from "next/link";
 
 import { EmptyState } from "@/components/shared/empty-state";
@@ -14,9 +14,14 @@ export function SnippetEmptyState({
   if (filtered) {
     return (
       <EmptyState
-        icon={Code2}
-        title="No snippets found"
-        description="No snippets match your current search and filters."
+        icon={SearchX}
+        title="No snippets match"
+        description="Try other words, or clear the filters to see everything."
+        action={
+          <Button asChild variant="outline">
+            <Link href="/dashboard/snippets">Clear filters</Link>
+          </Button>
+        }
       />
     );
   }
@@ -24,13 +29,13 @@ export function SnippetEmptyState({
   return (
     <EmptyState
       icon={Code2}
-      title="No snippets yet"
-      description="Capture an error, log, or command to keep it in sync across your devices."
+      title="Paste your first snippet"
+      description="An error, a command, a log or some code. Save it here and it shows up on your other devices in about a second."
       action={
         canCreate ? (
-          <Button asChild size="sm">
+          <Button asChild>
             <Link href="/dashboard/snippets/new">
-              <Plus />
+              <Plus aria-hidden="true" />
               New snippet
             </Link>
           </Button>

@@ -35,7 +35,8 @@ export function BulkActionBar({ permissions }: { permissions: SnippetPermissions
     <div
       role="region"
       aria-label="Bulk actions"
-      className="sticky bottom-4 z-sticky mx-auto flex w-fit items-center gap-1 rounded-full border bg-popover px-3 py-2 text-popover-foreground shadow-overlay"
+      // Clears the phone bottom bar and the home indicator.
+      className="sticky bottom-[calc(var(--bottom-nav-height)_+_env(safe-area-inset-bottom,0px)_+_0.75rem)] z-sticky mx-auto flex w-fit items-center gap-1 rounded-full border border-border bg-popover px-3 py-2 text-popover-foreground shadow-overlay md:bottom-4"
     >
       <span className="px-1 text-sm font-medium">{selectedIds.length} selected</span>
       {permissions.canArchive ? (

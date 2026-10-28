@@ -31,7 +31,7 @@ export function SnippetSearch() {
   }, [value]);
 
   return (
-    <div className="relative w-full sm:max-w-xs">
+    <div className="relative w-full min-w-0 lg:max-w-xs">
       <Search
         className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
         aria-hidden="true"
@@ -40,6 +40,10 @@ export function SnippetSearch() {
         type="search"
         aria-label="Search snippets"
         placeholder="Search snippets…"
+        autoCapitalize="none"
+        autoComplete="off"
+        spellCheck={false}
+        enterKeyHint="search"
         value={value}
         onChange={(event) => setValue(event.target.value)}
         className="pl-9"
