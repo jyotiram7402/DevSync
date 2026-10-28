@@ -3,18 +3,15 @@ import * as React from "react";
 import { cn } from "@/utils/cn";
 
 /**
- * Card — Tier 1 UI primitive (shadcn/ui). A rounded, bordered surface using
- * the `card` design tokens. Presentational only; composed by feature and
- * marketing components. Dependency-free (no Radix).
+ * Card — Tier 1 UI primitive (shadcn/ui). A bordered surface using the
+ * `card` tokens: depth comes from the border and surface tone, not a shadow.
+ * Presentational only; composed by feature and marketing components.
  */
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn(
-        "rounded-xl border bg-card text-card-foreground shadow-soft",
-        className,
-      )}
+      className={cn("rounded-lg border bg-card text-card-foreground", className)}
       {...props}
     />
   ),

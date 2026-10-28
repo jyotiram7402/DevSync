@@ -40,3 +40,37 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Copy text that is only available asynchronously (e.g. after fetching a fresh
+ * signed URL), resolving to whether it succeeded.
+ *
+ * Safari only allows a clipboard write that starts inside the tap handler, so
+ * where supported the write starts immediately with a pending `ClipboardItem`
+ * that resolves once the text arrives. Other browsers fall back to copying the
+ * text when it is ready. Call this synchronously from the click handler.
+ */
+export async function copyTextFrom(getText: () => Promise<string>): Promise<boolean> {
+  const pending = getText();
+
+  if (
+    typeof window !== "undefined" &&
+    window.isSecureContext &&
+    typeof ClipboardItem !== "undefined" &&
+    typeof navigator.clipboard?.write === "function"
+  ) {
+    try {
+      const blob = pending.then((text) => new Blob([text], { type: "text/plain" }));
+      await navigator.clipboard.write([new ClipboardItem({ "text/plain": blob })]);
+      return true;
+    } catch {
+      // Fall through: some browsers reject a pending ClipboardItem.
+    }
+  }
+
+  try {
+    return await copyToClipboard(await pending);
+  } catch {
+    return false;
+  }
+}
