@@ -7,9 +7,6 @@ import { create } from "zustand";
  * established pattern for global client state in DevSync; server data is never
  * stored here (Postgres is the source of truth — see
  * docs/architecture/04-State-Management.md).
- *
- * It ships with the command-menu open/close slice as the first real piece of
- * global UI state, consumed once the command menu lands.
  */
 interface UIState {
   /** Whether the global command menu is open. */
@@ -22,10 +19,11 @@ interface UIState {
   setSidebarCollapsed: (collapsed: boolean) => void;
   toggleSidebar: () => void;
 
-  /** Mobile navigation drawer open state. */
-  mobileNavOpen: boolean;
-  setMobileNavOpen: (open: boolean) => void;
-  toggleMobileNav: () => void;
+  /** Phone bottom bar: the "Add" sheet (＋) and the "More" sheet. */
+  addSheetOpen: boolean;
+  setAddSheetOpen: (open: boolean) => void;
+  moreSheetOpen: boolean;
+  setMoreSheetOpen: (open: boolean) => void;
 
   /**
    * Human label for the current page's final breadcrumb (e.g. a room or item
@@ -44,9 +42,10 @@ export const useUIStore = create<UIState>()((set) => ({
   setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
   toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
 
-  mobileNavOpen: false,
-  setMobileNavOpen: (open) => set({ mobileNavOpen: open }),
-  toggleMobileNav: () => set((state) => ({ mobileNavOpen: !state.mobileNavOpen })),
+  addSheetOpen: false,
+  setAddSheetOpen: (open) => set({ addSheetOpen: open }),
+  moreSheetOpen: false,
+  setMoreSheetOpen: (open) => set({ moreSheetOpen: open }),
 
   breadcrumbLabel: null,
   setBreadcrumbLabel: (label) => set({ breadcrumbLabel: label }),

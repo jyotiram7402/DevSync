@@ -98,8 +98,9 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
   }
 
   return (
-    <div className="fixed inset-0 z-modal flex items-start justify-center p-4 pt-[10dvh]">
-      <div className="absolute inset-0 bg-scrim/50 animate-fade-in" onClick={onClose} aria-hidden="true" />
+    // Full-screen sheet on phones; a centered palette (⌘K) from md up.
+    <div className="fixed inset-0 z-modal flex items-start justify-center md:p-4 md:pt-[10dvh]">
+      <div className="absolute inset-0 bg-scrim/50 animate-overlay-in" onClick={onClose} aria-hidden="true" />
 
       <div
         ref={panelRef}
@@ -107,25 +108,36 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
         aria-modal="true"
         aria-label="Search"
         onKeyDown={onPanelKeyDown}
-        className="relative z-10 flex max-h-[80dvh] w-full max-w-xl flex-col overflow-hidden rounded-xl border bg-card shadow-overlay animate-scale-in"
+        className="relative z-10 flex h-dvh w-full flex-col overflow-hidden bg-popover pt-safe text-popover-foreground animate-overlay-in md:h-auto md:max-h-[80dvh] md:max-w-xl md:rounded-xl md:border md:border-border md:pt-0 md:shadow-overlay md:animate-dialog-in"
       >
-        <div className="flex items-center gap-2 border-b px-3">
+        <div className="flex items-center gap-2 border-b border-border px-3">
           <SearchIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           <input
             ref={inputRef}
-            type="text"
+            type="search"
             role="combobox"
             aria-expanded={hasQuery}
             aria-controls={LIST_ID}
             aria-label="Search snippets, projects, collections, and tags"
             placeholder="Search everything…"
+            autoCapitalize="none"
+            autoComplete="off"
+            spellCheck={false}
+            enterKeyHint="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            className="h-12 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className="h-12 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground md:text-sm [&::-webkit-search-cancel-button]:hidden"
           />
           {loading ? (
             <Loader2 className="size-4 shrink-0 animate-spin text-muted-foreground" aria-hidden="true" />
           ) : null}
+          <button
+            type="button"
+            onClick={onClose}
+            className="-mr-1 h-11 shrink-0 rounded-md px-2 text-sm font-medium text-primary-ink active:bg-accent md:hidden"
+          >
+            Cancel
+          </button>
         </div>
 
         {hasQuery ? (
@@ -162,19 +174,20 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
           )}
         </div>
 
-        <div className="flex items-center justify-between gap-2 border-t px-3 py-2">
-          <KeyboardShortcutHint keys={["↑", "↓"]} label="Navigate" />
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between gap-2 border-t border-border px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:pb-2">
+          {/* Keyboard hints only where there is a keyboard. */}
+          <div className="hidden items-center gap-3 pointer-fine:flex">
+            <KeyboardShortcutHint keys={["↑", "↓"]} label="Navigate" />
             <KeyboardShortcutHint keys={["↵"]} label="Open" />
             <KeyboardShortcutHint keys={["Esc"]} label="Close" />
-            <button
-              type="button"
-              onClick={openFullSearch}
-              className="text-xs font-medium text-primary-ink hover:underline focus-visible:outline-none focus-visible:underline"
-            >
-              Full search
-            </button>
           </div>
+          <button
+            type="button"
+            onClick={openFullSearch}
+            className="ml-auto h-9 rounded-md px-2 text-sm font-medium text-primary-ink hover:underline active:bg-accent pointer-coarse:h-11"
+          >
+            Full search
+          </button>
         </div>
       </div>
     </div>

@@ -4,14 +4,16 @@ import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { isNavActive } from "@/lib/dashboard/navigation";
 import { cn } from "@/utils/cn";
 
 /**
- * A single navigation link. Highlights when the current route matches (exact
- * or nested) and exposes `aria-current`. Icon-only modes keep an accessible
- * (sr-only) label plus a native tooltip:
+ * A single navigation link. The active route gets the selection wash and
+ * `aria-current`. Icon-only modes keep an accessible (sr-only) label plus a
+ * native tooltip:
  *   collapsed  — icon-only at every width (user collapsed the sidebar)
  *   responsive — icon-only rail on tablets (md), full labels from lg
+ * `inset` indents a nested item (Library views, rooms) in full mode.
  */
 interface SidebarItemProps {
   href: string;
@@ -19,6 +21,7 @@ interface SidebarItemProps {
   icon: LucideIcon;
   collapsed?: boolean;
   responsive?: boolean;
+  inset?: boolean;
   onNavigate?: () => void;
 }
 
@@ -28,10 +31,11 @@ export function SidebarItem({
   icon: Icon,
   collapsed = false,
   responsive = false,
+  inset = false,
   onNavigate,
 }: SidebarItemProps) {
   const pathname = usePathname();
-  const active = pathname === href || pathname.startsWith(`${href}/`);
+  const active = isNavActive(pathname, href);
   const mode = collapsed ? "icon" : responsive ? "rail" : "full";
 
   return (
@@ -41,12 +45,14 @@ export function SidebarItem({
       aria-current={active ? "page" : undefined}
       title={mode === "full" ? undefined : label}
       className={cn(
-        "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors duration-fast pointer-coarse:h-11",
         active
-          ? "bg-secondary text-foreground"
-          : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground",
+          ? "bg-wash text-primary-ink"
+          : "text-muted-foreground hover:bg-accent hover:text-foreground active:bg-accent",
         mode === "icon" && "justify-center px-2",
         mode === "rail" && "justify-center px-2 lg:justify-start lg:px-3",
+        inset && mode === "full" && "pl-9",
+        inset && mode === "rail" && "lg:pl-9",
       )}
     >
       <Icon className="size-4 shrink-0" aria-hidden="true" />

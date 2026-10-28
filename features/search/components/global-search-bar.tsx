@@ -21,7 +21,7 @@ export function GlobalSearchBar({ className }: { className?: string }) {
         aria-label="Search"
         aria-keyshortcuts="Meta+K Control+K"
         className={cn(
-          "hidden h-9 w-48 items-center gap-2 rounded-md border bg-background px-3 text-sm text-muted-foreground transition-colors hover:bg-secondary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:flex xl:w-64",
+          "hidden h-9 w-48 items-center gap-2 rounded-md border border-border bg-surface px-3 text-sm text-muted-foreground transition-colors duration-fast hover:bg-accent lg:flex xl:w-64",
           className,
         )}
       >
@@ -36,7 +36,7 @@ export function GlobalSearchBar({ className }: { className?: string }) {
         type="button"
         onClick={open}
         aria-label="Search"
-        className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:hidden"
+        className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors duration-fast hover:bg-accent hover:text-accent-foreground active:bg-accent pointer-coarse:size-11 lg:hidden"
       >
         <Search className="size-5" aria-hidden="true" />
       </button>

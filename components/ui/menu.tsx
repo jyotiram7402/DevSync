@@ -57,13 +57,15 @@ interface MenuProps {
   align?: "start" | "end";
   /** Custom trigger; defaults to a "⋯" icon button. */
   trigger?: (props: MenuTriggerProps) => ReactNode;
+  /** Non-interactive content above the items (e.g. who is signed in). */
+  header?: ReactNode;
   /** Class for the default trigger. */
   className?: string;
 }
 
 const DESKTOP_QUERY = "(min-width: 768px)";
 
-export function Menu({ label, items, align = "end", trigger, className }: MenuProps) {
+export function Menu({ label, items, align = "end", trigger, header, className }: MenuProps) {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<"popover" | "sheet">("popover");
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
@@ -265,6 +267,12 @@ export function Menu({ label, items, align = "end", trigger, className }: MenuPr
               // Modal layer, later in the DOM than any open dialog, so a menu opened from a dialog sits above it.
               className="fixed z-modal flex min-w-48 max-w-[calc(100vw-1rem)] flex-col rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-overlay outline-none animate-menu-in"
             >
+              {header ? (
+                <>
+                  <div className="px-2.5 py-2">{header}</div>
+                  <div role="separator" className="-mx-1 my-1 h-px bg-border" />
+                </>
+              ) : null}
               {renderEntries("popover")}
             </div>,
             document.body,
@@ -273,6 +281,7 @@ export function Menu({ label, items, align = "end", trigger, className }: MenuPr
 
       {mode === "sheet" ? (
         <ResponsiveDialog open={open} onClose={() => close(false)} title={label}>
+          {header ? <div className="border-b border-border pb-3">{header}</div> : null}
           <div className="-mx-2 flex flex-col">{renderEntries("sheet")}</div>
         </ResponsiveDialog>
       ) : null}

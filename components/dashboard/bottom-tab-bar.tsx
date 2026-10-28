@@ -1,88 +1,128 @@
 "use client";
 
-import { Code2, Home, Plus, Search, Users, type LucideIcon } from "lucide-react";
+import { Ellipsis, Plus, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { useQuickCapture } from "@/features/capture/quick-capture-provider";
+import {
+  LIBRARY_NAV,
+  MORE_NAV,
+  NAV_HOME,
+  NAV_SNIPPETS,
+  NAV_SPACES,
+  isNavActive,
+} from "@/lib/dashboard/navigation";
+import { useUIStore } from "@/stores/ui-store";
 import { cn } from "@/utils/cn";
 
 /**
- * Native-style bottom tab bar for mobile (hidden at md+, where the sidebar
- * takes over). Four destinations plus a raised center "quick add" button — the
- * signature action — that opens the capture modal. Respects the iOS/Android
- * safe-area inset so it never sits under the gesture bar.
+ * Phone bottom bar (hidden from md, where the sidebar takes over): Home,
+ * Snippets, Add (the one add action, opening the Add sheet), Spaces and More
+ * (everything else, in the More sheet). Labeled, with the active destination
+ * on the selection wash. It respects the home indicator, and hides while a
+ * text field has focus (styles/globals.css) so the keyboard never lifts it
+ * over the field.
  */
-interface Tab {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-}
-
-// Settings stays reachable from the drawer and the account menu.
-const TABS: Tab[] = [
-  { href: "/dashboard/home", label: "Home", icon: Home },
-  { href: "/dashboard/snippets", label: "Snippets", icon: Code2 },
-  { href: "/dashboard/spaces", label: "Spaces", icon: Users },
-  { href: "/dashboard/search", label: "Search", icon: Search },
-];
-
-function isActive(pathname: string, href: string): boolean {
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
+const MORE_HREFS = [...LIBRARY_NAV, ...MORE_NAV].map((item) => item.href);
 
 export function BottomTabBar() {
   const pathname = usePathname();
-  const { open } = useQuickCapture();
-
-  const left = TABS.slice(0, 2);
-  const right = TABS.slice(2);
+  const addOpen = useUIStore((state) => state.addSheetOpen);
+  const setAddOpen = useUIStore((state) => state.setAddSheetOpen);
+  const moreOpen = useUIStore((state) => state.moreSheetOpen);
+  const setMoreOpen = useUIStore((state) => state.setMoreSheetOpen);
+  const moreActive = MORE_HREFS.some((href) => isNavActive(pathname, href));
 
   return (
     <nav
       aria-label="Primary"
       data-bottom-nav=""
-      className="fixed inset-x-0 bottom-0 z-nav border-t border-border/80 bg-background/90 backdrop-blur-md md:hidden"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      className="fixed inset-x-0 bottom-0 z-nav border-t border-border bg-background/95 pb-safe backdrop-blur-md supports-[backdrop-filter]:bg-background/85 md:hidden"
     >
-      <div className="mx-auto flex h-14 max-w-md items-stretch justify-between px-2">
-        {left.map((tab) => (
-          <TabLink key={tab.href} tab={tab} active={isActive(pathname, tab.href)} />
-        ))}
+      <div className="mx-auto grid h-14 max-w-md grid-cols-5 px-1">
+        <TabLink
+          href={NAV_HOME.href}
+          label={NAV_HOME.label}
+          icon={NAV_HOME.icon}
+          active={isNavActive(pathname, NAV_HOME.href)}
+        />
+        <TabLink
+          href={NAV_SNIPPETS.href}
+          label={NAV_SNIPPETS.label}
+          icon={NAV_SNIPPETS.icon}
+          active={isNavActive(pathname, NAV_SNIPPETS.href)}
+        />
 
-        {/* Center: raised quick-add action */}
-        <div className="flex w-16 items-center justify-center">
-          <button
-            type="button"
-            onClick={open}
-            aria-label="Quick add"
-            className="-mt-6 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground ring-4 ring-background transition-transform focus-visible:outline-none focus-visible:ring-ring active:scale-95"
-          >
-            <Plus className="size-6" aria-hidden="true" />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setAddOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={addOpen}
+          className="group flex flex-col items-center justify-center gap-0.5 text-xs font-medium text-foreground"
+        >
+          <span className="flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform duration-fast group-active:scale-95">
+            <Plus className="size-5" aria-hidden="true" />
+          </span>
+          Add
+        </button>
 
-        {right.map((tab) => (
-          <TabLink key={tab.href} tab={tab} active={isActive(pathname, tab.href)} />
-        ))}
+        <TabLink
+          href={NAV_SPACES.href}
+          label={NAV_SPACES.label}
+          icon={NAV_SPACES.icon}
+          active={isNavActive(pathname, NAV_SPACES.href)}
+        />
+
+        <button
+          type="button"
+          onClick={() => setMoreOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={moreOpen}
+          className={tabClass(moreActive)}
+        >
+          <TabIcon icon={Ellipsis} active={moreActive} />
+          More
+        </button>
       </div>
     </nav>
   );
 }
 
-function TabLink({ tab, active }: { tab: Tab; active: boolean }) {
-  const Icon = tab.icon;
+function tabClass(active: boolean): string {
+  return cn(
+    "group flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors duration-fast",
+    active ? "text-foreground" : "text-muted-foreground",
+  );
+}
+
+function TabIcon({ icon: Icon, active }: { icon: LucideIcon; active: boolean }) {
   return (
-    <Link
-      href={tab.href}
-      aria-current={active ? "page" : undefined}
+    <span
       className={cn(
-        "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-lg text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        active ? "text-primary-ink" : "text-muted-foreground",
+        "flex h-7 w-12 items-center justify-center rounded-full transition-colors duration-fast group-active:bg-accent",
+        active && "bg-wash text-primary-ink",
       )}
     >
       <Icon className="size-5" aria-hidden="true" />
-      {tab.label}
+    </span>
+  );
+}
+
+function TabLink({
+  href,
+  label,
+  icon,
+  active,
+}: {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  active: boolean;
+}) {
+  return (
+    <Link href={href} aria-current={active ? "page" : undefined} className={tabClass(active)}>
+      <TabIcon icon={icon} active={active} />
+      {label}
     </Link>
   );
 }
