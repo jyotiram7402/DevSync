@@ -10,7 +10,25 @@ export const metadata = {
   title: "Reset password",
 };
 
-export default function ForgotPasswordPage() {
+/** Why the user was sent back here from a reset link (see /auth/confirm and /auth/callback). */
+const ERROR_MESSAGES: Record<string, string> = {
+  link_expired:
+    "That reset link has expired, was already used, or was opened in a different browser. Enter your email to get a new one.",
+  invalid_link: "That reset link didn't work. Enter your email to get a new one.",
+  not_configured: "Authentication is not configured.",
+};
+
+export default async function ForgotPasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const errorCode = typeof params.error === "string" ? params.error : undefined;
+  const initialError = errorCode
+    ? (ERROR_MESSAGES[errorCode] ?? "That reset link didn't work. Enter your email to get a new one.")
+    : undefined;
+
   return (
     <AuthLayout>
       <AuthCard
@@ -22,7 +40,7 @@ export default function ForgotPasswordPage() {
           </Link>
         }
       >
-        {isSupabaseConfigured ? <ForgotPasswordForm /> : <AuthUnavailable />}
+        {isSupabaseConfigured ? <ForgotPasswordForm initialError={initialError} /> : <AuthUnavailable />}
       </AuthCard>
     </AuthLayout>
   );

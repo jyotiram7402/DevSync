@@ -66,7 +66,8 @@ const AUTH_ERROR_MESSAGES: Record<string, ActionError> = {
   },
   over_email_send_rate_limit: {
     code: "RATE_LIMITED",
-    message: "Too many emails were sent recently. Please wait a few minutes and try again.",
+    message:
+      "Too many sign-up emails were sent recently. Please try again later, or continue with Google or GitHub.",
   },
   over_request_rate_limit: {
     code: "RATE_LIMITED",
@@ -168,6 +169,20 @@ export async function signUpWithPassword(
   });
   if (error) return err(mapAuthError(error));
   return ok({ needsEmailConfirmation: data.session === null });
+}
+
+/** Sends the sign-up confirmation email again (it may be delayed, in spam, or expired). */
+export async function resendSignupConfirmation(
+  supabase: TypedSupabaseClient,
+  email: string,
+): Promise<ActionResult> {
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: { emailRedirectTo: callbackUrl(DEFAULT_AUTHENTICATED_REDIRECT) },
+  });
+  if (error) return err(mapAuthError(error));
+  return ok(undefined);
 }
 
 export async function requestPasswordReset(

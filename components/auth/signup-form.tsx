@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { FormError } from "@/components/auth/form-error";
@@ -11,14 +11,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSupabase } from "@/hooks/use-supabase";
-import { signUpWithPassword } from "@/lib/auth/auth";
+import { resendSignupConfirmation, signUpWithPassword } from "@/lib/auth/auth";
 import { signupSchema, type SignupInput } from "@/lib/auth/schemas";
+
+/** Supabase accepts one confirmation email per address per minute. */
+const RESEND_COOLDOWN_SECONDS = 60;
 
 export function SignupForm() {
   const supabase = useSupabase();
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
-  const [emailSent, setEmailSent] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [cooldown, setCooldown] = useState(0);
+  const [resending, setResending] = useState(false);
+  const [resendNote, setResendNote] = useState<string | null>(null);
+  const [resendError, setResendError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = window.setTimeout(() => setCooldown((seconds) => seconds - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [cooldown]);
 
   const {
     register,
@@ -42,20 +55,71 @@ export function SignupForm() {
       return;
     }
     if (result.data.needsEmailConfirmation) {
-      setEmailSent(true);
+      setSentTo(values.email);
+      setCooldown(RESEND_COOLDOWN_SECONDS);
       return;
     }
     router.push("/dashboard/home");
     router.refresh();
   }
 
-  if (emailSent) {
+  async function handleResend() {
+    if (!sentTo) return;
+    setResending(true);
+    setResendError(null);
+    setResendNote(null);
+    const result = await resendSignupConfirmation(supabase, sentTo);
+    setResending(false);
+    if (!result.ok) {
+      setResendError(result.error.message);
+      return;
+    }
+    setResendNote("Sent again. It can take a few minutes to arrive.");
+    setCooldown(RESEND_COOLDOWN_SECONDS);
+  }
+
+  function changeEmail() {
+    setSentTo(null);
+    setResendNote(null);
+    setResendError(null);
+  }
+
+  if (sentTo) {
     return (
-      <div role="status" className="flex flex-col gap-2 text-center text-sm">
-        <p className="font-medium text-foreground">Check your email</p>
-        <p className="text-muted-foreground">
-          We sent a confirmation link to your address. Follow it to finish creating your account.
+      <div className="flex flex-col gap-4 text-center text-sm">
+        <div className="flex flex-col gap-2">
+          <p className="font-medium text-foreground">Check your email</p>
+          <p className="text-muted-foreground">
+            We sent a confirmation link to{" "}
+            <span className="font-medium text-foreground [overflow-wrap:anywhere]">{sentTo}</span>. Open it
+            on any device to finish creating your account.
+          </p>
+          <p className="text-muted-foreground">
+            Nothing after a few minutes? Check your spam folder, or send it again.
+          </p>
+        </div>
+
+        {resendError ? <FormError message={resendError} /> : null}
+        <p role="status" className="text-muted-foreground empty:hidden">
+          {resendNote}
         </p>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleResend}
+          disabled={resending || cooldown > 0}
+          aria-busy={resending}
+        >
+          {resending ? "Sending…" : cooldown > 0 ? `Send again in ${cooldown}s` : "Send the email again"}
+        </Button>
+        <button
+          type="button"
+          onClick={changeEmail}
+          className="font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        >
+          Use a different email
+        </button>
       </div>
     );
   }
