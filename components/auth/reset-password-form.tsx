@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSupabase } from "@/hooks/use-supabase";
 import { updatePassword } from "@/lib/auth/auth";
+import { DEFAULT_AUTHENTICATED_REDIRECT } from "@/lib/auth/redirect";
 import { resetPasswordSchema, type ResetPasswordInput } from "@/lib/auth/schemas";
 
 export function ResetPasswordForm() {
@@ -36,7 +37,8 @@ export function ResetPasswordForm() {
       return;
     }
     toast.success("Your password has been updated.");
-    router.push("/");
+    // The reset link signed the user in, so continue straight into the app.
+    router.push(DEFAULT_AUTHENTICATED_REDIRECT);
     router.refresh();
   }
 

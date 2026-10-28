@@ -13,9 +13,9 @@ import { useSupabase } from "@/hooks/use-supabase";
 import { requestPasswordReset } from "@/lib/auth/auth";
 import { forgotPasswordSchema, type ForgotPasswordInput } from "@/lib/auth/schemas";
 
-export function ForgotPasswordForm() {
+export function ForgotPasswordForm({ initialError }: { initialError?: string | undefined }) {
   const supabase = useSupabase();
-  const [formError, setFormError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(initialError ?? null);
   const [submitted, setSubmitted] = useState(false);
 
   const {
@@ -42,7 +42,8 @@ export function ForgotPasswordForm() {
     return (
       <div role="status" className="flex flex-col gap-3 text-center text-sm">
         <p className="text-muted-foreground">
-          If an account exists for that email, we have sent a link to reset your password.
+          If an account exists for that email, we have sent a link to reset your password. It can
+          take a few minutes — check your spam folder too. The link works once, on any device.
         </p>
         <Link href="/login" className="font-medium underline-offset-4 hover:underline">
           Back to sign in

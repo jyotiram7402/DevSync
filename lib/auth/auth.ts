@@ -171,6 +171,20 @@ export async function signUpWithPassword(
   return ok({ needsEmailConfirmation: data.session === null });
 }
 
+/** Sends the sign-up confirmation email again (it may be delayed, in spam, or expired). */
+export async function resendSignupConfirmation(
+  supabase: TypedSupabaseClient,
+  email: string,
+): Promise<ActionResult> {
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: { emailRedirectTo: callbackUrl(DEFAULT_AUTHENTICATED_REDIRECT) },
+  });
+  if (error) return err(mapAuthError(error));
+  return ok(undefined);
+}
+
 export async function requestPasswordReset(
   supabase: TypedSupabaseClient,
   values: ForgotPasswordInput,

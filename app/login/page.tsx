@@ -12,8 +12,12 @@ export const metadata = {
 
 const ERROR_MESSAGES: Record<string, string> = {
   oauth_cancelled: "Sign-in was cancelled. Please try again.",
-  auth_callback_failed: "We could not sign you in. Please try again.",
-  missing_code: "That sign-in link was invalid. Please try again.",
+  auth_callback_failed:
+    "We couldn't finish signing you in from that link. If you were confirming your email, it's confirmed now — sign in below.",
+  missing_code: "That sign-in link was incomplete. Please try again.",
+  link_expired:
+    "That link has expired or was already used. Sign in below, or sign up again with the same email to get a new confirmation email.",
+  invalid_link: "That link didn't work. Sign in below, or ask for a new email.",
   not_configured: "Authentication is not configured.",
 };
 
