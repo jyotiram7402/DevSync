@@ -100,14 +100,14 @@ function StreamChip({ item, index }: { item: StreamItem; index: number }) {
 
   return (
     // Bottom padding instead of a flex gap keeps every copy exactly the same height (seamless loop).
-    <div className={cn("flex pb-4", index % 3 === 1 ? "justify-end" : "justify-start")}>
+    <div className={cn("flex pb-5", index % 3 === 1 ? "justify-end" : "justify-start")}>
       <div
         className={cn(
-          "inline-flex max-w-full items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-muted-foreground",
+          "inline-flex max-w-full items-center gap-1.5 rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs text-muted-foreground",
           item.wash !== undefined && ["animate-wash-loop", item.wash],
         )}
       >
-        <Icon className={cn("size-4 shrink-0", KIND_TONE_TEXT[tone])} aria-hidden="true" />
+        <Icon className={cn("size-3.5 shrink-0", KIND_TONE_TEXT[tone])} aria-hidden="true" />
         <span className="truncate">{item.text}</span>
       </div>
     </div>
@@ -140,7 +140,7 @@ export function AuthBackdrop() {
       <div
         aria-hidden="true"
         data-motion={paused ? "paused" : "running"}
-        className="pointer-events-none absolute inset-0 -z-10 select-none overflow-hidden opacity-70 [mask-image:radial-gradient(ellipse_at_center,rgb(0_0_0/0.15)_0%,black_70%)] dark:opacity-60"
+        className="mask-side-columns pointer-events-none absolute inset-0 -z-10 select-none overflow-hidden opacity-50 dark:opacity-40"
       >
         <div className="grid h-full grid-cols-2 gap-4 px-4 sm:grid-cols-3 lg:grid-cols-5">
           {STREAMS.map((stream, column) => (

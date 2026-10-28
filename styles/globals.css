@@ -257,6 +257,29 @@
     display: none;
   }
 
+  /* Sign-in background: fully clear behind the centered logo and card (a 28rem
+     band), visible at the sides; on phones only a faint strip at each edge. */
+  .mask-side-columns {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      black 0,
+      black max(8%, calc(50% - 22rem)),
+      transparent max(30%, calc(50% - 14rem)),
+      transparent min(70%, calc(50% + 14rem)),
+      black min(92%, calc(50% + 22rem)),
+      black 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      black 0,
+      black max(8%, calc(50% - 22rem)),
+      transparent max(30%, calc(50% - 14rem)),
+      transparent min(70%, calc(50% + 14rem)),
+      black min(92%, calc(50% + 22rem)),
+      black 100%
+    );
+  }
+
   /* Safe-area padding for the notch and the home indicator (installed PWA). */
   .pt-safe {
     padding-top: env(safe-area-inset-top, 0px);
