@@ -15,8 +15,8 @@ import { requireUser } from "@/lib/auth/guards";
  * hosts the global command palette (⌘K) for the whole shell.
  */
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
-  const user = await requireUser();
-  const spacesResult = await listMySpaces();
+  // In parallel: requireUser() redirects when signed out, and the room list then just fails quietly.
+  const [user, spacesResult] = await Promise.all([requireUser(), listMySpaces()]);
   const spaces = spacesResult.ok ? spacesResult.data.map(({ id, name }) => ({ id, name })) : [];
 
   return (

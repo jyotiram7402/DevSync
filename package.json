@@ -30,6 +30,7 @@
     "node": "24.x"
   },
   "scripts": {
+    "postinstall": "node scripts/copy-monaco.mjs --if-present",
     "dev": "node scripts/copy-monaco.mjs && next dev",
     "build": "node scripts/copy-monaco.mjs && next build",
     "start": "next start",

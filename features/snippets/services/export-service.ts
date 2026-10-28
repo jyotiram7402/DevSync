@@ -31,5 +31,6 @@ export function downloadSnippet(snippet: Snippet): void {
   document.body.appendChild(anchor);
   anchor.click();
   document.body.removeChild(anchor);
-  URL.revokeObjectURL(url);
+  // Give Safari and Firefox time to start the download before the URL goes away.
+  window.setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }

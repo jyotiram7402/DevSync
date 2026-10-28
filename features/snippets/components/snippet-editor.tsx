@@ -2,7 +2,9 @@
 
 import Editor, { loader } from "@monaco-editor/react";
 import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
+import { Textarea } from "@/components/ui/textarea";
 import { useMounted } from "@/hooks/use-mounted";
 import { cn } from "@/utils/cn";
 
@@ -37,6 +39,37 @@ export function SnippetEditor({
   const { resolvedTheme } = useTheme();
   const mounted = useMounted();
   const theme = mounted && resolvedTheme === "dark" ? "vs-dark" : "vs";
+  const [failed, setFailed] = useState(false);
+
+  // If the editor files can't load (blocked or missing), fall back to a plain text box.
+  useEffect(() => {
+    let active = true;
+    loader.init().catch(() => {
+      if (active) setFailed(true);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (failed) {
+    return (
+      <div className={cn("flex flex-col gap-1.5", className)}>
+        <Textarea
+          value={value}
+          onChange={(event) => onChange?.(event.target.value)}
+          readOnly={readOnly}
+          aria-label="Snippet content"
+          spellCheck={false}
+          autoCapitalize="off"
+          autoCorrect="off"
+          style={{ height }}
+          className="resize-y font-mono"
+        />
+        <p className="text-xs text-muted-foreground">The code editor couldn&apos;t load, so this is a plain text box.</p>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("overflow-hidden rounded-md border border-input", className)}>

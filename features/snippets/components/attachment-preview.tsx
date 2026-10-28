@@ -100,7 +100,8 @@ export function AttachmentPreview({
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
-    URL.revokeObjectURL(objectUrl);
+    // Give Safari and Firefox time to start the download before the URL goes away.
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 10_000);
   }
 
   return (
