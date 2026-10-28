@@ -6,7 +6,7 @@ import { AuthLayout } from "@/components/auth/auth-layout";
 import { AuthUnavailable } from "@/components/auth/auth-unavailable";
 import { SubmitButton } from "@/components/auth/submit-button";
 import { Button } from "@/components/ui/button";
-import { EMAIL_LINK_COPY, isEmailOtpType } from "@/lib/auth/email-links";
+import { EMAIL_LINK_COPY, isEmailLinkType } from "@/lib/auth/email-links";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export const metadata = {
@@ -30,7 +30,7 @@ export default async function ConfirmEmailLinkPage({
   const type = typeof params.type === "string" ? params.type : "";
   const next = typeof params.next === "string" ? params.next : "";
 
-  if (!tokenHash || !isEmailOtpType(type)) {
+  if (!tokenHash || !isEmailLinkType(type)) {
     return (
       <AuthLayout>
         <AuthCard

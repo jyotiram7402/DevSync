@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 
-import { emailLinkDestination, emailLinkFailurePath, isEmailOtpType } from "@/lib/auth/email-links";
+import { emailLinkDestination, emailLinkFailurePath, isEmailLinkType } from "@/lib/auth/email-links";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -20,7 +20,7 @@ export async function confirmEmailLink(formData: FormData): Promise<void> {
   const type = formData.get("type");
   const next = formData.get("next");
 
-  if (typeof type !== "string" || !isEmailOtpType(type)) {
+  if (typeof type !== "string" || !isEmailLinkType(type)) {
     redirect(`${emailLinkFailurePath(null)}?error=invalid_link`);
   }
   const failurePath = emailLinkFailurePath(type);
