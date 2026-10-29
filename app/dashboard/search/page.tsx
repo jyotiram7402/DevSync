@@ -49,13 +49,17 @@ export default async function SearchPage({
   const options = optionsResult.ok ? optionsResult.data : { projects: [], collections: [] };
 
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader title="Search" description="Find anything across your workspace." />
+    <div className="flex flex-col gap-5">
+      <PageHeader title="Search" description="Find any snippet, project or tag by a word in it." />
       <SearchWorkspace
+        // A link to a different search (a tag, "Full search" in the palette)
+        // starts fresh; typing on this page updates the URL without a reload.
+        key={JSON.stringify(sp)}
         initialQuery={parsed.query}
         initialType={initialType}
         initialSort={parsed.sort}
         initialFilters={parsed.filters}
+        initialPage={parsed.page}
         projectOptions={options.projects}
         collectionOptions={options.collections}
       />

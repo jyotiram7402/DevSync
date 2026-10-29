@@ -1,11 +1,12 @@
 "use client";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 
-/** Previous/next pagination that preserves existing query params. */
+/** Previous / next pages, keeping the current search, filter, sort and view. */
 export function ProjectPagination({ page, totalPages }: { page: number; totalPages: number }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -14,36 +15,42 @@ export function ProjectPagination({ page, totalPages }: { page: number; totalPag
 
   function hrefForPage(target: number): string {
     const params = new URLSearchParams(searchParams.toString());
-    params.set("page", String(target));
-    return `${pathname}?${params.toString()}`;
+    if (target <= 1) params.delete("page");
+    else params.set("page", String(target));
+    const query = params.toString();
+    return query ? `${pathname}?${query}` : pathname;
   }
 
   return (
-    <nav aria-label="Pagination" className="flex items-center justify-between gap-2">
+    <nav aria-label="Pages" className="flex items-center justify-between gap-2">
       <p className="text-sm text-muted-foreground">
-        Page {page} of {totalPages}
+        Page {Math.min(page, totalPages)} of {totalPages}
       </p>
       <div className="flex gap-2">
         {page > 1 ? (
           <Button asChild variant="outline" size="sm">
-            <Link href={hrefForPage(page - 1)} aria-label="Previous page">
+            <Link href={hrefForPage(Math.min(page - 1, totalPages))}>
+              <ChevronLeft aria-hidden="true" />
               Previous
             </Link>
           </Button>
         ) : (
           <Button variant="outline" size="sm" disabled>
+            <ChevronLeft aria-hidden="true" />
             Previous
           </Button>
         )}
         {page < totalPages ? (
           <Button asChild variant="outline" size="sm">
-            <Link href={hrefForPage(page + 1)} aria-label="Next page">
+            <Link href={hrefForPage(page + 1)}>
               Next
+              <ChevronRight aria-hidden="true" />
             </Link>
           </Button>
         ) : (
           <Button variant="outline" size="sm" disabled>
             Next
+            <ChevronRight aria-hidden="true" />
           </Button>
         )}
       </div>

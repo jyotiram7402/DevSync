@@ -1,20 +1,21 @@
 import {
+  ClipboardPaste,
+  Code2,
   Copy,
-  Download,
+  FolderKanban,
   Laptop,
-  Monitor,
-  Moon,
-  Plus,
+  Library,
+  ListTodo,
   RefreshCw,
-  Rocket,
   Smartphone,
-  Sparkles,
-  Sun,
+  Users,
 } from "lucide-react";
+import Link from "next/link";
 
 import { InstallAppButton } from "@/components/pwa/install-button";
 import { DashboardCard } from "@/components/shared/dashboard-card";
 import { PageHeader } from "@/components/shared/page-header";
+import { RETENTION_DAYS } from "@/lib/retention";
 
 export const metadata = {
   title: "How to use",
@@ -22,40 +23,32 @@ export const metadata = {
 
 const STEPS = [
   {
-    icon: Plus,
-    title: "1. Add a snippet",
-    body: "Go to Snippets → New snippet. Paste any error, log, command, or code you want to keep, give it a title, and Save.",
+    icon: ClipboardPaste,
+    title: "1. Save something",
+    body: "Tap Add on your phone, or Quick add on a computer. Paste text, code or an error, or add a photo or a file.",
   },
   {
     icon: Smartphone,
-    title: "2. Log in on another device",
-    body: "Open CopyAnywhere on your phone or a second browser and log in with the SAME account. That is the only thing that links your devices.",
+    title: "2. Open it on your other device",
+    body: "Sign in with the same account on your phone, a second computer or a locked-down office laptop. Nothing to install.",
   },
   {
     icon: Copy,
-    title: "3. Use it anywhere",
-    body: "Your snippet is already waiting under Snippets on every logged-in device. Click it to copy, then paste wherever you need it.",
+    title: "3. Copy it there",
+    body: "It's already waiting in Snippets or the Library. Tap Copy and paste it wherever you need it.",
   },
 ];
 
-const THEMES = [
+const PLACES = [
+  { icon: Code2, title: "Snippets", body: "Text, code, commands and errors you save." },
+  { icon: Library, title: "Library", body: "Images, links, documents and files, sorted by type." },
+  { icon: ListTodo, title: "Quick Notes", body: "Your own to-dos and reminders, on every device." },
   {
-    icon: Monitor,
-    title: "System",
-    body: "Matches your device automatically — dark if your OS is in dark mode, light if it is in light mode.",
+    icon: Users,
+    title: "Spaces",
+    body: "Shared rooms for a project. Invite people, and everyone in the room sees what's shared, live.",
   },
-  { icon: Sun, title: "Light", body: "Always use the light theme, regardless of your device setting." },
-  { icon: Moon, title: "Dark", body: "Always use the dark theme, regardless of your device setting." },
-];
-
-const UPCOMING = [
-  "Real-time device tracking — see exactly which phones and browsers are signed in, and sign them out remotely.",
-  "Browser extension — capture a snippet with one click, without opening the site.",
-  "Full-text search across every snippet, project, and collection.",
-  "Syntax highlighting for 100+ programming languages.",
-  "Shared team workspaces and collaborative collections.",
-  "Offline mode — read your snippets even without a connection.",
-  "End-to-end encryption for private snippets.",
+  { icon: FolderKanban, title: "Projects", body: "Group your snippets by what you're working on." },
 ];
 
 export default function HelpPage() {
@@ -63,122 +56,102 @@ export default function HelpPage() {
     <div className="flex flex-col gap-8">
       <PageHeader
         title="How to use CopyAnywhere"
-        description="Sync your errors, logs, and snippets across every device you code on."
+        description="Save something on one device, copy it on another. Here's how."
       />
 
-      {/* What is CopyAnywhere */}
-      <DashboardCard>
-        <div className="flex flex-col gap-2">
-          <span className="flex size-9 items-center justify-center rounded-md bg-secondary text-foreground">
-            <Rocket className="size-4" aria-hidden="true" />
-          </span>
-          <h3 className="text-sm font-semibold">What is CopyAnywhere?</h3>
-          <p className="text-sm text-muted-foreground">
-            CopyAnywhere is a cloud clipboard for developers. Anything you save is stored on
-            your account and instantly available on every device you log in on. Copy an
-            error on your work laptop, open CopyAnywhere on your phone or home desktop, and it
-            is already there — no more emailing yourself stack traces.
-          </p>
-        </div>
-      </DashboardCard>
-
-      {/* Getting started */}
-      <section className="flex flex-col gap-4">
-        <h2 className="text-base font-semibold">Get started in 3 steps</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <section aria-labelledby="help-start" className="flex flex-col gap-4">
+        <h2 id="help-start" className="text-base font-semibold">
+          Get started in 3 steps
+        </h2>
+        <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {STEPS.map((step) => (
-            <DashboardCard key={step.title}>
-              <div className="flex flex-col gap-2">
-                <span className="flex size-9 items-center justify-center rounded-md bg-secondary text-foreground">
-                  <step.icon className="size-4" aria-hidden="true" />
-                </span>
-                <h3 className="text-sm font-semibold">{step.title}</h3>
-                <p className="text-sm text-muted-foreground">{step.body}</p>
-              </div>
-            </DashboardCard>
+            <li key={step.title}>
+              <DashboardCard className="h-full">
+                <div className="flex flex-col gap-2">
+                  <span className="flex size-9 items-center justify-center rounded-md bg-wash text-primary-ink">
+                    <step.icon className="size-4" aria-hidden="true" />
+                  </span>
+                  <h3 className="text-sm font-semibold">{step.title}</h3>
+                  <p className="text-sm text-muted-foreground">{step.body}</p>
+                </div>
+              </DashboardCard>
+            </li>
           ))}
-        </div>
+        </ol>
       </section>
 
-      {/* How syncing works */}
-      <section className="flex flex-col gap-4">
-        <h2 className="text-base font-semibold">How syncing works</h2>
+      <section aria-labelledby="help-places" className="flex flex-col gap-4">
+        <h2 id="help-places" className="text-base font-semibold">
+          Where things go
+        </h2>
+        <DashboardCard>
+          <ul className="flex flex-col gap-4">
+            {PLACES.map((place) => (
+              <li key={place.title} className="flex items-start gap-3">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                  <place.icon className="size-4" aria-hidden="true" />
+                </span>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-medium">{place.title}</h3>
+                  <p className="text-sm text-muted-foreground">{place.body}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">
+            Snippets and Library items stay for {RETENTION_DAYS} days unless you pin or favorite them.
+          </p>
+        </DashboardCard>
+      </section>
+
+      <section aria-labelledby="help-sync" className="flex flex-col gap-4">
+        <h2 id="help-sync" className="text-base font-semibold">
+          How syncing works
+        </h2>
         <DashboardCard>
           <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-3 text-sm">
               <span className="inline-flex items-center gap-2 rounded-md bg-secondary px-3 py-2">
-                <Smartphone className="size-4" aria-hidden="true" /> Phone: paste &amp; save a snippet
+                <Smartphone className="size-4" aria-hidden="true" /> Save on your phone
               </span>
               <RefreshCw className="size-4 text-muted-foreground" aria-hidden="true" />
               <span className="inline-flex items-center gap-2 rounded-md bg-secondary px-3 py-2">
-                Saved to your account (cloud)
+                Kept in your account
               </span>
               <RefreshCw className="size-4 text-muted-foreground" aria-hidden="true" />
               <span className="inline-flex items-center gap-2 rounded-md bg-secondary px-3 py-2">
-                <Laptop className="size-4" aria-hidden="true" /> Laptop: it is already there
+                <Laptop className="size-4" aria-hidden="true" /> Already on your laptop
               </span>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Your snippets live in the cloud, tied to your account — not on any single
-              device. The one rule: <strong>log in with the same account</strong> on every
-              device. A different account means a different, separate clipboard.
+            <p className="max-w-prose text-sm text-muted-foreground">
+              What you save lives in your account, not on one device. The one rule: sign in with the same account
+              everywhere. A different account is a different, separate clipboard.
             </p>
           </div>
         </DashboardCard>
       </section>
 
-      {/* Install as app */}
-      <section className="flex flex-col gap-4">
-        <h2 className="text-base font-semibold">Install CopyAnywhere as an app</h2>
+      <section aria-labelledby="help-install" className="flex flex-col gap-4">
+        <h2 id="help-install" className="text-base font-semibold">
+          Install it as an app
+        </h2>
         <DashboardCard>
           <div className="flex flex-col gap-3">
-            <span className="flex size-9 items-center justify-center rounded-md bg-secondary text-foreground">
-              <Download className="size-4" aria-hidden="true" />
-            </span>
-            <h3 className="text-sm font-semibold">Use it like a native app</h3>
-            <p className="text-sm text-muted-foreground">
-              Install CopyAnywhere to your home screen so it opens fullscreen, without the browser
-              bars, and you never have to type the URL again.
+            <p className="max-w-prose text-sm text-muted-foreground">
+              Install CopyAnywhere so it opens full screen from your home screen or dock, without the browser bars.
             </p>
             <InstallAppButton />
           </div>
         </DashboardCard>
       </section>
 
-      {/* Theme options */}
-      <section className="flex flex-col gap-4">
-        <h2 className="text-base font-semibold">Theme options</h2>
-        <div className="grid gap-4 sm:grid-cols-3">
-          {THEMES.map((theme) => (
-            <DashboardCard key={theme.title}>
-              <div className="flex flex-col gap-2">
-                <span className="flex size-9 items-center justify-center rounded-md bg-secondary text-foreground">
-                  <theme.icon className="size-4" aria-hidden="true" />
-                </span>
-                <h3 className="text-sm font-semibold">{theme.title}</h3>
-                <p className="text-sm text-muted-foreground">{theme.body}</p>
-              </div>
-            </DashboardCard>
-          ))}
-        </div>
-      </section>
-
-      {/* Upcoming features */}
-      <section className="flex flex-col gap-4">
-        <h2 className="flex items-center gap-2 text-base font-semibold">
-          <Sparkles className="size-4" aria-hidden="true" /> Upcoming features
-        </h2>
-        <DashboardCard>
-          <ul className="flex flex-col gap-3">
-            {UPCOMING.map((item) => (
-              <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
-                <span className="mt-1 size-1.5 shrink-0 rounded-full bg-primary" aria-hidden="true" />
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </DashboardCard>
-      </section>
+      <p className="text-sm text-muted-foreground">
+        Prefer light or dark? Choose a theme in{" "}
+        <Link href="/dashboard/settings#appearance" className="font-medium text-primary-ink underline-offset-4 hover:underline">
+          Settings
+        </Link>
+        .
+      </p>
     </div>
   );
 }

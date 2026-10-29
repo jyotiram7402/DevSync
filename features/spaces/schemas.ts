@@ -18,9 +18,15 @@ export const joinSpaceSchema = z.object({
 });
 export type JoinSpaceValues = z.infer<typeof joinSpaceSchema>;
 
-/** Share a piece of text or a link into a room, filed as an error or code. */
+/**
+ * Share a piece of text or a link into a room, filed as an error or code. The
+ * text is kept exactly as pasted (no trimming): Copy must give back the original.
+ */
 export const shareTextSchema = z.object({
-  content: z.string().trim().min(1, "Nothing to share.").max(20000, "That's too long to share."),
+  content: z
+    .string()
+    .max(20000, "That's too long to share.")
+    .refine((value) => value.trim().length > 0, "Nothing to share."),
   category: z.enum(["error", "code"]),
 });
 export type ShareTextValues = z.infer<typeof shareTextSchema>;

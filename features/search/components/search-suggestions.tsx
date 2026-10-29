@@ -36,7 +36,7 @@ export function SearchSuggestions({
           <>
             <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             <span className="truncate">{suggestion.label}</span>
-            <span className="ml-auto text-[11px] capitalize text-muted-foreground">
+            <span className="ml-auto text-xs capitalize text-muted-foreground">
               {suggestion.type}
             </span>
           </>

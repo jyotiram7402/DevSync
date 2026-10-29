@@ -1,15 +1,21 @@
+import Link from "next/link";
+
 import { EmptyState } from "@/components/shared/empty-state";
+import { ErrorState } from "@/components/shared/error-state";
 import { PageHeader } from "@/components/shared/page-header";
+import { Button } from "@/components/ui/button";
 import {
   CreateProjectButton,
+  PROJECTS_PURPOSE,
   ProjectEmptyState,
   ProjectFilters,
   ProjectGrid,
+  ProjectList,
   ProjectPagination,
   ProjectSearch,
   ProjectSort,
-  ProjectTable,
   getProjectPermissions,
+  parseProjectView,
 } from "@/features/projects";
 import { projectListParamsSchema } from "@/features/projects/schemas";
 import { listProjects } from "@/features/projects/services/project-service";
@@ -37,43 +43,60 @@ export default async function ProjectsPage({
     page: stringParam(sp.page),
   });
   const params = parsed.success ? parsed.data : {};
-  const view = sp.view === "table" ? "table" : "grid";
+  const view = parseProjectView(stringParam(sp.view));
 
   const result = await listProjects(params);
 
   if (!result.ok) {
     return (
-      <div className="flex flex-col gap-6">
-        <PageHeader title="Projects" />
-        <EmptyState title="Unable to load projects" description={result.error.message} />
+      <div className="flex flex-col gap-5">
+        <PageHeader title="Projects" description={PROJECTS_PURPOSE} />
+        <ErrorState title="Couldn't load your projects" description={result.error.message}>
+          <Button asChild variant="outline">
+            <Link href="/dashboard/projects">Try again</Link>
+          </Button>
+        </ErrorState>
       </div>
     );
   }
 
-  const { projects, page, totalPages, role } = result.data;
+  const { projects, page, totalPages, total, role } = result.data;
   const permissions = getProjectPermissions(role);
-  const filtered = Boolean(params.search) || params.status === "archived";
+  const archived = params.status === "archived";
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <PageHeader
         title="Projects"
-        description="Organize your snippets into projects."
+        description={PROJECTS_PURPOSE}
         actions={<CreateProjectButton canCreate={permissions.canCreate} />}
       />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <ProjectSearch />
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <ProjectSort />
           <ProjectFilters />
         </div>
       </div>
 
-      {projects.length === 0 ? (
-        <ProjectEmptyState filtered={filtered} canCreate={permissions.canCreate} />
-      ) : view === "table" ? (
-        <ProjectTable projects={projects} permissions={permissions} />
+      {projects.length === 0 && page > 1 && total > 0 ? (
+        // A page past the end (an old link, or the last item on it was deleted).
+        <EmptyState
+          title="Nothing on this page"
+          description={`There ${total === 1 ? "is 1 project" : `are ${total} projects`}, all on earlier pages.`}
+          action={
+            <Button asChild variant="outline">
+              <Link href={archived ? "/dashboard/projects?status=archived" : "/dashboard/projects"}>
+                Go to the first page
+              </Link>
+            </Button>
+          }
+        />
+      ) : projects.length === 0 ? (
+        <ProjectEmptyState search={params.search} archived={archived} canCreate={permissions.canCreate} />
+      ) : view === "list" ? (
+        <ProjectList projects={projects} permissions={permissions} />
       ) : (
         <ProjectGrid projects={projects} permissions={permissions} />
       )}

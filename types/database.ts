@@ -481,6 +481,10 @@ export interface Database {
         Args: { p_space_id: string; p_email: string };
         Returns: string;
       };
+      rotate_space_code: {
+        Args: { p_space_id: string };
+        Returns: string;
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

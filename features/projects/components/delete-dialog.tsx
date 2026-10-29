@@ -1,77 +1,96 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useId, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogFooter } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DialogFooter, ResponsiveDialog } from "@/components/ui/dialog";
 import { useProjectActions } from "@/features/projects/hooks/use-project-actions";
 import type { Project } from "@/features/projects/types";
 
 /**
- * Delete confirmation. Defaults to a soft delete (recoverable). Owners may opt
- * into permanent deletion. On success, navigates to the projects list.
+ * Delete confirmation. There is no Trash, so it says plainly that this can't
+ * be undone. By default the project is hidden (kept in the database, never
+ * shown again); owners can choose to erase it completely. Either way its
+ * snippets stay in Snippets. Focus starts on Cancel.
  */
 export function DeleteDialog({
   project,
   open,
   onClose,
   canPermanentDelete,
+  redirectTo,
 }: {
   project: Project;
   open: boolean;
   onClose: () => void;
   canPermanentDelete: boolean;
+  /** Where to go afterwards (from the project's own page: the list). */
+  redirectTo?: string | undefined;
 }) {
   const actions = useProjectActions();
   const router = useRouter();
-  const [permanent, setPermanent] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const eraseId = useId();
+  const [erase, setErase] = useState(false);
+  const [pending, setPending] = useState(false);
 
-  function confirm() {
-    startTransition(async () => {
-      const success =
-        permanent && canPermanentDelete
-          ? await actions.permanentDelete(project.id)
-          : await actions.softDelete(project.id);
-      if (success) {
-        onClose();
-        router.push("/dashboard/projects");
-      }
-    });
+  function close() {
+    if (pending) return;
+    setErase(false);
+    onClose();
+  }
+
+  async function confirm() {
+    setPending(true);
+    const success =
+      erase && canPermanentDelete
+        ? await actions.permanentDelete(project.id)
+        : await actions.softDelete(project.id);
+    setPending(false);
+    if (!success) return;
+    setErase(false);
+    onClose();
+    if (redirectTo) router.push(redirectTo);
   }
 
   return (
-    <Dialog
+    <ResponsiveDialog
       open={open}
-      onClose={onClose}
-      title="Delete project"
-      description={
-        permanent
-          ? `Permanently delete "${project.name}"? This cannot be undone.`
-          : `Delete "${project.name}"? It will be moved to trash and can be recovered.`
+      onClose={close}
+      title="Delete this project?"
+      description={`"${project.name}" is removed from your projects. Its snippets stay in Snippets. You can't undo this.`}
+      size="sm"
+      footer={
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={close} disabled={pending} data-autofocus="">
+            Cancel
+          </Button>
+          <Button type="button" variant="destructive" onClick={() => void confirm()} loading={pending}>
+            {erase ? "Erase project" : "Delete project"}
+          </Button>
+        </DialogFooter>
       }
     >
       {canPermanentDelete ? (
-        <label className="flex items-center gap-2 text-sm text-muted-foreground">
-          <input
-            type="checkbox"
-            checked={permanent}
-            onChange={(event) => setPermanent(event.target.checked)}
-            className="size-4 rounded border-input accent-destructive"
+        <div className="flex items-start gap-3">
+          <Checkbox
+            id={eraseId}
+            checked={erase}
+            onChange={(event) => setErase(event.target.checked)}
+            aria-describedby={`${eraseId}-hint`}
+            className="mt-0.5"
           />
-          Delete permanently (cannot be undone)
-        </label>
+          <div className="flex flex-col gap-0.5">
+            <label htmlFor={eraseId} className="text-sm font-medium">
+              Erase it completely
+            </label>
+            <p id={`${eraseId}-hint`} className="text-sm text-muted-foreground">
+              Without this, the project is hidden but its name and description stay stored.
+            </p>
+          </div>
+        </div>
       ) : null}
-
-      <DialogFooter>
-        <Button variant="outline" onClick={onClose} disabled={isPending}>
-          Cancel
-        </Button>
-        <Button variant="destructive" onClick={confirm} disabled={isPending} aria-busy={isPending}>
-          {isPending ? "Deleting…" : permanent ? "Delete permanently" : "Delete"}
-        </Button>
-      </DialogFooter>
-    </Dialog>
+    </ResponsiveDialog>
   );
 }

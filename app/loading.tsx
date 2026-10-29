@@ -1,13 +1,13 @@
-import { Loader2 } from "lucide-react";
+import { LoadingSpinner } from "@/components/shared/loading-spinner";
 
 /**
- * Route-level loading UI. Rendered by Next.js as the Suspense fallback while
- * a route segment streams. Kept minimal and dependency-free.
+ * Route-level loading UI for pages outside the app (the app's own pages have
+ * skeletons shaped like their content).
  */
 export default function Loading() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <Loader2 className="size-6 animate-spin text-muted-foreground" aria-label="Loading" />
+    <div className="flex min-h-dvh items-center justify-center">
+      <LoadingSpinner label="Loading…" />
     </div>
   );
 }

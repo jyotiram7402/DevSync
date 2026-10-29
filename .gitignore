@@ -16,6 +16,9 @@ next-env.d.ts
 /build
 /dist
 
+# Monaco editor files, copied in at build time (scripts/copy-monaco.mjs)
+/public/monaco/
+
 # Environment variables (NEVER commit real secrets)
 .env
 .env.local

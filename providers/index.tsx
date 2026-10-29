@@ -2,6 +2,8 @@
 
 import type { ReactNode } from "react";
 
+import { InstallCapture } from "@/components/pwa/install-capture";
+import { ThemeColorSync } from "@/components/theme-color-sync";
 import { Toaster } from "@/components/ui/sonner";
 import { DEFAULT_THEME, THEME_STORAGE_KEY } from "@/lib/theme";
 import { AuthProvider } from "@/providers/auth-provider";
@@ -31,6 +33,8 @@ export function Providers({ children }: { children: ReactNode }) {
         </AuthProvider>
       </SupabaseProvider>
       <Toaster />
+      <ThemeColorSync />
+      <InstallCapture />
     </ThemeProvider>
   );
 }

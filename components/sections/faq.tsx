@@ -1,62 +1,53 @@
 import { ChevronDown } from "lucide-react";
 
+import { SectionHeading } from "@/components/sections/section-heading";
 import { Container } from "@/components/shared/container";
-import { SectionHeader } from "@/components/shared/section-header";
+import { RETENTION_DAYS } from "@/lib/retention";
 
-const FAQS = [
+const FAQS: ReadonlyArray<{ q: string; a: string }> = [
   {
     q: "Do I need to install anything?",
-    a: "No. CopyAnywhere runs entirely in your browser, which is the whole point — it works on locked-down work machines where you cannot install software. There is also an optional Android app and browser extension if you want share-sheet and one-click capture.",
+    a: "No. CopyAnywhere is a website: sign in from any up-to-date browser, including on a work computer where you can't install apps. On your phone you can add it to your home screen so it opens like an app.",
   },
   {
-    q: "What kinds of files can I sync?",
-    a: "Text, code, links, images, PDFs, Word, Excel, PowerPoint, ZIP archives, audio and video. If you can copy it or share it, it syncs.",
+    q: "What can I send?",
+    a: "Text, code, links, photos and screenshots, PDFs, Word, Excel and PowerPoint files, archives, audio and video. Files can be up to 10 MB each.",
   },
   {
-    q: "How fast is “realtime”?",
-    a: "Typically under a second. A persistent secure connection pushes changes to every signed-in device as soon as they are saved — there is no refresh button and no polling delay.",
+    q: "How fast is it?",
+    a: "Usually about a second. Your other devices update on their own; there's nothing to refresh.",
   },
   {
-    q: "What happens if I am offline?",
-    a: "You can keep saving. Items are queued locally and sync automatically the moment your connection returns, so you never lose anything you captured on a train or a plane.",
+    q: "How long do things stay?",
+    a: `Snippets and files stay for ${RETENTION_DAYS} days, then they're deleted, so nothing piles up. Pin or favorite anything you want to keep. Quick Notes and Spaces stay until you delete them.`,
   },
   {
-    q: "Is my content private?",
-    a: "Yes. Every item is scoped to your own workspace by row-level security enforced in the database, and all traffic runs over TLS. Nothing is shared unless you explicitly share it.",
+    q: "Can I share with other people?",
+    a: "Yes, with Spaces. Make a room for a project, invite people with a link or a code, and everything shared in the room shows up for everyone in it.",
   },
   {
-    q: "Does my content stay forever?",
-    a: "By default items expire automatically after a short window so nothing piles up — especially useful on shared or work machines. Pin or favorite anything you want to keep permanently.",
+    q: "Is it free?",
+    a: "Yes. Everything in CopyAnywhere is free to use right now.",
   },
-  {
-    q: "Is it really free?",
-    a: "Yes. The free plan covers everyday personal use with no credit card. Paid plans for larger storage and team workspaces are coming later.",
-  },
-] as const;
+];
 
+/** Short answers to what people ask first. Native <details>, so it works without JavaScript. */
 export function FAQ() {
   return (
-    <section id="faq" className="py-24">
-      <Container className="flex flex-col gap-12">
-        <SectionHeader
-          eyebrow="FAQ"
-          title="Questions, answered"
-          description="Everything people ask before they sign up."
-        />
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
+    <section id="faq" aria-labelledby="faq-title" className="scroll-mt-20 border-b border-border">
+      <Container className="grid gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] lg:gap-16">
+        <SectionHeading id="faq-title" title="Questions" description="Short answers to what people ask first." />
+        <div className="flex flex-col divide-y divide-border border-y border-border">
           {FAQS.map((item) => (
-            <details
-              key={item.q}
-              className="group rounded-xl border bg-card px-5 transition-colors hover:border-brand/40 open:border-brand/40"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-left text-sm font-medium marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <details key={item.q} className="group">
+              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-3 text-left text-base font-medium [&::-webkit-details-marker]:hidden">
                 {item.q}
                 <ChevronDown
-                  className="size-4 shrink-0 text-muted-foreground transition-transform duration-300 group-open:rotate-180"
+                  className="size-5 shrink-0 text-muted-foreground transition-transform duration-base group-open:rotate-180"
                   aria-hidden="true"
                 />
               </summary>
-              <p className="pb-5 text-sm leading-relaxed text-muted-foreground">{item.a}</p>
+              <p className="max-w-prose pb-5 text-sm text-muted-foreground">{item.a}</p>
             </details>
           ))}
         </div>

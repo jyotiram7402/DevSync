@@ -6,9 +6,9 @@ import { cn } from "@/utils/cn";
 
 const DOT: Record<ConnectionStatus, string> = {
   idle: "bg-muted-foreground",
-  connecting: "bg-amber-500 animate-pulse",
-  connected: "bg-emerald-500",
-  reconnecting: "bg-amber-500 animate-pulse",
+  connecting: "bg-warning animate-pulse",
+  connected: "bg-success",
+  reconnecting: "bg-warning animate-pulse",
   disconnected: "bg-destructive",
   error: "bg-destructive",
 };

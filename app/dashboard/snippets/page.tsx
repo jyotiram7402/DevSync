@@ -1,22 +1,24 @@
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-import { EmptyState } from "@/components/shared/empty-state";
+import { ArrivalFeed } from "@/components/items/arrival-feed";
+import { ErrorState } from "@/components/shared/error-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
+import { LiveRefresh } from "@/features/dashboard/components/live-refresh";
 import {
   BulkActionBar,
   SnippetEmptyState,
   SnippetFilters,
-  SnippetGrid,
   SnippetPagination,
   SnippetSearch,
   SnippetSort,
-  SnippetTable,
   getSnippetPermissions,
 } from "@/features/snippets";
+import { SnippetRow } from "@/features/snippets/components/snippet-row";
 import { snippetListParamsSchema } from "@/features/snippets/schemas";
 import { listSnippets } from "@/features/snippets/services/snippet-service";
+import { cn } from "@/utils/cn";
 
 export const metadata = {
   title: "Snippets",
@@ -43,7 +45,7 @@ export default async function SnippetsPage({
     page: stringParam(sp.page),
   });
   const params = parsed.success ? parsed.data : {};
-  const view = sp.view === "table" ? "table" : "grid";
+  const view = sp.view === "grid" ? "grid" : "list";
 
   const result = await listSnippets(params);
 
@@ -51,29 +53,38 @@ export default async function SnippetsPage({
     return (
       <div className="flex flex-col gap-6">
         <PageHeader title="Snippets" />
-        <EmptyState title="Unable to load snippets" description={result.error.message} />
+        <ErrorState title="Couldn't load your snippets" description={result.error.message}>
+          <Button asChild variant="outline">
+            <Link href="/dashboard/snippets">Try again</Link>
+          </Button>
+        </ErrorState>
       </div>
     );
   }
 
-  const { snippets, page, totalPages, role } = result.data;
+  const { snippets, page, totalPages, role, workspaceId } = result.data;
   const permissions = getSnippetPermissions(role);
   const filtered =
     Boolean(params.search) ||
     params.status === "archived" ||
     Boolean(params.projectId) ||
     Boolean(params.language);
+  // A new search, filter, sort or page is a fresh list, not "new arrivals".
+  const listKey = JSON.stringify([params.search, params.status, params.sort, params.projectId, params.language, page]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
+      {/* Saves from your other devices appear here without a reload. */}
+      <LiveRefresh workspaceId={workspaceId} />
+
       <PageHeader
         title="Snippets"
-        description="Everything you copy, synced across your devices."
+        description="Text, code, commands and errors you save. They show up on all your devices."
         actions={
           permissions.canCreate ? (
             <Button asChild size="sm">
               <Link href="/dashboard/snippets/new">
-                <Plus />
+                <Plus aria-hidden="true" />
                 New snippet
               </Link>
             </Button>
@@ -91,10 +102,16 @@ export default async function SnippetsPage({
 
       {snippets.length === 0 ? (
         <SnippetEmptyState filtered={filtered} canCreate={permissions.canCreate} />
-      ) : view === "table" ? (
-        <SnippetTable snippets={snippets} permissions={permissions} />
       ) : (
-        <SnippetGrid snippets={snippets} permissions={permissions} />
+        <ArrivalFeed
+          label="Snippets"
+          resetKey={listKey}
+          className={cn(view === "grid" && "md:grid md:grid-cols-2 md:gap-3")}
+          entries={snippets.map((snippet) => ({
+            id: snippet.id,
+            node: <SnippetRow snippet={snippet} permissions={permissions} />,
+          }))}
+        />
       )}
 
       <SnippetPagination page={page} totalPages={totalPages} />

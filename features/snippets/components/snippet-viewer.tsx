@@ -1,27 +1,14 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
-import { Skeleton } from "@/components/ui/skeleton";
+import { CodeBlock } from "@/components/ui/code-block";
+import { getLanguageLabel } from "@/features/snippets/languages";
 
 /**
- * Read-only Monaco viewer for snippet content. Lazy-loaded so Monaco stays off
- * the initial bundle. Content is rendered as text (never executed), so it is
- * safe against XSS.
+ * Read-only view of a snippet: the raw text in a code block (wrap toggle,
+ * long content clamped, copy). Light and instant on every device; the Monaco
+ * editor is only loaded when editing. Rendered as text, never executed.
  */
-const SnippetEditor = dynamic(
-  () => import("@/features/snippets/components/snippet-editor").then((mod) => mod.SnippetEditor),
-  { ssr: false, loading: () => <Skeleton className="h-[420px] w-full" /> },
-);
-
-export function SnippetViewer({
-  content,
-  language,
-  height = 420,
-}: {
-  content: string;
-  language: string | null;
-  height?: number;
-}) {
-  return <SnippetEditor value={content} language={language} readOnly height={height} />;
+export function SnippetViewer({ content, language }: { content: string; language: string | null }) {
+  const label = language && language !== "plaintext" ? getLanguageLabel(language) : "Text";
+  return <CodeBlock value={content} label={label} maxLines={30} />;
 }

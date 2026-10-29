@@ -1,19 +1,21 @@
 "use client";
 
-import { CalendarClock, Loader2, Plus } from "lucide-react";
+import { CalendarClock, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { toast } from "sonner";
 
-import { quickCreateNoteAction } from "@/features/notes/actions";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
+import { quickCreateNoteAction } from "@/features/notes/actions";
 import { cn } from "@/utils/cn";
 
 /**
- * Extremely fast note capture: type a title, hit Enter, done. Optional due
- * date/time behind a toggle so the common case stays one field. Optimistic-ish
- * via router.refresh on success (matches the app's server-first pattern).
+ * Fast note capture: type a title, press Enter, done. An optional due date and
+ * time sit behind the calendar button so the common case stays one field.
+ * `autoFocus` only applies with a mouse/trackpad — on phones it would throw
+ * the keyboard up on every visit.
  */
 export function NoteQuickAdd({ autoFocus = false }: { autoFocus?: boolean }) {
   const router = useRouter();
@@ -23,6 +25,10 @@ export function NoteQuickAdd({ autoFocus = false }: { autoFocus?: boolean }) {
   const [showDue, setShowDue] = useState(false);
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (autoFocus && window.matchMedia("(pointer: fine)").matches) inputRef.current?.focus();
+  }, [autoFocus]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,32 +55,28 @@ export function NoteQuickAdd({ autoFocus = false }: { autoFocus?: boolean }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        <div className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-md border bg-background px-3 focus-within:ring-2 focus-within:ring-ring">
+        <div className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-md border border-input bg-surface pl-3 transition-colors duration-fast focus-within:border-ring focus-within:outline focus-within:outline-2 focus-within:outline-ring pointer-coarse:h-11">
           <Plus className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           <input
             ref={inputRef}
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            placeholder="Add a note…  (e.g. Fix the production bug tomorrow)"
-            aria-label="Note title"
-            autoFocus={autoFocus}
-            className="h-full min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            placeholder="Add a note, like “Renew the domain on Friday”"
+            aria-label="New note"
+            enterKeyHint="done"
+            className="h-full min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground md:text-sm"
           />
-          <button
-            type="button"
-            onClick={() => setShowDue((v) => !v)}
-            aria-label="Add due date"
+          <IconButton
+            label="Add a due date"
+            icon={CalendarClock}
+            size="sm"
             aria-pressed={showDue}
-            className={cn(
-              "rounded p-1 text-muted-foreground transition-colors hover:text-foreground",
-              showDue && "text-brand",
-            )}
-          >
-            <CalendarClock className="size-4" aria-hidden="true" />
-          </button>
+            onClick={() => setShowDue((value) => !value)}
+            className={cn("shrink-0", showDue && "text-primary-ink")}
+          />
         </div>
-        <Button type="submit" disabled={busy || title.trim().length === 0} aria-busy={busy}>
-          {busy ? <Loader2 className="size-4 animate-spin" /> : "Add"}
+        <Button type="submit" disabled={title.trim().length === 0} loading={busy}>
+          Add
         </Button>
       </div>
 
@@ -85,14 +87,13 @@ export function NoteQuickAdd({ autoFocus = false }: { autoFocus?: boolean }) {
             value={dueDate}
             onChange={(event) => setDueDate(event.target.value)}
             aria-label="Due date"
-            className="h-9"
           />
           <Input
             type="time"
             value={dueTime}
             onChange={(event) => setDueTime(event.target.value)}
             aria-label="Due time"
-            className="h-9 w-32"
+            className="w-36"
           />
         </div>
       ) : null}

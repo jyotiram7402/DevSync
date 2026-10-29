@@ -8,8 +8,8 @@ import { toast } from "sonner";
 
 import { FormError } from "@/components/auth/form-error";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password-input";
 import { useSupabase } from "@/hooks/use-supabase";
 import { updatePassword } from "@/lib/auth/auth";
 import { DEFAULT_AUTHENTICATED_REDIRECT } from "@/lib/auth/redirect";
@@ -48,26 +48,28 @@ export function ResetPasswordForm() {
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="password">New password</Label>
-        <Input
+        <PasswordInput
           id="password"
-          type="password"
           autoComplete="new-password"
           aria-invalid={errors.password ? true : undefined}
-          aria-describedby={errors.password ? "password-error" : undefined}
+          aria-describedby={errors.password ? "password-error" : "password-hint"}
           {...register("password")}
         />
         {errors.password ? (
           <p id="password-error" role="alert" className="text-sm text-destructive">
             {errors.password.message}
           </p>
-        ) : null}
+        ) : (
+          <p id="password-hint" className="text-xs text-muted-foreground">
+            At least 8 characters.
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="confirmPassword">Confirm new password</Label>
-        <Input
+        <PasswordInput
           id="confirmPassword"
-          type="password"
           autoComplete="new-password"
           aria-invalid={errors.confirmPassword ? true : undefined}
           aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
@@ -80,7 +82,7 @@ export function ResetPasswordForm() {
         ) : null}
       </div>
 
-      <Button type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
+      <Button type="submit" loading={isSubmitting}>
         {isSubmitting ? "Updating…" : "Update password"}
       </Button>
     </form>

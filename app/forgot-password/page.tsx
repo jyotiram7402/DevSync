@@ -31,17 +31,22 @@ export default async function ForgotPasswordPage({
 
   return (
     <AuthLayout>
-      <AuthCard
-        title="Forgot your password?"
-        description="Enter your email and we will send you a reset link"
-        footer={
-          <Link href="/login" className="font-medium text-foreground underline-offset-4 hover:underline">
-            Back to sign in
-          </Link>
-        }
-      >
-        {isSupabaseConfigured ? <ForgotPasswordForm initialError={initialError} /> : <AuthUnavailable />}
-      </AuthCard>
+      {isSupabaseConfigured ? (
+        // The form renders its own card, so it can switch to "Check your email" after sending.
+        <ForgotPasswordForm initialError={initialError} />
+      ) : (
+        <AuthCard
+          title="Forgot your password?"
+          description="Enter your email and we'll send you a link to set a new one."
+          footer={
+            <Link href="/login" className="font-medium text-foreground underline-offset-4 hover:underline">
+              Back to sign in
+            </Link>
+          }
+        >
+          <AuthUnavailable />
+        </AuthCard>
+      )}
     </AuthLayout>
   );
 }

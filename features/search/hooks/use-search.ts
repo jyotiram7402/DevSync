@@ -29,6 +29,8 @@ export interface UseSearchOptions {
   initialSort?: SearchSortKey;
   initialScope?: SearchScope;
   initialFilters?: SearchFilters;
+  /** Page to open on first (e.g. from a shared URL); later searches start at page 1. */
+  initialPage?: number;
   /** Fire searches even when the query is empty (browse mode). */
   searchOnEmpty?: boolean;
 }
@@ -78,8 +80,13 @@ export function useSearch(options: UseSearchOptions = {}): UseSearchApi {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
+  // Start "loading" when a first search is about to run, so the first paint
+  // shows skeletons rather than "0 results".
+  const [loading, setLoading] = useState(
+    () => Boolean(options.searchOnEmpty) || (options.initialQuery ?? "").trim().length > 0,
+  );
   const [error, setError] = useState<string | null>(null);
+  const firstPageRef = useRef(Math.max(1, options.initialPage ?? 1));
 
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
 
@@ -146,9 +153,12 @@ export function useSearch(options: UseSearchOptions = {}): UseSearchApi {
     [buildParams, debouncedQuery, options.searchOnEmpty],
   );
 
-  // Re-run from page 1 whenever the query, tab, sort, scope, or filters change.
+  // Re-run from page 1 whenever the query, tab, sort, scope, or filters change
+  // (the very first run may open a later page from the URL).
   useEffect(() => {
-    void run(1, false);
+    const firstPage = firstPageRef.current;
+    firstPageRef.current = 1;
+    void run(firstPage, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery, activeType, sort, scope, filtersKey]);
 

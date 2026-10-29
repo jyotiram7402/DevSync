@@ -3,31 +3,34 @@ import Link from "next/link";
 
 import { Container } from "@/components/shared/container";
 import { Logo } from "@/components/shared/logo";
-import { APP_NAME, APP_TAGLINE } from "@/lib/constants";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { APP_NAME } from "@/lib/constants";
 import { FOOTER_SECTIONS, GITHUB_URL } from "@/lib/site-config";
 
-/**
- * SiteFooter — marketing footer with the brand block and link columns.
- * Server component; the copyright year is computed at render time.
- */
-/** http(s) and mailto links must render as plain anchors, not next/link. */
+/** http(s) and mailto links render as plain anchors, not next/link. */
 function isExternalHref(href: string): boolean {
   return /^(https?:|mailto:|tel:)/.test(href);
 }
 
+const LINK_CLASS =
+  "inline-flex items-center rounded-sm py-1 text-sm text-muted-foreground transition-colors duration-fast hover:text-foreground pointer-coarse:min-h-11";
+
+/**
+ * SiteFooter — what CopyAnywhere is in a line, the link columns, the theme
+ * control, and the copyright. Server component; the year is computed at render.
+ */
 export function SiteFooter() {
   const year = new Date().getFullYear();
   const githubUrl: string = GITHUB_URL;
 
   return (
-    <footer className="border-t border-border/60">
-      <Container className="py-14">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-6">
-          <div className="flex flex-col gap-4 md:col-span-2 lg:col-span-2">
+    <footer className="border-t border-border pb-safe">
+      <Container className="flex flex-col gap-10 px-4 py-12 sm:px-6">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="flex flex-col gap-3 sm:col-span-2">
             <Logo />
-            <p className="max-w-xs text-sm text-muted-foreground">
-              {APP_TAGLINE} Realtime sync for text, code, images, documents and files across every
-              device you use.
+            <p className="max-w-sm text-sm text-muted-foreground">
+              Copy on one device, paste on another. Text, code, links, photos and files, in any browser.
             </p>
             {githubUrl ? (
               <a
@@ -35,46 +38,45 @@ export function SiteFooter() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub repository"
-                className="inline-flex size-9 items-center justify-center rounded-md border text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="inline-flex size-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors duration-fast hover:text-foreground pointer-coarse:size-11"
               >
-                <Github className="size-4" />
+                <Github className="size-4" aria-hidden="true" />
               </a>
             ) : null}
           </div>
 
           {FOOTER_SECTIONS.map((section) => (
-            <div key={section.title} className="flex flex-col gap-3">
-              <h3 className="text-sm font-medium">{section.title}</h3>
-              <ul className="flex flex-col gap-2">
-                {section.links.map((link) => {
-                  const className =
-                    "rounded-sm text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
-                  return (
-                    <li key={link.label}>
-                      {isExternalHref(link.href) ? (
-                        <a href={link.href} className={className}>
-                          {link.label}
-                        </a>
-                      ) : (
-                        <Link href={link.href} className={className}>
-                          {link.label}
-                        </Link>
-                      )}
-                    </li>
-                  );
-                })}
+            <nav key={section.title} aria-labelledby={`footer-${section.title}`} className="flex flex-col gap-2">
+              <h2 id={`footer-${section.title}`} className="text-sm font-medium text-foreground">
+                {section.title}
+              </h2>
+              <ul className="flex flex-col gap-1">
+                {section.links.map((link) => (
+                  <li key={link.label}>
+                    {isExternalHref(link.href) ? (
+                      <a href={link.href} className={LINK_CLASS}>
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link href={link.href} className={LINK_CLASS}>
+                        {link.label}
+                      </Link>
+                    )}
+                  </li>
+                ))}
               </ul>
-            </div>
+            </nav>
           ))}
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border/60 pt-8 sm:flex-row">
+        <div className="flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted-foreground">
-            © {year} {APP_NAME}. All rights reserved.
+            © {year} {APP_NAME}
           </p>
-          <p className="text-xs text-muted-foreground">
-            Built with Next.js, Tailwind CSS, and Supabase.
-          </p>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground">Theme</span>
+            <ThemeToggle />
+          </div>
         </div>
       </Container>
     </footer>

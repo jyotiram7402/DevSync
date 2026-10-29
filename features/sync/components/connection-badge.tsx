@@ -26,7 +26,7 @@ export function ConnectionBadge({ className }: { className?: string }) {
 
   return (
     <Badge
-      variant={isConnected ? "brand" : "muted"}
+      variant={isConnected ? "primary" : "muted"}
       className={cn("gap-1", className)}
       aria-live="polite"
     >

@@ -22,6 +22,16 @@ import { cn } from "@/utils/cn";
 /** Matches the snippet-attachments bucket limit (10MB). */
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
 
+/** What an opener can hand over when it opens Quick Capture (see QuickCaptureProvider). */
+export interface QuickCaptureInitial {
+  text?: string;
+  file?: File;
+  /** Placeholder for the text box, e.g. "Paste a link…". */
+  placeholder?: string;
+  /** A short note above the text box, e.g. why the clipboard couldn't be read. */
+  note?: string;
+}
+
 function kindFromMime(mime: string): string {
   const m = mime.toLowerCase();
   if (m.startsWith("image/")) return "image";
@@ -48,7 +58,20 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function QuickCapture({ open, onClose }: { open: boolean; onClose: () => void }) {
+function tooLargeMessage(file: File): string | null {
+  if (file.size <= MAX_FILE_BYTES) return null;
+  return `That file is ${formatBytes(file.size)}. Files can be up to ${formatBytes(MAX_FILE_BYTES)}.`;
+}
+
+export function QuickCapture({
+  open,
+  onClose,
+  initial,
+}: {
+  open: boolean;
+  onClose: () => void;
+  initial?: QuickCaptureInitial | null;
+}) {
   const router = useRouter();
   const supabase = useSupabase();
   const [text, setText] = useState("");
@@ -78,12 +101,24 @@ export function QuickCapture({ open, onClose }: { open: boolean; onClose: () => 
   }, [open]);
 
   function chooseFile(next: File | null) {
-    if (next && next.size > MAX_FILE_BYTES) {
-      toast.error(`File is too large (max ${formatBytes(MAX_FILE_BYTES)}).`);
+    const tooLarge = next ? tooLargeMessage(next) : null;
+    if (tooLarge) {
+      toast.error(tooLarge);
       return;
     }
     setFile(next);
   }
+
+  // Start from what the opener handed over (pasted text, a picked file).
+  useEffect(() => {
+    if (!open || !initial) return;
+    if (initial.text) setText(initial.text);
+    if (initial.file) {
+      const tooLarge = tooLargeMessage(initial.file);
+      if (tooLarge) toast.error(tooLarge);
+      else setFile(initial.file);
+    }
+  }, [open, initial]);
 
   function handlePaste(event: ClipboardEvent<HTMLDivElement>) {
     const item = Array.from(event.clipboardData.items).find((entry) => entry.kind === "file");
@@ -102,7 +137,8 @@ export function QuickCapture({ open, onClose }: { open: boolean; onClose: () => 
   }
 
   async function submitText(): Promise<boolean> {
-    const result = await createTextCaptureAction(text.trim());
+    // Sent exactly as typed or pasted: Copy must give back the original.
+    const result = await createTextCaptureAction(text);
     if (!result.ok) {
       toast.error(result.error.message);
       return false;
@@ -155,14 +191,14 @@ export function QuickCapture({ open, onClose }: { open: boolean; onClose: () => 
   async function handleSubmit() {
     if (busy) return;
     if (!file && text.trim().length === 0) {
-      toast.error("Paste text or attach a file first.");
+      toast.error("Paste some text or add a file first.");
       return;
     }
     setBusy(true);
     const ok = file ? await submitFile(file) : await submitText();
     setBusy(false);
     if (ok) {
-      toast.success(file ? "File synced to DevSync." : "Synced to DevSync.");
+      toast.success(file ? "Uploaded. It's on your other devices now." : "Saved. It's on your other devices now.");
       onClose();
       router.refresh();
     }
@@ -172,8 +208,8 @@ export function QuickCapture({ open, onClose }: { open: boolean; onClose: () => 
     <Dialog
       open={open}
       onClose={onClose}
-      title="Quick capture"
-      description={`Paste text, or drop / attach a file — it syncs to all your devices. Items auto-expire after ${RETENTION_DAYS} days unless you pin or favorite them.`}
+      title="Quick add"
+      description={`Paste text or add a file. It shows up on all your devices, and stays for ${RETENTION_DAYS} days unless you pin or favorite it.`}
       className="max-w-lg"
     >
       <div
@@ -186,7 +222,7 @@ export function QuickCapture({ open, onClose }: { open: boolean; onClose: () => 
         onDragLeave={() => setDragOver(false)}
         className={cn(
           "flex flex-col gap-3 rounded-lg border border-dashed p-1 transition-colors",
-          dragOver ? "border-brand bg-brand/5" : "border-transparent",
+          dragOver ? "border-primary bg-primary/5" : "border-transparent",
         )}
       >
         {file ? (
@@ -214,14 +250,17 @@ export function QuickCapture({ open, onClose }: { open: boolean; onClose: () => 
             </Button>
           </div>
         ) : (
-          <Textarea
-            autoFocus
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-            placeholder="Paste or type anything… (or paste an image / drop a file)"
-            rows={5}
-            aria-label="Content to capture"
-          />
+          <>
+            {initial?.note ? <p className="text-sm text-muted-foreground">{initial.note}</p> : null}
+            <Textarea
+              autoFocus
+              value={text}
+              onChange={(event) => setText(event.target.value)}
+              placeholder={initial?.placeholder ?? "Paste or type anything, or paste an image"}
+              rows={5}
+              aria-label="What to save"
+            />
+          </>
         )}
 
         <input
@@ -239,11 +278,11 @@ export function QuickCapture({ open, onClose }: { open: boolean; onClose: () => 
           onClick={() => fileInputRef.current?.click()}
           disabled={busy}
         >
-          <FileUp className="size-4" aria-hidden="true" />
-          Attach file
+          <FileUp aria-hidden="true" />
+          Add a file
         </Button>
-        <Button type="button" onClick={() => void handleSubmit()} disabled={busy} aria-busy={busy}>
-          {busy ? "Syncing…" : file ? "Sync file" : "Sync"}
+        <Button type="button" onClick={() => void handleSubmit()} loading={busy}>
+          {busy ? (file ? "Uploading…" : "Saving…") : file ? "Upload" : "Save"}
         </Button>
       </DialogFooter>
     </Dialog>

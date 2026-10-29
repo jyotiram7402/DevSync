@@ -25,7 +25,7 @@ export function DeviceStatusList({ className }: { className?: string }) {
         return (
           <li key={device.deviceId} className="flex items-center gap-2 text-sm">
             <span
-              className="size-2 shrink-0 rounded-full bg-emerald-500"
+              className="size-2 shrink-0 rounded-full bg-success"
               aria-hidden="true"
             />
             <Laptop className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />

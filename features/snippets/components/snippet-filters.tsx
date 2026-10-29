@@ -1,13 +1,16 @@
 "use client";
 
-import { LayoutGrid, Table as TableIcon } from "lucide-react";
+import { LayoutGrid, List } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Select } from "@/components/ui/select";
 import { DEFAULT_SNIPPET_STATUS, SNIPPET_STATUS_OPTIONS } from "@/features/snippets/constants";
 import { SNIPPET_LANGUAGES } from "@/features/snippets/languages";
 
-/** Status + language filters and a grid/table view toggle. */
+type SnippetView = "list" | "grid";
+
+/** Status + language filters and a list/grid view toggle (view from md up). */
 export function SnippetFilters() {
   const router = useRouter();
   const pathname = usePathname();
@@ -15,7 +18,7 @@ export function SnippetFilters() {
 
   const status = searchParams.get("status") ?? DEFAULT_SNIPPET_STATUS;
   const language = searchParams.get("language") ?? "";
-  const view = searchParams.get("view") === "table" ? "table" : "grid";
+  const view: SnippetView = searchParams.get("view") === "grid" ? "grid" : "list";
 
   function setParam(key: string, value: string, resetPage = false) {
     const params = new URLSearchParams(searchParams.toString());
@@ -30,24 +33,24 @@ export function SnippetFilters() {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <select
-        aria-label="Filter by status"
+      <Select
+        aria-label="Show"
         value={status}
         onChange={(event) => setParam("status", event.target.value, true)}
-        className="h-9 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        className="w-auto"
       >
         {SNIPPET_STATUS_OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
-      </select>
+      </Select>
 
-      <select
-        aria-label="Filter by language"
+      <Select
+        aria-label="Language"
         value={language}
         onChange={(event) => setParam("language", event.target.value, true)}
-        className="h-9 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        className="w-auto"
       >
         <option value="">All languages</option>
         {SNIPPET_LANGUAGES.map((item) => (
@@ -55,32 +58,18 @@ export function SnippetFilters() {
             {item.label}
           </option>
         ))}
-      </select>
+      </Select>
 
-      <div className="hidden items-center rounded-md border p-0.5 sm:flex" role="group" aria-label="View">
-        <Button
-          type="button"
-          variant={view === "grid" ? "secondary" : "ghost"}
-          size="icon"
-          aria-label="Grid view"
-          aria-pressed={view === "grid"}
-          className="size-7"
-          onClick={() => setParam("view", "grid")}
-        >
-          <LayoutGrid className="size-4" />
-        </Button>
-        <Button
-          type="button"
-          variant={view === "table" ? "secondary" : "ghost"}
-          size="icon"
-          aria-label="Table view"
-          aria-pressed={view === "table"}
-          className="size-7"
-          onClick={() => setParam("view", "table")}
-        >
-          <TableIcon className="size-4" />
-        </Button>
-      </div>
+      <SegmentedControl<SnippetView>
+        aria-label="View"
+        value={view}
+        onValueChange={(next) => setParam("view", next === "grid" ? "grid" : "")}
+        options={[
+          { value: "list", label: "List", icon: List, iconOnly: true },
+          { value: "grid", label: "Grid", icon: LayoutGrid, iconOnly: true },
+        ]}
+        className="hidden md:inline-flex"
+      />
     </div>
   );
 }

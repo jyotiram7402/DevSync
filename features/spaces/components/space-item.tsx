@@ -1,180 +1,206 @@
 "use client";
 
-import { Check, Copy, Download, ExternalLink, FileText, Loader2, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ExternalLink, Maximize2, Trash2 } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
+import { ItemPreview } from "@/components/items/item-preview";
+import { ItemRow, MetaDot } from "@/components/items/item-row";
 import { Button } from "@/components/ui/button";
+import { CopyButton } from "@/components/ui/copy-button";
+import { ConfirmDialog } from "@/components/ui/dialog";
+import { FileIcon } from "@/components/ui/file-icon";
+import { Menu, type MenuEntry } from "@/components/ui/menu";
+import { RelativeTime } from "@/components/ui/relative-time";
+import { Skeleton } from "@/components/ui/skeleton";
+import { FileDownloadButton } from "@/features/library/components/file-download-button";
 import { deleteSpaceItemAction } from "@/features/spaces/actions";
+import { spaceItemAuthor, spaceItemKind } from "@/features/spaces/display";
 import type { SpaceItem } from "@/features/spaces/types";
 import { useSupabase } from "@/hooks/use-supabase";
-import { createSignedUrl, downloadFile } from "@/lib/storage/storage";
+import { titleFromText } from "@/lib/item-text";
+import { displayHost, isSafeToOpenInline, safeWebUrl } from "@/lib/safe-url";
+import { createSignedUrl } from "@/lib/storage/storage";
+import { formatBytes } from "@/utils/formatters";
 
 const BUCKET = "space-attachments" as const;
+const OPEN_SECONDS = 300;
 
-const CATEGORY_BADGE: Record<SpaceItem["category"], { label: string; className: string }> = {
-  error: { label: "Error", className: "bg-destructive/10 text-destructive" },
-  code: { label: "Code", className: "bg-brand/10 text-brand" },
-  doc: { label: "Doc", className: "bg-muted text-muted-foreground" },
-  file: { label: "File", className: "bg-muted text-muted-foreground" },
-};
-
-function timeLabel(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+/** Images get an inline preview; SVG and other script-capable types stay files. */
+export function showsImagePreview(item: SpaceItem): boolean {
+  return item.path !== null && spaceItemKind(item) === "image" && isSafeToOpenInline(item.mimeType);
 }
 
-export function SpaceItemCard({ item, isOwner }: { item: SpaceItem; isOwner: boolean }) {
+/**
+ * One shared item in a room, from the shared item family: who shared it and
+ * when, a preview, and an always-visible Copy (text), Open (links) or Download
+ * (files). The menu views images, opens files in a new tab with a fresh link,
+ * and deletes (for the sharer or the room owner, after asking).
+ */
+export function SpaceItemRow({
+  item,
+  isOwner,
+  imageUrl,
+  onView,
+}: {
+  item: SpaceItem;
+  isOwner: boolean;
+  /** Signed preview URL for images (the feed signs them all in one request). */
+  imageUrl?: string | undefined;
+  /** Opens the feed's image viewer on this item. */
+  onView?: (() => void) | undefined;
+}) {
   const supabase = useSupabase();
-  const isFile = Boolean(item.path);
-  const isImage = item.kind === "image" && isFile;
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [opening, setOpening] = useState(false);
+
+  const kind = spaceItemKind(item);
+  const isFile = item.path !== null;
+  const isImage = showsImagePreview(item);
   const canDelete = item.mine || isOwner;
 
-  const [signedUrl, setSignedUrl] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [downloading, setDownloading] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-
-  useEffect(() => {
-    if (!isFile || !item.path) return;
-    let active = true;
-    void createSignedUrl(supabase, BUCKET, item.path, 3600).then((res) => {
-      if (active && res.ok) setSignedUrl(res.data.signedUrl);
-    });
-    return () => {
-      active = false;
-    };
-  }, [supabase, item.path, isFile]);
-
-  async function copyText() {
-    try {
-      await navigator.clipboard.writeText(item.content);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-      toast.success("Copied.");
-    } catch {
-      toast.error("Couldn't copy — select and copy manually.");
-    }
-  }
-
-  async function download() {
-    if (!item.path || downloading) return;
-    setDownloading(true);
-    const res = await downloadFile(supabase, BUCKET, item.path);
-    setDownloading(false);
-    if (!res.ok) {
-      if (signedUrl) window.open(signedUrl, "_blank");
+  async function open() {
+    if (!item.path || opening) return;
+    // Open the tab inside the tap (popup blockers), then point it at a fresh link.
+    const tab = window.open("about:blank", "_blank");
+    if (tab) tab.opener = null;
+    setOpening(true);
+    const result = await createSignedUrl(supabase, BUCKET, item.path, OPEN_SECONDS);
+    setOpening(false);
+    if (!result.ok) {
+      tab?.close();
+      toast.error("Couldn't open the file. Check your connection and try again.");
       return;
     }
-    const objectUrl = URL.createObjectURL(res.data);
-    const anchor = document.createElement("a");
-    anchor.href = objectUrl;
-    anchor.download = item.content || "download";
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    URL.revokeObjectURL(objectUrl);
+    if (tab) tab.location.href = result.data.signedUrl;
+    else window.location.href = result.data.signedUrl;
   }
 
   async function remove() {
     setDeleting(true);
-    const res = await deleteSpaceItemAction(item.spaceId, item.id);
-    if (!res.ok) {
-      setDeleting(false);
-      toast.error(res.error.message);
+    const result = await deleteSpaceItemAction(item.spaceId, item.id);
+    setDeleting(false);
+    if (!result.ok) {
+      toast.error(result.error.message);
+      return;
     }
-    // On success the realtime refresh removes the card.
+    setConfirmDelete(false);
+    toast.success("Deleted for everyone in the room.");
   }
 
-  const badge = CATEGORY_BADGE[item.category];
+  const menuItems: MenuEntry[] = [];
+  if (isImage && onView) menuItems.push({ label: "View", icon: Maximize2, onSelect: onView });
+  if (isFile && isSafeToOpenInline(item.mimeType)) {
+    menuItems.push({ label: "Open in new tab", icon: ExternalLink, onSelect: () => void open() });
+  }
+  if (canDelete) {
+    if (menuItems.length > 0) menuItems.push("separator");
+    menuItems.push({ label: "Delete", icon: Trash2, destructive: true, onSelect: () => setConfirmDelete(true) });
+  }
+
   const meta = (
-    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-      <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${badge.className}`}>
-        {badge.label}
-      </span>
-      <span>{item.mine ? "You" : (item.author ?? "Someone")}</span>
-      <span aria-hidden="true">·</span>
-      <time dateTime={item.createdAt}>{timeLabel(item.createdAt)}</time>
-    </div>
+    <>
+      <span className="font-medium text-foreground">{spaceItemAuthor(item)}</span>
+      <MetaDot />
+      <RelativeTime value={item.createdAt} />
+      {isFile && item.size ? (
+        <>
+          <MetaDot />
+          <span>{formatBytes(item.size, 1)}</span>
+        </>
+      ) : null}
+    </>
   );
 
-  return (
-    <li className="flex flex-col gap-2 rounded-lg border bg-card p-3">
-      <div className="flex items-start justify-between gap-3">
-        {meta}
-        <div className="flex shrink-0 items-center gap-1">
-          {!isFile ? (
-            <Button type="button" variant="ghost" size="icon" onClick={() => void copyText()} aria-label="Copy">
-              {copied ? <Check className="size-4 text-brand" /> : <Copy className="size-4" />}
-            </Button>
-          ) : null}
-          {isFile ? (
-            <>
-              {signedUrl ? (
-                <Button asChild variant="ghost" size="icon" aria-label="Open">
-                  <a href={signedUrl} target="_blank" rel="noreferrer">
-                    <ExternalLink className="size-4" />
-                  </a>
-                </Button>
-              ) : null}
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => void download()}
-                disabled={downloading}
-                aria-label="Download"
-              >
-                {downloading ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
-              </Button>
-            </>
-          ) : null}
-          {canDelete ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => void remove()}
-              disabled={deleting}
-              aria-label="Delete"
-            >
-              <Trash2 className="size-4 text-muted-foreground" />
-            </Button>
-          ) : null}
-        </div>
-      </div>
+  const menu = menuItems.length > 0 ? <Menu label="Item actions" items={menuItems} /> : null;
 
-      {isImage && signedUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={signedUrl} alt={item.content} className="max-h-72 w-full rounded-md border object-contain" />
-      ) : isFile ? (
-        <div className="flex items-center gap-3 rounded-md border p-3">
-          <span className="flex size-10 items-center justify-center rounded-md bg-muted text-muted-foreground">
-            <FileText className="size-5" aria-hidden="true" />
+  let row: ReactNode;
+  if (isFile && item.path) {
+    row = (
+      <ItemRow
+        kind={kind}
+        title={item.content}
+        titleLines={2}
+        media={<FileIcon name={item.content} mimeType={item.mimeType} size="sm" />}
+        preview={
+          isImage ? (
+            <button
+              type="button"
+              onClick={onView}
+              className="block w-full max-w-sm overflow-hidden rounded-md border border-border bg-muted transition-opacity duration-fast active:opacity-80"
+            >
+              <span className="block aspect-video">
+                {imageUrl ? (
+                  <img src={imageUrl} alt="" loading="lazy" decoding="async" className="size-full object-contain" />
+                ) : (
+                  <Skeleton className="size-full rounded-none" />
+                )}
+              </span>
+              <span className="sr-only">View {item.content}</span>
+            </button>
+          ) : undefined
+        }
+        meta={meta}
+        primaryAction={<FileDownloadButton bucket={BUCKET} path={item.path} name={item.content} />}
+        menu={menu}
+      />
+    );
+  } else if (kind === "link") {
+    const link = safeWebUrl(item.content);
+    row = (
+      <ItemRow
+        kind={kind}
+        title={displayHost(item.content) ?? item.content}
+        preview={<p className="truncate font-mono text-xs text-muted-foreground">{item.content}</p>}
+        meta={meta}
+        primaryAction={
+          <span className="flex items-center gap-1.5">
+            <CopyButton value={item.content} iconOnly variant="ghost" srContext="link" />
+            {link ? (
+              <Button asChild size="sm" variant="outline">
+                <a href={link} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink aria-hidden="true" />
+                  Open
+                </a>
+              </Button>
+            ) : null}
           </span>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{item.content}</p>
-            <p className="text-xs text-muted-foreground">
-              {item.mimeType ?? "file"}
-              {item.size ? ` · ${(item.size / 1024).toFixed(0)} KB` : ""}
-            </p>
-          </div>
-        </div>
-      ) : item.kind === "url" ? (
-        <a
-          href={item.content}
-          target="_blank"
-          rel="noreferrer"
-          className="break-all text-sm text-brand hover:underline"
-        >
-          {item.content}
-        </a>
-      ) : (
-        <pre className="max-h-80 overflow-auto whitespace-pre-wrap break-words rounded-md bg-muted/50 p-3 font-mono text-xs leading-relaxed">
-          {item.content}
-        </pre>
-      )}
-    </li>
+        }
+        menu={menu}
+      />
+    );
+  } else {
+    const { title, preview } = titleFromText(item.content, "Empty");
+    row = (
+      <ItemRow
+        kind={kind}
+        title={title}
+        preview={preview ? <ItemPreview text={preview} code lines={4} /> : undefined}
+        meta={meta}
+        primaryAction={<CopyButton value={item.content} srContext={kind === "error" ? "error" : "code"} />}
+        menu={menu}
+      />
+    );
+  }
+
+  return (
+    <>
+      {row}
+      <ConfirmDialog
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={() => void remove()}
+        pending={deleting}
+        destructive
+        title="Delete this item?"
+        description={
+          isFile
+            ? `"${item.content}" is deleted for everyone in the room. This can't be undone.`
+            : "It's deleted for everyone in the room. This can't be undone."
+        }
+        confirmLabel="Delete"
+      />
+    </>
   );
 }

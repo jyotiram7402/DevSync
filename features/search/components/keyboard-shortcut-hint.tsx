@@ -19,7 +19,7 @@ export function KeyboardShortcutHint({
       {keys.map((key, index) => (
         <kbd
           key={`${key}-${index}`}
-          className="rounded border bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground"
+          className="rounded border bg-muted px-1.5 py-0.5 font-mono text-xs font-medium text-muted-foreground"
         >
           {key}
         </kbd>

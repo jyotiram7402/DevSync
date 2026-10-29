@@ -9,8 +9,8 @@ import { cn } from "@/utils/cn";
 
 function tone(ms: number | null): string {
   if (ms === null) return "text-muted-foreground";
-  if (ms < 150) return "text-emerald-600 dark:text-emerald-400";
-  if (ms < 500) return "text-amber-600 dark:text-amber-400";
+  if (ms < 150) return "text-success";
+  if (ms < 500) return "text-warning";
   return "text-destructive";
 }
 

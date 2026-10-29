@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { Select } from "@/components/ui/select";
 import { DEFAULT_SNIPPET_SORT, SNIPPET_SORT_OPTIONS } from "@/features/snippets/constants";
 
 export function SnippetSort() {
@@ -18,17 +19,12 @@ export function SnippetSort() {
   }
 
   return (
-    <select
-      aria-label="Sort snippets"
-      value={current}
-      onChange={handleChange}
-      className="h-9 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-    >
+    <Select aria-label="Sort by" value={current} onChange={handleChange} className="w-auto">
       {SNIPPET_SORT_OPTIONS.map((option) => (
         <option key={option.value} value={option.value}>
           {option.label}
         </option>
       ))}
-    </select>
+    </Select>
   );
 }

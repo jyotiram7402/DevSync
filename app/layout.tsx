@@ -1,24 +1,34 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { RegisterServiceWorker } from "@/components/pwa/register-service-worker";
-import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE, SITE_URL } from "@/lib/constants";
+import { APP_NAME, APP_TAGLINE, SITE_URL } from "@/lib/constants";
+import { THEME_COLOR } from "@/lib/theme";
 import { Providers } from "@/providers";
 
 import "../styles/globals.css";
 
-const fontSans = Inter({
+// UI type: IBM Plex Sans — technical but warm, very clear at small sizes.
+const fontSans = IBM_Plex_Sans({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   variable: "--font-sans",
   display: "swap",
 });
 
+// Code, commands, logs and invite codes only: dotted zero, distinct 1/l/I.
+// Not preloaded — most first screens show no monospace text.
 const fontMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
   display: "swap",
+  preload: false,
 });
+
+/** Search and link-preview text: what it does, for whom, without jargon. */
+const SHARE_DESCRIPTION =
+  "Copy on one device, paste on any other. Text, code, errors, links, images and files, live in any browser — even on a locked-down work laptop, with nothing to install.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -26,7 +36,7 @@ export const metadata: Metadata = {
     default: `${APP_NAME} — ${APP_TAGLINE}`,
     template: `%s · ${APP_NAME}`,
   },
-  description: APP_DESCRIPTION,
+  description: SHARE_DESCRIPTION,
   applicationName: APP_NAME,
   appleWebApp: {
     capable: true,
@@ -34,12 +44,12 @@ export const metadata: Metadata = {
     title: APP_NAME,
   },
   keywords: [
-    "developer tools",
     "clipboard sync",
+    "copy paste between devices",
+    "send text from phone to computer",
+    "send files to yourself",
+    "cross-device clipboard",
     "code snippets",
-    "cross-device sync",
-    "debugging",
-    "stack traces",
   ],
   authors: [{ name: APP_NAME }],
   creator: APP_NAME,
@@ -48,12 +58,12 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: APP_NAME,
     title: `${APP_NAME} — ${APP_TAGLINE}`,
-    description: APP_DESCRIPTION,
+    description: SHARE_DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
     title: `${APP_NAME} — ${APP_TAGLINE}`,
-    description: APP_DESCRIPTION,
+    description: SHARE_DESCRIPTION,
   },
   robots: {
     index: true,
@@ -68,9 +78,13 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  // Android: the on-screen keyboard resizes the layout, so fields and their
+  // submit buttons stay above it.
+  interactiveWidget: "resizes-content",
+  // Follows the OS until the app knows the chosen theme (see ThemeColorSync).
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
+    { media: "(prefers-color-scheme: light)", color: THEME_COLOR.light },
+    { media: "(prefers-color-scheme: dark)", color: THEME_COLOR.dark },
   ],
 };
 
@@ -78,7 +92,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${fontSans.variable} ${fontMono.variable} min-h-screen bg-background font-sans antialiased`}
+        className={`${fontSans.variable} ${fontMono.variable} bg-background font-sans antialiased`}
       >
         <RegisterServiceWorker />
         <Providers>{children}</Providers>

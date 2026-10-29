@@ -25,10 +25,10 @@ const ICONS: Record<SyncStatus, typeof Check> = {
 
 const TONE: Record<SyncStatus, string> = {
   idle: "text-muted-foreground",
-  syncing: "text-brand",
-  synced: "text-emerald-600 dark:text-emerald-400",
+  syncing: "text-primary-ink",
+  synced: "text-success",
   error: "text-destructive",
-  offline: "text-amber-600 dark:text-amber-400",
+  offline: "text-warning",
 };
 
 /**

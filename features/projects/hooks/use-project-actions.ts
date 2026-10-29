@@ -14,10 +14,10 @@ import {
 import type { ActionResult } from "@/types/api";
 
 /**
- * Client wrapper over the project Server Actions. Each handler surfaces errors
- * via toast, shows an optional success toast, refreshes server components on
- * success, and resolves to a boolean so callers (dialogs) can close on success.
- * Callers manage their own pending state (useTransition) for button disabling.
+ * Client wrapper over the project Server Actions. Each handler shows errors in
+ * a toast, refreshes server components on success, and resolves to a boolean
+ * so callers (dialogs) can close on success. Archiving is reversible, so it
+ * happens right away with Undo in the toast instead of asking first.
  */
 export interface ProjectActionsApi {
   archive: (id: string) => Promise<boolean>;
@@ -31,24 +31,32 @@ export interface ProjectActionsApi {
 export function useProjectActions(): ProjectActionsApi {
   const router = useRouter();
 
-  async function run(action: Promise<ActionResult<unknown>>, successMessage?: string): Promise<boolean> {
+  async function run(
+    action: Promise<ActionResult<unknown>>,
+    success?: { message: string; undo?: () => Promise<ActionResult<unknown>> },
+  ): Promise<boolean> {
     const result = await action;
     if (!result.ok) {
       toast.error(result.error.message);
       return false;
     }
-    if (successMessage) {
-      toast.success(successMessage);
+    if (success) {
+      const undo = success.undo;
+      toast.success(
+        success.message,
+        undo ? { action: { label: "Undo", onClick: () => void run(undo()) } } : undefined,
+      );
     }
     router.refresh();
     return true;
   }
 
   return {
-    archive: (id) => run(archiveProjectAction(id), "Project archived"),
-    restore: (id) => run(restoreProjectAction(id), "Project restored"),
-    softDelete: (id) => run(softDeleteProjectAction(id), "Project deleted"),
-    permanentDelete: (id) => run(permanentlyDeleteProjectAction(id), "Project permanently deleted"),
+    archive: (id) =>
+      run(archiveProjectAction(id), { message: "Project archived.", undo: () => restoreProjectAction(id) }),
+    restore: (id) => run(restoreProjectAction(id), { message: "Project restored." }),
+    softDelete: (id) => run(softDeleteProjectAction(id), { message: "Project deleted." }),
+    permanentDelete: (id) => run(permanentlyDeleteProjectAction(id), { message: "Project deleted." }),
     setFavorite: (id, value) => run(toggleFavoriteAction(id, value)),
     setPinned: (id, value) => run(togglePinAction(id, value)),
   };

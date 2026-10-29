@@ -60,10 +60,11 @@ function buildRedirect(
 
 /**
  * Run on application routes only. Static assets, image optimization, the
- * favicon, and common asset file types are excluded.
+ * favicon, the self-hosted code editor files (public/monaco) and common asset
+ * file types are excluded.
  */
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|icon.svg|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|icon.svg|robots.txt|monaco/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

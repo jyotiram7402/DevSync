@@ -3,26 +3,22 @@
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
+import { SegmentedControl, type SegmentedOption } from "@/components/ui/segmented-control";
 import { useMounted } from "@/hooks/use-mounted";
-import type { ThemeValue } from "@/lib/theme";
-import { cn } from "@/utils/cn";
+import { isThemeValue, type ThemeValue } from "@/lib/theme";
 
 /**
- * Accessible System / Light / Dark theme control.
+ * Accessible System / Light / Dark theme control (arrow keys move and select).
  *
- * A compact segmented radiogroup. The active option is only highlighted after
- * mount (the resolved theme is client-only) so the server and first client
- * render agree and there is no hydration mismatch. Persistence is handled by
- * next-themes (see providers/index.tsx).
+ * The active option is only highlighted after mount (the saved theme is
+ * client-only) so the server and first client render agree and there is no
+ * hydration mismatch. Persistence is handled by next-themes (see
+ * providers/index.tsx).
  */
-const OPTIONS: ReadonlyArray<{
-  value: ThemeValue;
-  label: string;
-  Icon: typeof Monitor;
-}> = [
-  { value: "system", label: "System", Icon: Monitor },
-  { value: "light", label: "Light", Icon: Sun },
-  { value: "dark", label: "Dark", Icon: Moon },
+const OPTIONS: ReadonlyArray<SegmentedOption<ThemeValue>> = [
+  { value: "system", label: "System", icon: Monitor, iconOnly: true },
+  { value: "light", label: "Light", icon: Sun, iconOnly: true },
+  { value: "dark", label: "Dark", icon: Moon, iconOnly: true },
 ];
 
 export function ThemeToggle({ className }: { className?: string }) {
@@ -30,34 +26,13 @@ export function ThemeToggle({ className }: { className?: string }) {
   const mounted = useMounted();
 
   return (
-    <div
-      role="radiogroup"
+    <SegmentedControl
       aria-label="Color theme"
-      className={cn(
-        "inline-flex shrink-0 items-center gap-0.5 rounded-full border bg-background/60 p-0.5",
-        className,
-      )}
-    >
-      {OPTIONS.map(({ value, label, Icon }) => {
-        const active = mounted && theme === value;
-        return (
-          <button
-            key={value}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            aria-label={label}
-            title={label}
-            onClick={() => setTheme(value)}
-            className={cn(
-              "inline-flex size-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background",
-              active && "bg-secondary text-foreground shadow-sm",
-            )}
-          >
-            <Icon className="size-3.5" aria-hidden="true" />
-          </button>
-        );
-      })}
-    </div>
+      options={OPTIONS}
+      value={mounted && isThemeValue(theme) ? theme : undefined}
+      onValueChange={setTheme}
+      size="sm"
+      className={className}
+    />
   );
 }

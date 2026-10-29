@@ -4,18 +4,21 @@ import * as React from "react";
 import { cn } from "@/utils/cn";
 
 /**
- * Badge — Tier 1 UI primitive (shadcn/ui). A small rounded label used for
- * eyebrows, tags, and status pills. The `brand` variant applies the accent.
+ * Badge — Tier 1 UI primitive. A small label for tags and statuses (12px text,
+ * 6px radius). Tinted variants keep their text AA-readable on their own tint.
  */
 const badgeVariants = cva(
-  "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+  "inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-xs font-medium",
   {
     variants: {
       variant: {
         default: "border-transparent bg-secondary text-secondary-foreground",
-        outline: "text-foreground",
+        outline: "border-border text-foreground",
         muted: "border-transparent bg-muted text-muted-foreground",
-        brand: "border-transparent bg-brand/10 text-brand",
+        primary: "border-transparent bg-primary/10 text-primary-ink",
+        success: "border-transparent bg-success/10 text-success",
+        warning: "border-transparent bg-warning/10 text-warning",
+        destructive: "border-transparent bg-destructive/10 text-destructive",
       },
     },
     defaultVariants: {
@@ -25,11 +28,11 @@ const badgeVariants = cva(
 );
 
 export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends React.HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof badgeVariants> {}
 
 function Badge({ className, variant, ...props }: BadgeProps) {
-  return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
+  return <span className={cn(badgeVariants({ variant }), className)} {...props} />;
 }
 
 export { Badge, badgeVariants };

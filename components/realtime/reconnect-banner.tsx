@@ -21,7 +21,7 @@ export function ReconnectBanner({ className }: { className?: string }) {
       role="status"
       aria-live="assertive"
       className={cn(
-        "flex items-center justify-center gap-2 bg-amber-500/10 px-4 py-1.5 text-xs font-medium text-amber-700 dark:text-amber-300",
+        "flex items-center justify-center gap-2 bg-warning/10 px-4 py-1.5 text-xs font-medium text-warning",
         className,
       )}
     >
