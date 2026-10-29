@@ -19,11 +19,11 @@ export function SectionHeading({
   className?: string;
 }) {
   return (
-    <div className={cn("flex max-w-2xl flex-col gap-3", className)}>
-      <h2 id={id} className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
+    <div className={cn("flex max-w-2xl flex-col gap-4", className)}>
+      <h2 id={id} className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
         {title}
       </h2>
-      {description ? <p className="text-pretty text-base text-muted-foreground sm:text-lg">{description}</p> : null}
+      {description ? <p className="text-pretty text-lg text-muted-foreground">{description}</p> : null}
     </div>
   );
 }

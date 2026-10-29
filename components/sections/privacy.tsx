@@ -1,67 +1,57 @@
-import { EyeOff, Lock, ShieldCheck, Timer, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 
-import { SectionHeading } from "@/components/sections/section-heading";
 import { Container } from "@/components/shared/container";
 import { RETENTION_DAYS } from "@/lib/retention";
 
-const POINTS: ReadonlyArray<{ icon: LucideIcon; title: string; body: string }> = [
+const LEDGER: ReadonlyArray<{ term: string; answer: string }> = [
   {
-    icon: Lock,
-    title: "Only you can see your items",
-    body: "Each account is walled off in the database itself, not just in the app. Spaces are shared only with the people you invite.",
+    term: "Who can see it",
+    answer:
+      "Only you. Every account is walled off in the database itself, not just in the app. Spaces are shared only with the people you invite.",
   },
   {
-    icon: ShieldCheck,
-    title: "Encrypted on the way",
-    body: "Everything travels over HTTPS between your devices and our servers.",
+    term: "On the way",
+    answer: "Encrypted over HTTPS, between your devices and our servers.",
   },
   {
-    icon: Timer,
-    title: "Nothing piles up",
-    body: `Snippets and files are deleted after ${RETENTION_DAYS} days unless you pin or favorite them, so little is left behind on a shared or work computer.`,
+    term: "How long it stays",
+    answer: `${RETENTION_DAYS} days, then it's deleted, so little is left behind on a shared or work computer. Pin or favorite anything you want to keep.`,
   },
   {
-    icon: EyeOff,
-    title: "No ads, no selling",
-    body: "We don't sell your data or use what you save for advertising.",
+    term: "Ads and selling",
+    answer: "None. We don't sell your data or use what you save for advertising.",
   },
 ];
 
-/** Privacy, in plain words, with a link to the full policy. */
+/** Privacy as a plain ledger: what happens to what you copy. */
 export function Privacy() {
   return (
     <section id="privacy" aria-labelledby="privacy-title" className="scroll-mt-20 border-b border-border">
-      <Container className="flex flex-col gap-10 px-4 py-16 sm:px-6 sm:py-24">
-        <SectionHeading
-          id="privacy-title"
-          title="Private by default"
-          description={
-            <>
-              What you copy is often personal. Here&apos;s how it&apos;s looked after. The details are in the{" "}
-              <Link href="/privacy" className="font-medium text-primary-ink underline underline-offset-4">
-                privacy policy
-              </Link>
-              .
-            </>
-          }
-        />
-        <ul className="grid gap-x-12 gap-y-8 md:grid-cols-2">
-          {POINTS.map((point) => {
-            const Icon = point.icon;
-            return (
-              <li key={point.title} className="flex gap-4">
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-foreground">
-                  <Icon className="size-5" aria-hidden="true" />
-                </span>
-                <div className="flex min-w-0 flex-col gap-1">
-                  <h3 className="text-base font-semibold">{point.title}</h3>
-                  <p className="text-sm text-muted-foreground">{point.body}</p>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+      <Container className="grid gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-16">
+        <div className="flex flex-col gap-4">
+          <h2 id="privacy-title" className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+            What happens to what you copy
+          </h2>
+          <p className="text-pretty text-lg text-muted-foreground">
+            What you copy is often personal. The full details are in the{" "}
+            <Link href="/privacy" className="font-medium text-primary-ink underline underline-offset-4">
+              privacy policy
+            </Link>
+            .
+          </p>
+        </div>
+
+        <dl className="border-t border-border">
+          {LEDGER.map((row) => (
+            <div
+              key={row.term}
+              className="grid gap-1 border-b border-border py-5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-8"
+            >
+              <dt className="text-base font-semibold">{row.term}</dt>
+              <dd className="max-w-prose text-base text-muted-foreground">{row.answer}</dd>
+            </div>
+          ))}
+        </dl>
       </Container>
     </section>
   );

@@ -192,6 +192,11 @@ const config: Config = {
           from: { transform: "translateY(0)" },
           to: { transform: "translateY(calc(-100% / 6))" },
         },
+        /* Landing headline: a text cursor that blinks a few times, then rests (no endless loop). */
+        caret: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0" },
+        },
       },
       animation: {
         "overlay-in": "overlay-in var(--duration-base) var(--ease-out) both",
@@ -202,6 +207,7 @@ const config: Config = {
         pop: "pop var(--duration-fast) var(--ease-out) both",
         "progress-indeterminate": "progress-indeterminate 1.2s ease-in-out infinite",
         stream: "stream var(--stream-duration, 60s) linear var(--stream-delay, 0s) infinite",
+        caret: "caret 1.1s step-end 4",
       },
     },
   },
