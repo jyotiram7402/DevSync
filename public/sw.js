@@ -1,18 +1,27 @@
 /*
- * DevSync service worker.
+ * CopyAnywhere service worker.
  *
  * Purpose: satisfy the PWA installability requirement (a fetch handler) and
- * provide a graceful offline experience — WITHOUT ever serving a stale app.
+ * show a friendly page when the device has no connection — WITHOUT ever
+ * serving a stale app.
  *
  * Strategy, deliberately conservative:
  *   • Immutable build assets (/_next/static/…) → cache-first. Safe because
  *     Next.js fingerprints these filenames; a new build produces new URLs.
- *   • Everything else (pages, Server Actions, Supabase, auth) → network only.
- *     Navigations fall back to a cached shell ONLY when the network fails, so
- *     you always get fresh data when online.
- *   • Never touches non-GET requests (Server Actions / mutations are POSTs).
+ *   • Page loads while the device is online → not touched. The browser loads
+ *     them itself, so a network that blocks the site, or any other failure,
+ *     shows the browser's own error with the real reason instead of a
+ *     misleading "You're offline".
+ *   • Page loads while the device is offline → network first, then the
+ *     offline page.
+ *   • Everything else (Server Actions, Supabase, auth) → network only. Never
+ *     touches non-GET requests.
+ *
+ * Bump VERSION whenever offline.html or the caching here changes: browsers
+ * only reinstall the worker when this file changes, and the new version
+ * deletes the old caches (including the old saved offline page).
  */
-const VERSION = "devsync-v1";
+const VERSION = "copyanywhere-v2";
 const STATIC_CACHE = `${VERSION}-static`;
 const OFFLINE_URL = "/offline.html";
 
@@ -20,7 +29,8 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(STATIC_CACHE)
-      .then((cache) => cache.addAll([OFFLINE_URL]))
+      // "reload" skips the HTTP cache, so the saved offline page is the current one.
+      .then((cache) => cache.add(new Request(OFFLINE_URL, { cache: "reload" })))
       .then(() => self.skipWaiting())
       .catch(() => self.skipWaiting()),
   );
@@ -37,8 +47,10 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+// Only fingerprinted files: anything else (like /icon.svg) can change under
+// the same name, so it must never be cached forever.
 function isImmutableAsset(url) {
-  return url.pathname.startsWith("/_next/static/") || url.pathname === "/icon.svg";
+  return url.pathname.startsWith("/_next/static/");
 }
 
 self.addEventListener("fetch", (event) => {
@@ -68,9 +80,9 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Page navigations: always network-first so data is fresh; show the offline
-  // page only if the network is genuinely unavailable.
-  if (request.mode === "navigate") {
+  // Page loads: step in only when the device has no connection. Still try the
+  // network first, in case the offline flag is out of date.
+  if (request.mode === "navigate" && !self.navigator.onLine) {
     event.respondWith(
       fetch(request).catch(() =>
         caches.match(OFFLINE_URL).then((cached) => cached ?? Response.error()),
