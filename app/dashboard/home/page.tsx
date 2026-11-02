@@ -1,7 +1,6 @@
 import { ClipboardPaste } from "lucide-react";
 import Link from "next/link";
 
-import { ArrivalFeed } from "@/components/items/arrival-feed";
 import { InstallCard } from "@/components/pwa/install-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
@@ -9,13 +8,12 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { LibraryStrip } from "@/features/dashboard/components/library-strip";
-import { LiveRefresh } from "@/features/dashboard/components/live-refresh";
 import { getDashboardOverview } from "@/features/dashboard/services/overview-service";
 import { NotesWidget } from "@/features/notes/components/notes-widget";
 import { getNoteBuckets } from "@/features/notes/services/note-service";
 import { DeviceList } from "@/features/settings/components/device-list";
 import { getSnippetPermissions } from "@/features/snippets";
-import { SnippetRow } from "@/features/snippets/components/snippet-row";
+import { LiveSnippetFeed } from "@/features/snippets/components/live-snippet-feed";
 import { listSnippets } from "@/features/snippets/services/snippet-service";
 import { getServerUser } from "@/lib/auth/session";
 import { formatBytes } from "@/utils/formatters";
@@ -29,7 +27,8 @@ const LATEST_COUNT = 5;
 /**
  * Home — what you saved most recently, ready to copy on this device; the
  * Library at a glance; your notes; and where you're signed in. Live: anything
- * saved on another device slides in here within a second.
+ * saved on another device slides in here well under a second later, and the
+ * rest of the page settles from the server shortly after.
  */
 export default async function DashboardHomePage() {
   const [user, overviewResult, latestResult, notesResult] = await Promise.all([
@@ -62,9 +61,6 @@ export default async function DashboardHomePage() {
 
   return (
     <div className="flex flex-col gap-8">
-      {/* Live: anything saved on another device shows up here without a reload. */}
-      <LiveRefresh workspaceId={overview.workspaceId} />
-
       <PageHeader title={title} description="Your latest, ready to copy on this device." />
 
       <InstallCard />
@@ -84,31 +80,28 @@ export default async function DashboardHomePage() {
               <Link href="/dashboard/home">Try again</Link>
             </Button>
           </ErrorState>
-        ) : latestResult.data.snippets.length === 0 ? (
-          <EmptyState
-            icon={ClipboardPaste}
-            title="Nothing saved yet"
-            description="Paste an error, a command or some code with Add (Quick add on a computer). It shows up on your other devices right away."
-            action={
-              <Button asChild>
-                <Link href="/dashboard/snippets/new">New snippet</Link>
-              </Button>
-            }
-          />
         ) : (
-          <ArrivalFeed
+          /* Live: saves from any device land here without a reload. */
+          <LiveSnippetFeed
+            initial={latestResult.data.snippets}
+            workspaceId={overview.workspaceId}
+            permissions={getSnippetPermissions(latestResult.data.role)}
+            query={{ status: "active", sort: "updated", page: 1, pageSize: LATEST_COUNT, contentOnly: true }}
             label="Latest snippets"
             resetKey="home"
-            entries={latestResult.data.snippets.map((snippet) => ({
-              id: snippet.id,
-              node: (
-                <SnippetRow
-                  snippet={snippet}
-                  permissions={getSnippetPermissions(latestResult.data.role)}
-                  selectable={false}
-                />
-              ),
-            }))}
+            selectable={false}
+            empty={
+              <EmptyState
+                icon={ClipboardPaste}
+                title="Nothing saved yet"
+                description="Paste an error, a command or some code with Add (Quick add on a computer). It shows up on your other devices right away."
+                action={
+                  <Button asChild>
+                    <Link href="/dashboard/snippets/new">New snippet</Link>
+                  </Button>
+                }
+              />
+            }
           />
         )}
       </section>

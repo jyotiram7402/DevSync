@@ -1,13 +1,13 @@
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-import { ArrivalFeed } from "@/components/items/arrival-feed";
 import { ErrorState } from "@/components/shared/error-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
-import { LiveRefresh } from "@/features/dashboard/components/live-refresh";
 import {
   BulkActionBar,
+  DEFAULT_SNIPPET_SORT,
+  DEFAULT_SNIPPET_STATUS,
   SnippetEmptyState,
   SnippetFilters,
   SnippetPagination,
@@ -15,7 +15,7 @@ import {
   SnippetSort,
   getSnippetPermissions,
 } from "@/features/snippets";
-import { SnippetRow } from "@/features/snippets/components/snippet-row";
+import { LiveSnippetFeed } from "@/features/snippets/components/live-snippet-feed";
 import { snippetListParamsSchema } from "@/features/snippets/schemas";
 import { listSnippets } from "@/features/snippets/services/snippet-service";
 import { cn } from "@/utils/cn";
@@ -62,7 +62,7 @@ export default async function SnippetsPage({
     );
   }
 
-  const { snippets, page, totalPages, role, workspaceId } = result.data;
+  const { snippets, page, pageSize, totalPages, role, workspaceId } = result.data;
   const permissions = getSnippetPermissions(role);
   const filtered =
     Boolean(params.search) ||
@@ -74,9 +74,6 @@ export default async function SnippetsPage({
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Saves from your other devices appear here without a reload. */}
-      <LiveRefresh workspaceId={workspaceId} />
-
       <PageHeader
         title="Snippets"
         description="Text, code, commands and errors you save. They show up on all your devices."
@@ -100,19 +97,27 @@ export default async function SnippetsPage({
         </div>
       </div>
 
-      {snippets.length === 0 ? (
-        <SnippetEmptyState filtered={filtered} canCreate={permissions.canCreate} />
-      ) : (
-        <ArrivalFeed
-          label="Snippets"
-          resetKey={listKey}
-          className={cn(view === "grid" && "md:grid md:grid-cols-2 md:gap-3")}
-          entries={snippets.map((snippet) => ({
-            id: snippet.id,
-            node: <SnippetRow snippet={snippet} permissions={permissions} />,
-          }))}
-        />
-      )}
+      {/* Live: saves from your other devices appear here without a reload. */}
+      <LiveSnippetFeed
+        initial={snippets}
+        workspaceId={workspaceId}
+        permissions={permissions}
+        query={{
+          status: params.status ?? DEFAULT_SNIPPET_STATUS,
+          sort: params.sort ?? DEFAULT_SNIPPET_SORT,
+          page,
+          pageSize,
+          projectId: params.projectId,
+          language: params.language,
+          search: params.search,
+          // The Snippets list is code/text only; images/links/files have their own views.
+          contentOnly: true,
+        }}
+        label="Snippets"
+        resetKey={listKey}
+        className={cn(view === "grid" && "md:grid md:grid-cols-2 md:gap-3")}
+        empty={<SnippetEmptyState filtered={filtered} canCreate={permissions.canCreate} />}
+      />
 
       <SnippetPagination page={page} totalPages={totalPages} />
       <BulkActionBar permissions={permissions} />

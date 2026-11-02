@@ -5,8 +5,8 @@
  * Pure values only — no logic, no environment access.
  */
 export const REALTIME_TIMING = {
-  /** Socket keepalive interval (mirrors the transport config in browser.ts). */
-  heartbeatIntervalMs: 25_000,
+  /** Socket keepalive interval (used by browser.ts). Short, so a dead socket is noticed within seconds. */
+  heartbeatIntervalMs: 15_000,
   /** How long a heartbeat/latency probe may take before it is considered lost. */
   heartbeatTimeoutMs: 10_000,
   /** Interval for the round-trip latency probe. */
@@ -26,9 +26,10 @@ export const REALTIME_LIMITS = {
   maxLatencySamples: 20,
 } as const;
 
+/** Reconnect waits: 1s, 2s, 4s, 8s, then every 10s (plus jitter). Never half a minute. */
 export const REALTIME_BACKOFF = {
   baseMs: 1_000,
-  maxMs: 30_000,
+  maxMs: 10_000,
   factor: 2,
 } as const;
 

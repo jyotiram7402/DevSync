@@ -22,11 +22,14 @@ export async function createSnippetAction(
   return result;
 }
 
-/** Quick Capture: create a text/URL item (URLs auto-classified into Links). */
+/**
+ * Quick Capture: create a text/URL item (URLs auto-classified into Links).
+ * No revalidation on purpose: that re-renders the whole page inside the
+ * action's response and makes Save wait for it. The open lists update
+ * themselves from the saved row (see LiveSnippetFeed), so this only inserts.
+ */
 export async function createTextCaptureAction(content: string): Promise<ActionResult<Snippet>> {
-  const result = await service.createTextCapture(content);
-  if (result.ok) revalidatePath(LIST_PATH);
-  return result;
+  return service.createTextCapture(content);
 }
 
 /** Quick Capture: create the placeholder row for a file/image before upload. */
@@ -39,14 +42,12 @@ export async function createPendingFileSnippetAction(input: {
   return service.createPendingFileSnippet(input);
 }
 
-/** Quick Capture: link the uploaded attachment and reveal the snippet. */
+/** Quick Capture: link the uploaded attachment and reveal the snippet. The caller refreshes the page it is on. */
 export async function finalizeFileSnippetAction(
   id: string,
   meta: { bucket: string; path: string; mimeType: string; size: number; kind: string },
 ): Promise<ActionResult<void>> {
-  const result = await service.finalizeFileSnippet(id, meta);
-  if (result.ok) revalidatePath(LIST_PATH);
-  return result;
+  return service.finalizeFileSnippet(id, meta);
 }
 
 export async function updateSnippetAction(

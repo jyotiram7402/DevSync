@@ -13,6 +13,7 @@ import {
   createTextCaptureAction,
   finalizeFileSnippetAction,
 } from "@/features/snippets/actions";
+import { announceSavedSnippet } from "@/features/snippets/live-events";
 import { useSupabase } from "@/hooks/use-supabase";
 import { RETENTION_DAYS } from "@/lib/retention";
 import { snippetAttachmentPath } from "@/lib/storage/paths";
@@ -143,6 +144,8 @@ export function QuickCapture({
       toast.error(result.error.message);
       return false;
     }
+    // Lists open on this device show it at once; other devices get it live.
+    announceSavedSnippet(result.data);
     return true;
   }
 
@@ -200,7 +203,9 @@ export function QuickCapture({
     if (ok) {
       toast.success(file ? "Uploaded. It's on your other devices now." : "Saved. It's on your other devices now.");
       onClose();
-      router.refresh();
+      // Text reaches the open lists through announceSavedSnippet. A file's row
+      // is only complete once the upload is finalized, so re-render for it.
+      if (file) router.refresh();
     }
   }
 

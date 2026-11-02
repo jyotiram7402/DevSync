@@ -1,9 +1,13 @@
 import { createBrowserClient } from "@supabase/ssr";
 
+import { REALTIME_BACKOFF, REALTIME_TIMING } from "@/lib/realtime/constants";
 import { computeBackoff } from "@/lib/realtime/retry";
 import { getSupabaseConfig } from "@/lib/supabase/config";
 import type { TypedSupabaseClient } from "@/lib/supabase/types";
 import type { Database } from "@/types/database";
+
+/** Our own copy of the heartbeat worker (public/realtime-worker.js); nothing is loaded from Supabase's CDN. */
+const REALTIME_WORKER_URL = "/realtime-worker.js";
 
 /**
  * Browser Supabase client factory.
@@ -27,8 +31,13 @@ export function createBrowserSupabaseClient(): TypedSupabaseClient {
   // correct and bound to Database; normalize the type at this single seam.
   return createBrowserClient<Database>(url, anonKey, {
     realtime: {
-      heartbeatIntervalMs: 25000,
-      reconnectAfterMs: (tries: number) => computeBackoff(tries - 1, { baseMs: 1000, maxMs: 30000 }),
+      heartbeatIntervalMs: REALTIME_TIMING.heartbeatIntervalMs,
+      reconnectAfterMs: (tries: number) =>
+        computeBackoff(tries - 1, { baseMs: REALTIME_BACKOFF.baseMs, maxMs: REALTIME_BACKOFF.maxMs }),
+      // Heartbeats run in a Web Worker: a background tab's timers are slowed
+      // down, which let the connection drop and miss updates until a reload.
+      worker: true,
+      workerUrl: REALTIME_WORKER_URL,
     },
   }) as unknown as TypedSupabaseClient;
 }
