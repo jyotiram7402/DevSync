@@ -5,6 +5,9 @@
  *   • Aggregate per-channel subscribe-status strings into one ConnectionStatus.
  *   • Track network online/offline and document visibility (tab suspension),
  *     emitting `resume` when the app should recover (network back / tab shown).
+ *     "Offline" is only believed once a real request fails too: browsers,
+ *     especially on VPNs and office networks, sometimes report offline while
+ *     the network works fine.
  *   • Prime the realtime socket auth token for RLS-protected channels.
  *   • Feed connection metrics (connect/reconnect counts, duration).
  *
@@ -19,10 +22,32 @@ type StatusListener = (status: ConnectionStatus) => void;
 type OnlineListener = (online: boolean) => void;
 type ResumeListener = () => void;
 
+/** A small file on this site that the middleware skips; it only answers if the network really works. */
+const PROBE_URL = "/robots.txt";
+const PROBE_TIMEOUT_MS = 4_000;
+/** While offline, check this often whether the network is back (the browser's own event can fail to fire). */
+const OFFLINE_RECHECK_MS = 5_000;
+
+async function networkAnswers(): Promise<boolean> {
+  try {
+    const response = await fetch(`${PROBE_URL}?t=${Date.now()}`, {
+      method: "HEAD",
+      cache: "no-store",
+      signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 export class ConnectionManager {
   private status: ConnectionStatus = "idle";
   private online = true;
   private hasConnected = false;
+  /** Bumped whenever a newer signal makes an in-flight network check irrelevant. */
+  private probeSeq = 0;
+  private recheckTimer: ReturnType<typeof setTimeout> | null = null;
 
   private readonly statusListeners = new Set<StatusListener>();
   private readonly onlineListeners = new Set<OnlineListener>();
@@ -117,17 +142,21 @@ export class ConnectionManager {
 
   start(): void {
     if (typeof window === "undefined") return;
-    this.online = navigator.onLine;
+    this.online = true;
 
     this.handleOnline = () => {
       this.logger.info("network online");
+      this.probeSeq += 1;
+      this.clearRecheck();
       this.setOnline(true);
       this.emitResume();
     };
     this.handleOffline = () => {
-      this.logger.info("network offline");
-      this.setOnline(false);
+      // Live updates do stop here; "offline" itself is only reported once a
+      // request fails as well.
+      this.logger.info("browser reports offline — checking");
       this.setStatus("disconnected");
+      void this.confirmOffline();
     };
     this.handleVisibility = () => {
       if (document.visibilityState === "visible" && this.online) {
@@ -139,6 +168,8 @@ export class ConnectionManager {
     window.addEventListener("online", this.handleOnline);
     window.addEventListener("offline", this.handleOffline);
     document.addEventListener("visibilitychange", this.handleVisibility);
+
+    if (!navigator.onLine) void this.confirmOffline();
   }
 
   stop(): void {
@@ -148,9 +179,57 @@ export class ConnectionManager {
     if (this.handleVisibility) {
       document.removeEventListener("visibilitychange", this.handleVisibility);
     }
+    this.probeSeq += 1;
+    this.clearRecheck();
     this.statusListeners.clear();
     this.onlineListeners.clear();
     this.resumeListeners.clear();
+  }
+
+  /* --- network checks ---------------------------------------------------- */
+
+  /** The browser said "offline": believe it only if a request fails too. */
+  private async confirmOffline(): Promise<void> {
+    this.probeSeq += 1;
+    const seq = this.probeSeq;
+    const answers = await networkAnswers();
+    if (seq !== this.probeSeq) return;
+    if (answers) {
+      this.logger.info("network answers — staying online");
+      return;
+    }
+    this.setOnline(false);
+    this.scheduleRecheck();
+  }
+
+  private scheduleRecheck(): void {
+    this.clearRecheck();
+    this.recheckTimer = setTimeout(() => {
+      this.recheckTimer = null;
+      void this.recheck();
+    }, OFFLINE_RECHECK_MS);
+  }
+
+  private async recheck(): Promise<void> {
+    if (this.online) return;
+    this.probeSeq += 1;
+    const seq = this.probeSeq;
+    const answers = await networkAnswers();
+    if (seq !== this.probeSeq || this.online) return;
+    if (answers) {
+      this.logger.info("network is back");
+      this.setOnline(true);
+      this.emitResume();
+    } else {
+      this.scheduleRecheck();
+    }
+  }
+
+  private clearRecheck(): void {
+    if (this.recheckTimer !== null) {
+      clearTimeout(this.recheckTimer);
+      this.recheckTimer = null;
+    }
   }
 
   private setOnline(next: boolean): void {

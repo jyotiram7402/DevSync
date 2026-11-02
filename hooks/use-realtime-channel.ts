@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { useRealtime } from "@/hooks/use-realtime";
 import type { RealtimeChannel } from "@/lib/realtime/types";
@@ -12,6 +12,12 @@ export interface UseRealtimeChannelOptions {
   configure: (channel: RealtimeChannel) => void;
   /** Set false to temporarily disable without unmounting. */
   enabled?: boolean;
+  /**
+   * Raw subscribe-status updates ("SUBSCRIBED", "CHANNEL_ERROR", "TIMED_OUT",
+   * "CLOSED"), including the "SUBSCRIBED" that follows a reconnect. Only the
+   * mount that created the channel receives them.
+   */
+  onStatus?: ((status: string) => void) | undefined;
 }
 
 /**
@@ -20,8 +26,18 @@ export interface UseRealtimeChannelOptions {
  * cleanup. The subscribe-status string is fed to the connection layer to drive
  * aggregate status. Handlers passed to `configure` should be stable.
  */
-export function useRealtimeChannel({ name, configure, enabled = true }: UseRealtimeChannelOptions): void {
+export function useRealtimeChannel({
+  name,
+  configure,
+  enabled = true,
+  onStatus,
+}: UseRealtimeChannelOptions): void {
   const { platform } = useRealtime();
+  const onStatusRef = useRef(onStatus);
+
+  useEffect(() => {
+    onStatusRef.current = onStatus;
+  }, [onStatus]);
 
   useEffect(() => {
     if (!platform || !name || !enabled) return;
@@ -29,7 +45,10 @@ export function useRealtimeChannel({ name, configure, enabled = true }: UseRealt
     const { channel, isNew } = platform.channels.acquire(name);
     if (isNew) {
       configure(channel);
-      channel.subscribe((status: string) => platform.connection.reportChannelStatus(status));
+      channel.subscribe((status: string) => {
+        platform.connection.reportChannelStatus(status);
+        onStatusRef.current?.(status);
+      });
     }
 
     return () => platform.channels.release(name);

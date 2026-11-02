@@ -1,6 +1,6 @@
 import "server-only";
 
-import { resolveContext } from "@/features/snippets/services/snippet-repository";
+import { resolveSnippetContext } from "@/features/snippets/services/snippet-context";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { ActionError, ActionResult } from "@/types/api";
 import { err, ok } from "@/types/api";
@@ -9,17 +9,17 @@ import { err, ok } from "@/types/api";
  * Dashboard overview — the real numbers behind the home screen.
  *
  * Everything is derived from the signed-in user's workspace through RLS: exact
- * counts for the stat cards, a recent-sync feed, real device rows, and storage
- * usage summed from attachment metadata. No placeholder data.
+ * counts for the stat cards, real device rows, and storage usage summed from
+ * attachment metadata. No placeholder data. The scan reads ids, dates and
+ * metadata only — never content, which can be 100 KB a row.
  */
 const NO_WORKSPACE: ActionError = {
   code: "NOT_FOUND",
   message: "No workspace found for your account.",
 };
 
-/** Items scanned when deriving per-kind counts, storage, and the recent feed. */
+/** Items scanned when deriving per-kind counts and storage. */
 const SCAN_LIMIT = 1000;
-const RECENT_LIMIT = 8;
 const DEVICE_ONLINE_WINDOW_MS = 2 * 60_000;
 /** Free-plan storage allowance (matches the snippet-attachments budget). */
 export const STORAGE_LIMIT_BYTES = 1024 * 1024 * 1024;
@@ -33,14 +33,6 @@ export interface OverviewCounts {
   links: number;
   docs: number;
   files: number;
-}
-
-export interface RecentSyncItem {
-  id: string;
-  name: string;
-  kind: string;
-  source: string | null;
-  createdAt: string;
 }
 
 export interface OverviewDevice {
@@ -57,7 +49,6 @@ export interface DashboardOverview {
   workspaceId: string;
   workspaceName: string;
   counts: OverviewCounts;
-  recent: RecentSyncItem[];
   devices: OverviewDevice[];
   storageUsedBytes: number;
   storageLimitBytes: number;
@@ -83,7 +74,7 @@ function metaNumber(metadata: unknown, key: string): number {
 export async function getDashboardOverview(): Promise<ActionResult<DashboardOverview>> {
   try {
     const client = await createServerSupabaseClient();
-    const context = await resolveContext(client);
+    const context = await resolveSnippetContext(client);
     if (!context) return err(NO_WORKSPACE);
     const { workspaceId } = context;
 
@@ -109,7 +100,7 @@ export async function getDashboardOverview(): Promise<ActionResult<DashboardOver
           .limit(10),
         client
           .from("snippets")
-          .select("id,title,content,created_at,metadata")
+          .select("id,created_at,metadata")
           .eq("workspace_id", workspaceId)
           .is("deleted_at", null)
           .eq("archived", false)
@@ -144,14 +135,6 @@ export async function getDashboardOverview(): Promise<ActionResult<DashboardOver
       }
     }
 
-    const recent: RecentSyncItem[] = rows.slice(0, RECENT_LIMIT).map((row) => ({
-      id: row.id,
-      name: row.title && row.title.length > 0 ? row.title : row.content,
-      kind: metaString(row.metadata, "kind") ?? "text",
-      source: metaString(row.metadata, "source"),
-      createdAt: row.created_at,
-    }));
-
     const now = Date.now();
     const devices: OverviewDevice[] = (deviceRes.data ?? []).map((row) => ({
       id: row.id,
@@ -169,7 +152,6 @@ export async function getDashboardOverview(): Promise<ActionResult<DashboardOver
       workspaceId,
       workspaceName: workspaceRes.data?.name ?? "Personal Workspace",
       counts,
-      recent,
       devices,
       storageUsedBytes,
       storageLimitBytes: STORAGE_LIMIT_BYTES,

@@ -7,6 +7,7 @@ import {
   SNIPPET_PAGE_SIZE,
 } from "@/features/snippets/constants";
 import { getSnippetPermissions } from "@/features/snippets/permissions";
+import { resolveSnippetContext } from "@/features/snippets/services/snippet-context";
 import * as repository from "@/features/snippets/services/snippet-repository";
 import { mapSnippetRow, mapSnippetRows } from "@/features/snippets/services/snippet-mapper";
 import { snippetFormSchema, toFieldErrors, type SnippetFormValues } from "@/features/snippets/schemas";
@@ -72,7 +73,7 @@ export async function getSnippetFormOptions(): Promise<
 > {
   try {
     const client = await createServerSupabaseClient();
-    const context = await repository.resolveContext(client);
+    const context = await resolveSnippetContext(client);
     if (!context) return err(NO_WORKSPACE);
 
     const [projects, collections] = await Promise.all([
@@ -90,7 +91,7 @@ export async function listSnippets(
 ): Promise<ActionResult<SnippetListResult>> {
   try {
     const client = await createServerSupabaseClient();
-    const context = await repository.resolveContext(client);
+    const context = await resolveSnippetContext(client);
     if (!context) return err(NO_WORKSPACE);
 
     const status = params.status ?? DEFAULT_SNIPPET_STATUS;
@@ -132,7 +133,7 @@ export async function getSnippet(
 ): Promise<ActionResult<{ snippet: Snippet; role: WorkspaceRole }>> {
   try {
     const client = await createServerSupabaseClient();
-    const context = await repository.resolveContext(client);
+    const context = await resolveSnippetContext(client);
     if (!context) return err(NO_WORKSPACE);
 
     const row = await repository.findSnippetRow(client, context.workspaceId, id);
@@ -163,7 +164,7 @@ export async function listLibraryItems(
 ): Promise<ActionResult<{ items: LibraryItem[]; workspaceId: string }>> {
   try {
     const client = await createServerSupabaseClient();
-    const context = await repository.resolveContext(client);
+    const context = await resolveSnippetContext(client);
     if (!context) return err(NO_WORKSPACE);
 
     const { data, error } = await client
@@ -209,7 +210,7 @@ export async function createPendingFileSnippet(input: {
 }): Promise<ActionResult<{ snippetId: string; workspaceId: string }>> {
   try {
     const client = await createServerSupabaseClient();
-    const context = await repository.resolveContext(client);
+    const context = await resolveSnippetContext(client);
     if (!context) return err(NO_WORKSPACE);
     if (!getSnippetPermissions(context.role).canCreate) {
       return err({ code: "FORBIDDEN", message: "You cannot create snippets here." });
@@ -249,7 +250,7 @@ export async function finalizeFileSnippet(
 ): Promise<ActionResult<void>> {
   try {
     const client = await createServerSupabaseClient();
-    const context = await repository.resolveContext(client);
+    const context = await resolveSnippetContext(client);
     if (!context) return err(NO_WORKSPACE);
 
     await repository.updateSnippetRow(client, context.workspaceId, id, {
@@ -293,7 +294,7 @@ export async function createTextCapture(content: string): Promise<ActionResult<S
 
   try {
     const client = await createServerSupabaseClient();
-    const context = await repository.resolveContext(client);
+    const context = await resolveSnippetContext(client);
     if (!context) return err(NO_WORKSPACE);
     if (!getSnippetPermissions(context.role).canCreate) {
       return err({ code: "FORBIDDEN", message: "You cannot create snippets here." });
@@ -329,7 +330,7 @@ export async function createSnippet(values: SnippetFormValues): Promise<ActionRe
 
   try {
     const client = await createServerSupabaseClient();
-    const context = await repository.resolveContext(client);
+    const context = await resolveSnippetContext(client);
     if (!context) return err(NO_WORKSPACE);
     if (!getSnippetPermissions(context.role).canCreate) {
       return err({ code: "FORBIDDEN", message: "You cannot create snippets here." });
@@ -373,7 +374,7 @@ export async function updateSnippet(
 
   try {
     const client = await createServerSupabaseClient();
-    const context = await repository.resolveContext(client);
+    const context = await resolveSnippetContext(client);
     if (!context) return err(NO_WORKSPACE);
     if (!getSnippetPermissions(context.role).canEdit) {
       return err({ code: "FORBIDDEN", message: "You cannot edit this snippet." });
@@ -402,7 +403,7 @@ export async function updateSnippet(
 export async function duplicateSnippet(id: string): Promise<ActionResult<Snippet>> {
   try {
     const client = await createServerSupabaseClient();
-    const context = await repository.resolveContext(client);
+    const context = await resolveSnippetContext(client);
     if (!context) return err(NO_WORKSPACE);
     if (!getSnippetPermissions(context.role).canDuplicate) {
       return err({ code: "FORBIDDEN", message: "You cannot duplicate this snippet." });
@@ -439,7 +440,7 @@ async function patchSnippet(
 ): Promise<ActionResult<Snippet>> {
   try {
     const client = await createServerSupabaseClient();
-    const context = await repository.resolveContext(client);
+    const context = await resolveSnippetContext(client);
     if (!context) return err(NO_WORKSPACE);
     if (!getSnippetPermissions(context.role)[requires]) {
       return err({ code: "FORBIDDEN", message: "You do not have permission to do that." });
@@ -482,7 +483,7 @@ export async function softDeleteSnippet(id: string): Promise<ActionResult> {
 export async function permanentlyDeleteSnippet(id: string): Promise<ActionResult> {
   try {
     const client = await createServerSupabaseClient();
-    const context = await repository.resolveContext(client);
+    const context = await resolveSnippetContext(client);
     if (!context) return err(NO_WORKSPACE);
     if (!getSnippetPermissions(context.role).canPermanentDelete) {
       return err({ code: "FORBIDDEN", message: "Only owners and admins can permanently delete." });
@@ -502,7 +503,7 @@ async function bulk(
   if (ids.length === 0) return ok({ count: 0 });
   try {
     const client = await createServerSupabaseClient();
-    const context = await repository.resolveContext(client);
+    const context = await resolveSnippetContext(client);
     if (!context) return err(NO_WORKSPACE);
     if (!getSnippetPermissions(context.role)[requires]) {
       return err({ code: "FORBIDDEN", message: "You do not have permission to do that." });
