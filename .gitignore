@@ -25,6 +25,7 @@ next-env.d.ts
 .env.development.local
 .env.test.local
 .env.production.local
+.env*.local
 # .env.example IS committed as the config contract.
 
 # Vercel
@@ -49,13 +50,17 @@ Thumbs.db
 *.swo
 
 # Local tooling / assistant config — never commit
+# (CLAUDE.md files are committed: they are the project guide.)
 .claude/
 .cursor/
 .continue/
 .aider*
 .mcp.json
-CLAUDE.md
 AGENTS.md
+CLAUDE.local.md
 
-# Internal planning docs — kept locally, not published
-/docs/
+# Internal planning docs — kept locally, not published.
+# Committed exceptions: the architecture map and the setup guides.
+/docs/*
+!/docs/ARCHITECTURE.md
+!/docs/setup/

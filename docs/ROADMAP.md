@@ -9,6 +9,27 @@ lost between sessions. Ordered by priority within each section.
 
 ## 0. Recently shipped
 
+### ✅ UI overhaul (branch `ui-overhaul`, 2026-10-28)
+New design system and primitives, phone navigation (bottom bar + Add sheet),
+one item family with an always-visible Copy/Open/Download, Snippets/Library/
+Notes/Spaces/Search/Projects/Settings rebuilt, landing page rebuilt around a
+sync demo, loading/error/404 pages, one app icon, install card. Security pass
+in the same branch: **run `supabase/migrations/20261028120000_security_hardening.sql`
+before merging** (join-code throttling, 10-character codes, invite privacy,
+code rotation, retention functions locked). Details: `docs/ui/PROGRESS.md`
+(local), QA checklist `docs/ui/QA.md` (local).
+**Backend follow-ups the UI is waiting for:**
+- 🟠 Account deletion (Terms promise it; Settings asks people to email for now).
+- 🟠 Device sign-out from Settings (the list is read-only).
+- 🟡 "Get snippet content" action so search results can offer Copy.
+- 🟡 Spaces list aggregates (member avatars, last activity, new-item dot).
+- 🟡 Real Trash; creating Collections in the web app; per-project snippet counts.
+- 🟡 Middleware: keep the query string on the sign-in redirect (shared text from
+  the share sheet is lost for signed-out users).
+- 🟡 Search service: count every type; align pages with the 100-candidate window
+  (the UI caps the pager meanwhile).
+- 🟡 Room invites through email sign-up (the confirmation email drops `next`).
+
 ### ✅ Spaces — permanent project rooms (cross-user)
 **What:** `features/spaces/*`, routes `app/dashboard/spaces` + `[id]`, migrations
 `20260826120000_spaces.sql` + `20260924120000_spaces_project_rooms.sql` (run in
@@ -27,25 +48,18 @@ removes its file.
 - 🟡 Search + pin inside a room.
 - 🟡 Share into a room directly from the Android share sheet / extension.
 - 🟡 Realtime presence ("2 people here now").
-- 🟡 Email invite reveals whether an address has an account (to fellow room
-  members only) — accepted trade-off; add rate limiting if abused.
+- ✅ Email invite no longer reveals whether an address has an account (same
+  answer either way, throttled) — security migration 20261028120000.
 
 ---
 
 ## 1. Known bugs & risks
 
-### 🔴 Monaco editor loads from a CDN — breaks on locked-down networks
-**Where:** `features/snippets/components/snippet-editor.tsx` (line 3)
-**Problem:** `@monaco-editor/react` is only a wrapper; Monaco's ~5 MB of real
-files are fetched at runtime from `cdn.jsdelivr.net`. Corporate proxies commonly
-block unknown CDNs, so the editor hangs on *"Loading editor…"* and the user
-cannot read or edit their snippet.
-**Why it matters:** the core product wedge is "works on a restricted work
-machine" — this fails on exactly that machine.
-**Fix (agreed approach):** add a timeout-based fallback to a plain `<textarea>`
-(~5s). Guarantees the editor is always usable. Later optimization: bundle Monaco
-locally (`monaco-editor` is already a dependency) — fiddly in Next.js due to web
-workers, so do the fallback first.
+### ✅ Monaco editor no longer loads from a CDN
+Monaco's files are copied into `public/monaco/vs` on install and build
+(`scripts/copy-monaco.mjs`) and loaded from this site; if they still can't load,
+the editor falls back to a plain text box. Viewing a snippet never loads Monaco
+(CodeBlock), and touch screens edit in a plain text box.
 
 ### 🔴 Zero automated tests (307 source files)
 Nothing is verified except what has been clicked manually. Highest-risk untested
@@ -77,9 +91,24 @@ From an interrupted sprint. Missing: `sync-queue-viewer`, `conflict-dialog`,
 barrel, plus `SyncProvider` wiring and `markLocalWrite` calls in the snippet
 form/actions.
 
-### 🟡 Realtime only auto-refreshes the Home page
-`LiveRefresh` is mounted on `/dashboard/home` only. Snippets, Images, Links,
-Docs, and Files pages need a manual refresh to show new remote items.
+### ✅ Live sync without lag or reloads (branch `fix/live-sync`, 2026-11-02)
+Home and Snippets use `LiveSnippetFeed`: the event carries the row, so a save
+on any device is applied to the list at once (well under a second) and a save
+on this device shows from the saved row; the server is asked again 2s later in
+the background. Library, Notes and rooms keep `LiveRefresh`-style re-renders
+(150ms). Every live list catches up after a reconnect, a tab return or the
+network coming back (`useLiveChannel`). Heartbeats run in a self-hosted worker
+(`public/realtime-worker.js`); reconnect waits ≤10s. One Supabase client and
+one `getUser()` per request; overview scan no longer fetches content. Offline
+strip only after a failed request, rechecked every 5s.
+**Follow-ups:**
+- 🟠 **Vercel region ≠ Supabase region** — set `vercel.json` `regions` to the
+  Supabase region's Vercel id, or every server render crosses continents.
+- 🟡 Library pages and rooms could apply rows in place too (same pattern).
+- 🟡 Supabase recommends "broadcast from database" over `postgres_changes` at
+  scale; fine for personal use today.
+- 🟡 `features/sync/sync-provider.tsx` and its hooks are unused (never
+  mounted); delete once the owner confirms.
 
 ### 🟡 Extension does not stamp `metadata.source`
 So items saved from the extension show no "from …" tag in library views and
@@ -103,8 +132,7 @@ count queries + pagination beyond that.
 ### 🟡 Minor cleanups
 - Edit page shows a text editor for file/image snippets (pointless — hide or
   redirect for attachment items).
-- `components/dashboard/search-bar.tsx` and `command-palette-trigger.tsx` are
-  now unused (replaced by `GlobalSearchBar`).
+- ✅ Unused `search-bar.tsx` / `command-palette-trigger.tsx` removed.
 - `types/database.ts` is hand-authored; must be updated whenever the schema
   changes (or regenerated with `supabase gen types typescript`).
 
@@ -180,9 +208,9 @@ to commit and no design tool needed. (Replace with hand-designed PNGs in
 sheet needs `method: "POST"` + `multipart/form-data` and a route handler that
 reads `formData()`. Files can already be added via Quick add → Attach file.
 
-**🟡 Deferred — "Install app" in-app prompt.** Users must currently use the
-browser menu → *Install app / Add to Home Screen*. A `beforeinstallprompt`
-button would make this discoverable.
+**✅ "Install app" in-app prompt.** The browser's install offer is captured at
+app start; Home shows a dismissible install card and Settings has Install (or
+the Share → Add to Home Screen steps on iPhone).
 
 **Not doing yet:** Play Store (TWA/PWABuilder, needs a $25 one-time Google fee).
 
@@ -214,17 +242,14 @@ Distribute the resulting APK directly (free); Play Store deferred.
 
 ## 3. UX & polish backlog
 
-- ✅ **Bottom tab bar on mobile web** — `components/dashboard/bottom-tab-bar.tsx`
-  (Home / Snippets / center Quick-add / Search / Settings), safe-area aware,
-  hidden at md+. The hamburger drawer remains for full nav.
-- ✅ **Mobile horizontal-drift fix** — `overflow-x: hidden` on `html` + heavy
-  `blur-[120px]` landing glows set to `sm:block` (also a big mobile paint win).
-- **PWA install prompt** — "Add to Home Screen" gives a fullscreen, app-like
-  launch. Manifest + icons done; an in-app `beforeinstallprompt` button exists
-  on the Help page but isn't surfaced elsewhere.
+- ✅ **Bottom tab bar on mobile web** — Home · Snippets · Add · Spaces · More,
+  safe-area aware, hidden while typing and at md+. The hamburger drawer is gone.
+- 🟡 **Horizontal-drift guard** — `overflow-x: clip` on html/body is still in
+  place; remove it once every screen passes at 320px (QA checklist).
+- ✅ **PWA install prompt** — install card on Home + Settings.
 - **Thumbnails on the main Snippets grid** (library rows already have them).
-- **Trim the mobile top bar** — collapse the 3-icon theme switcher into the
-  avatar menu.
+- ✅ **Trim the mobile top bar** — phones show title, search and account; theme
+  lives in More and Settings.
 - **Infinite scroll / pagination** on library views.
 - **Rich previews** for code and link cards (favicon + title for URLs).
 
