@@ -69,6 +69,12 @@ export function SiteHeader() {
           <div className="hidden sm:block">
             <AuthActions isLoading={isLoading} isAuthenticated={isAuthenticated} />
           </div>
+          {/* Phones: the one primary action stays in reach (too tight under 360px). */}
+          <div className={cn("hidden min-[360px]:block sm:hidden", isLoading && "invisible")}>
+            <Button asChild size="sm">
+              {isAuthenticated ? <Link href="/dashboard/home">Open app</Link> : <Link href="/signup">Get started</Link>}
+            </Button>
+          </div>
           <IconButton
             label={open ? "Close menu" : "Menu"}
             icon={open ? X : Menu}

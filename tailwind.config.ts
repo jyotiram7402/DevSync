@@ -45,6 +45,8 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
+        // Landing page only: what someone wrote or pasted, as typed on a form.
+        typed: ["var(--font-typed)", "ui-monospace", "monospace"],
       },
       fontSize: {
         // Type scale 12/14/16/18/20/24/30/36 — Tailwind's defaults, except 18px
@@ -82,6 +84,8 @@ const config: Config = {
           foreground: color("warning-foreground"),
         },
         favorite: color("favorite"),
+        // Landing page only: the red of a form's serial number and strike-outs.
+        stamp: color("stamp"),
         scrim: color("scrim"),
         kind: {
           neutral: color("kind-neutral"),
@@ -139,6 +143,8 @@ const config: Config = {
         // borders and surface tone instead.
         overlay:
           "0 12px 32px -8px rgb(var(--shadow) / 0.18), 0 2px 6px -2px rgb(var(--shadow) / 0.12)",
+        // Landing page only: a sheet of paper lying on the pad.
+        sheet: "0 1px 1px rgb(var(--shadow) / 0.08), 0 22px 44px -22px rgb(var(--shadow) / 0.45)",
       },
       zIndex: {
         sticky: "var(--z-sticky)",
@@ -208,6 +214,7 @@ const config: Config = {
         "progress-indeterminate": "progress-indeterminate 1.2s ease-in-out infinite",
         stream: "stream var(--stream-duration, 60s) linear var(--stream-delay, 0s) infinite",
         caret: "caret 1.1s step-end 4",
+        "press-through": "press-through 700ms cubic-bezier(0.16, 1, 0.3, 1) both",
       },
     },
   },

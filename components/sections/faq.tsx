@@ -1,6 +1,6 @@
-import { ChevronDown } from "lucide-react";
+import { Plus } from "lucide-react";
 
-import { SectionHeading } from "@/components/sections/section-heading";
+import { HEADING } from "@/components/sections/landing-type";
 import { Container } from "@/components/shared/container";
 import { RETENTION_DAYS } from "@/lib/retention";
 
@@ -34,20 +34,22 @@ const FAQS: ReadonlyArray<{ q: string; a: string }> = [
 /** Short answers to what people ask first. Native <details>, so it works without JavaScript. */
 export function FAQ() {
   return (
-    <section id="faq" aria-labelledby="faq-title" className="scroll-mt-20 border-b border-border">
-      <Container className="grid gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] lg:gap-16">
-        <SectionHeading id="faq-title" title="Questions" description="Short answers to what people ask first." />
-        <div className="flex flex-col divide-y divide-border border-y border-border">
+    <section id="faq" aria-labelledby="faq-title" className="sheet-top scroll-mt-20">
+      <Container className="grid gap-10 px-4 pb-20 sm:px-6 sm:pb-28 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] lg:gap-16">
+        <h2 id="faq-title" className={HEADING}>
+          Questions
+        </h2>
+        <div className="flex flex-col border-t-2 border-foreground">
           {FAQS.map((item) => (
-            <details key={item.q} className="group">
-              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-3 text-left text-base font-medium [&::-webkit-details-marker]:hidden">
+            <details key={item.q} className="group border-b border-border">
+              <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 py-4 text-left text-xl font-bold tracking-[-0.01em] [&::-webkit-details-marker]:hidden">
                 {item.q}
-                <ChevronDown
-                  className="size-5 shrink-0 text-muted-foreground transition-transform duration-base group-open:rotate-180"
+                <Plus
+                  className="size-6 shrink-0 text-primary-ink transition-transform duration-base ease-out group-open:rotate-45"
                   aria-hidden="true"
                 />
               </summary>
-              <p className="max-w-prose pb-5 text-sm text-muted-foreground">{item.a}</p>
+              <p className="max-w-prose pb-6 text-lg text-muted-foreground">{item.a}</p>
             </details>
           ))}
         </div>

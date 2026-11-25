@@ -1,124 +1,78 @@
+import { EDGE, HEADING, LEAD } from "@/components/sections/landing-type";
 import { Container } from "@/components/shared/container";
-import { FileIcon } from "@/components/ui/file-icon";
-import { KindIcon } from "@/components/ui/kind-badge";
-import type { ItemKind } from "@/lib/item-kinds";
 
-interface Example {
-  kind: ItemKind;
-  title: string;
-  meta: string;
-  action: "Copy" | "Download" | "Open";
-  /** Shown in monospace under the title, whitespace kept. */
-  code?: string;
-  /** A file name: shows the file's own icon instead of the kind tile. */
-  file?: boolean;
-  note: string;
-}
-
-const EXAMPLES: ReadonlyArray<Example> = [
+const LINES: ReadonlyArray<{ sample: string; kind: string; arrives: string }> = [
   {
-    kind: "error",
-    title: "TypeError: Cannot read properties of undefined (reading 'map')",
-    meta: "Error · just now",
-    action: "Copy",
-    code: "    at OrderList (OrderList.tsx:42:17)\n    at renderWithHooks (react-dom.js:16305:18)",
-    note: "The whole stack trace, not a photo of your screen.",
+    sample: "221B Baker Street, London NW1 6XE",
+    kind: "Text",
+    arrives: "Exactly as you wrote it. Nothing is trimmed or reformatted.",
   },
   {
-    kind: "code",
-    title: "function retry(fn, times = 3) {",
-    meta: "Code · TypeScript · 2 min ago",
-    action: "Copy",
-    code: "  for (let i = 0; i < times; i++) {\n    try { return fn(); } catch {}\n  }",
-    note: "Every space and line break kept, so it still runs.",
+    sample: "https://www.openstreetmap.org/#map=17/51.5237/-0.1585",
+    kind: "Link",
+    arrives: "Opens on the other device in one tap.",
   },
   {
-    kind: "command",
-    title: "docker compose up -d --build",
-    meta: "Command · 5 min ago",
-    action: "Copy",
-    note: "Commands come out exactly as they went in.",
+    sample: "whiteboard.jpg · 3.1 MB",
+    kind: "Photo",
+    arrives: "The original photo, not a squashed copy.",
   },
   {
-    kind: "link",
-    title: "github.com",
-    meta: "Link · 12 min ago",
-    action: "Open",
-    code: "https://github.com/acme/checkout/pull/128",
-    note: "Opens on the other device in one tap.",
+    sample: "Q3 report.pdf · 2.4 MB",
+    kind: "File",
+    arrives: "PDF, Word, Excel, PowerPoint and more, up to 10 MB.",
   },
   {
-    kind: "image",
-    title: "whiteboard.jpg",
-    meta: "Photo · 3.1 MB · 1 h ago",
-    action: "Download",
-    file: true,
-    note: "The original photo, not a squashed copy.",
+    sample:
+      "TypeError: Cannot read properties of undefined (reading 'map')\n    at OrderList (OrderList.tsx:42:17)",
+    kind: "Error or code",
+    arrives: "Every space and line break kept, so code still runs.",
   },
   {
-    kind: "doc",
-    title: "Q3 report.pdf",
-    meta: "PDF · 2.4 MB · yesterday",
-    action: "Download",
-    file: true,
-    note: "PDF, Word, Excel, PowerPoint and more, up to 10 MB.",
+    sample: "docker compose up -d --build",
+    kind: "Command",
+    arrives: "Comes out exactly as it went in.",
   },
 ];
 
-/**
- * What you can send, shown as it looks in the app — a clipboard history with
- * notes in the margin, rather than a grid of feature icons.
- */
+/** What you can send, set as the line items of a form: what you copy, and how it arrives. */
 export function Kinds() {
   return (
-    <section id="features" aria-labelledby="features-title" className="scroll-mt-20 border-b border-border">
-      <Container className="flex flex-col gap-12 px-4 py-16 sm:px-6 sm:py-24">
-        <div className="flex max-w-2xl flex-col gap-5">
-          <h2 id="features-title" className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+    <section id="features" aria-labelledby="features-title" className="sheet-canary scroll-mt-20">
+      <Container className="flex flex-col gap-12 px-4 py-20 sm:px-6 sm:py-28">
+        <div className="flex flex-col gap-6">
+          <h2 id="features-title" className={HEADING}>
             Anything you&apos;d copy.
           </h2>
-          <p className="text-pretty text-lg text-muted-foreground">
-            Text, code and errors arrive exactly as you copied them. Photos and files arrive as the real thing.
+          <p className={LEAD}>
+            Text arrives exactly as you copied it. Photos and files arrive as the real thing.
           </p>
         </div>
 
-        <ul className="flex flex-col gap-4 lg:gap-3">
-          {EXAMPLES.map((example) => (
-            <li
-              key={example.title}
-              className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-center lg:gap-10"
-            >
-              <div className="flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-3 sm:p-4">
-                <div className="flex min-w-0 items-center gap-3">
-                  {example.file ? (
-                    <FileIcon name={example.title} size="sm" />
-                  ) : (
-                    <KindIcon kind={example.kind} size="sm" />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{example.title}</p>
-                    <p className="truncate text-xs text-muted-foreground">{example.meta}</p>
-                  </div>
-                  <span
-                    aria-hidden="true"
-                    className="hidden shrink-0 rounded-md border border-border px-3 py-1.5 text-sm font-medium sm:inline-flex"
-                  >
-                    {example.action}
-                  </span>
-                </div>
-                {example.code ? (
-                  <pre className="overflow-hidden whitespace-pre-wrap rounded-md bg-muted px-3 py-2 font-mono text-xs leading-5 text-muted-foreground [overflow-wrap:anywhere]">
-                    {example.code}
-                  </pre>
-                ) : null}
+        <div>
+          <div
+            aria-hidden="true"
+            className="hidden gap-10 border-b-2 border-foreground pb-2 md:grid md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]"
+          >
+            <p className={EDGE}>What you copy</p>
+            <p className={EDGE}>How it arrives</p>
+          </div>
+          <dl className="border-t-2 border-foreground md:border-t-0">
+            {LINES.map((line) => (
+              <div
+                key={line.kind}
+                className="grid gap-2 border-b border-border py-5 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] md:items-baseline md:gap-10"
+              >
+                <dt className="min-w-0 whitespace-pre-wrap font-typed text-lg leading-7 text-primary-ink [overflow-wrap:anywhere]">
+                  {line.sample}
+                </dt>
+                <dd className="text-base">
+                  <span className="font-bold">{line.kind}.</span> {line.arrives}
+                </dd>
               </div>
-              <p className="flex items-start gap-3 pl-1 text-sm text-muted-foreground lg:pl-0">
-                <span aria-hidden="true" className="mt-2.5 hidden h-px w-6 shrink-0 bg-border lg:block" />
-                {example.note}
-              </p>
-            </li>
-          ))}
-        </ul>
+            ))}
+          </dl>
+        </div>
       </Container>
     </section>
   );

@@ -238,6 +238,186 @@
   }
 }
 
+/**
+ * Landing page — "Carbon copy".
+ *
+ * The public home page is a duplicate pad: what you write on the white
+ * original appears on the coloured copy under it. `.landing` (set on the page
+ * wrapper in app/page.tsx) re-points the shared tokens at carbon-blue ink on
+ * paper, so Button, the site header and the footer follow without variants.
+ * Each `.sheet-*` is one sheet of the pad and re-points the tokens again, so
+ * any component reads correctly on any sheet. In the dark theme the sheets
+ * turn carbon side up: dark, with the sheet's colour as its ink.
+ */
+@layer components {
+  .landing,
+  .landing .sheet-top {
+    --background: 253 253 251;
+    --foreground: 24 27 84;
+    --muted-foreground: 78 81 128;
+    --surface: 255 255 255;
+    --surface-2: 240 241 248;
+    --surface-overlay: 255 255 255;
+    --surface-hover: 232 233 245;
+    --border: 196 198 222;
+    --input: 110 113 160;
+    --primary: 36 40 140;
+    --primary-foreground: 255 255 255;
+    --primary-ink: 36 40 140;
+    --wash: 226 228 250;
+    --ring: 36 40 140;
+    --stamp: 196 38 46;
+    --shadow: 24 27 84;
+    --font-sans: var(--font-landing);
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+  }
+
+  .landing .sheet-canary {
+    --background: 255 233 120;
+    --surface: 255 241 160;
+    --surface-2: 247 222 100;
+    --surface-hover: 245 218 92;
+    --border: 205 180 70;
+    --wash: 255 247 196;
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+  }
+
+  .landing .sheet-pink {
+    --background: 250 196 208;
+    --surface: 253 214 223;
+    --surface-2: 244 180 195;
+    --surface-hover: 240 172 188;
+    --border: 214 150 168;
+    --wash: 255 226 233;
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+  }
+
+  /* The carbon sheet between the pages: dark in both themes. */
+  .landing .sheet-carbon {
+    --background: 24 27 84;
+    --foreground: 240 241 255;
+    --muted-foreground: 176 180 226;
+    --surface: 33 37 104;
+    --surface-2: 42 46 120;
+    --surface-hover: 50 55 134;
+    --border: 62 67 140;
+    --input: 130 135 200;
+    --primary: 255 233 120;
+    --primary-foreground: 24 27 84;
+    --primary-ink: 255 233 120;
+    --wash: 50 55 134;
+    --ring: 255 233 120;
+    --stamp: 255 150 150;
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+  }
+
+  .dark .landing,
+  .dark .landing .sheet-top {
+    --background: 17 19 46;
+    --foreground: 232 234 250;
+    --muted-foreground: 160 164 205;
+    --surface: 24 27 62;
+    --surface-2: 31 35 76;
+    --surface-overlay: 31 35 76;
+    --surface-hover: 38 42 88;
+    --border: 44 48 92;
+    --input: 110 115 170;
+    --primary: 150 158 255;
+    --primary-foreground: 17 19 46;
+    --primary-ink: 150 158 255;
+    --wash: 40 44 110;
+    --ring: 150 158 255;
+    --stamp: 255 128 128;
+    --shadow: 0 0 0;
+  }
+
+  .dark .landing .sheet-canary {
+    --background: 38 34 12;
+    --foreground: 255 238 160;
+    --muted-foreground: 205 190 120;
+    --surface: 48 43 16;
+    --surface-2: 58 52 20;
+    --surface-hover: 66 60 24;
+    --border: 78 70 28;
+    --input: 150 138 70;
+    --primary: 255 226 100;
+    --primary-foreground: 38 34 12;
+    --primary-ink: 255 226 100;
+    --wash: 80 70 20;
+    --ring: 255 226 100;
+  }
+
+  .dark .landing .sheet-pink {
+    --background: 46 20 32;
+    --foreground: 255 214 226;
+    --muted-foreground: 215 160 180;
+    --surface: 58 26 40;
+    --surface-2: 70 32 48;
+    --surface-hover: 80 38 56;
+    --border: 92 44 64;
+    --input: 160 100 122;
+    --primary: 255 170 196;
+    --primary-foreground: 46 20 32;
+    --primary-ink: 255 170 196;
+    --wash: 96 40 62;
+    --ring: 255 170 196;
+  }
+
+  .dark .landing .sheet-carbon {
+    --background: 30 34 96;
+    --surface: 39 44 114;
+    --surface-2: 48 53 130;
+    --surface-hover: 56 62 144;
+    --border: 70 76 152;
+  }
+
+  /* Printed forms have square corners: controls on the landing page follow. */
+  .landing :is(a, button).rounded-md {
+    border-radius: 3px;
+  }
+
+  .landing ::selection {
+    background-color: rgb(var(--primary) / 0.22);
+  }
+
+  .landing textarea {
+    caret-color: rgb(var(--stamp));
+  }
+
+  /* Ruled writing lines, one per line of text (set the same line-height). */
+  .ruled {
+    --rule: 1.75rem;
+    line-height: var(--rule);
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(var(--rule) - 1px),
+      rgb(var(--border)) calc(var(--rule) - 1px),
+      rgb(var(--border)) var(--rule)
+    );
+    background-attachment: local;
+  }
+}
+
+/* The landing page's one authored moment: what was written on the original
+   presses through onto the copy, left to right, and sharpens. */
+@keyframes press-through {
+  from {
+    clip-path: inset(0 100% 0 0);
+    filter: blur(1.5px);
+    opacity: 0.35;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
 /* Phone tab bar ([data-bottom-nav]): keep toasts above it, and hide it while a
    text field has focus — with interactive-widget=resizes-content (Android) the
    keyboard would otherwise lift it over the field being typed in. */
