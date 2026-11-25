@@ -1,9 +1,10 @@
 import Link from "next/link";
 
+import { HEADING, LEAD } from "@/components/sections/landing-type";
 import { Container } from "@/components/shared/container";
 import { RETENTION_DAYS } from "@/lib/retention";
 
-const LEDGER: ReadonlyArray<{ term: string; answer: string }> = [
+const CLAUSES: ReadonlyArray<{ term: string; answer: string }> = [
   {
     term: "Who can see it",
     answer:
@@ -23,32 +24,32 @@ const LEDGER: ReadonlyArray<{ term: string; answer: string }> = [
   },
 ];
 
-/** Privacy as a plain ledger: what happens to what you copy. */
+/** Privacy: the fine print of the form, set large enough to read. */
 export function Privacy() {
   return (
-    <section id="privacy" aria-labelledby="privacy-title" className="scroll-mt-20 border-b border-border">
-      <Container className="grid gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-16">
-        <div className="flex flex-col gap-4">
-          <h2 id="privacy-title" className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
-            What happens to what you copy
+    <section id="privacy" aria-labelledby="privacy-title" className="sheet-top scroll-mt-20">
+      <Container className="flex flex-col gap-12 px-4 py-20 sm:px-6 sm:py-28">
+        <div className="flex flex-col gap-6">
+          <h2 id="privacy-title" className={HEADING}>
+            The fine print, in large print.
           </h2>
-          <p className="text-pretty text-lg text-muted-foreground">
+          <p className={LEAD}>
             What you copy is often personal. The full details are in the{" "}
-            <Link href="/privacy" className="font-medium text-primary-ink underline underline-offset-4">
+            <Link
+              href="/privacy"
+              className="font-semibold text-primary-ink underline decoration-2 underline-offset-4 hover:decoration-stamp"
+            >
               privacy policy
             </Link>
             .
           </p>
         </div>
 
-        <dl className="border-t border-border">
-          {LEDGER.map((row) => (
-            <div
-              key={row.term}
-              className="grid gap-1 border-b border-border py-5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-8"
-            >
-              <dt className="text-base font-semibold">{row.term}</dt>
-              <dd className="max-w-prose text-base text-muted-foreground">{row.answer}</dd>
+        <dl className="grid gap-x-16 border-t-2 border-foreground md:grid-cols-2">
+          {CLAUSES.map((clause) => (
+            <div key={clause.term} className="flex flex-col gap-2 border-b border-border py-7">
+              <dt className="text-2xl font-black tracking-[-0.02em]">{clause.term}</dt>
+              <dd className="max-w-prose text-lg text-muted-foreground">{clause.answer}</dd>
             </div>
           ))}
         </dl>

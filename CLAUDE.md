@@ -19,7 +19,7 @@
 3. `npm run dev` → http://localhost:3000. Without Supabase values the pages render, but sign-in and data say "not configured".
 4. Email links and Google/GitHub sign-in on localhost need `http://localhost:3000/**` in Supabase → Authentication → URL Configuration → Redirect URLs.
 - New Supabase project: run every `supabase/migrations/*.sql` in filename order in the SQL editor, then set Auth providers, Site URL, Redirect URLs, custom SMTP and email templates (`docs/setup/supabase-gmail-smtp.md`).
-- The owner's old work laptop could not run npm, node or any CLI, so Vercel's build was the first compile and fixes came from pasted Vercel logs. Whether the current machine can run them: (unverified) ask the owner before running anything.
+- The owner's old work laptop could not run npm, node or any CLI, so Vercel's build was the first compile and fixes came from pasted Vercel logs. The current machine (checked 2026-11-25) has Node 26 and runs `npm install`, `npm run type-check` and the dev server; npm warns about the Node 24 engine. Its network inspects TLS, so `next dev` only downloads Google Fonts when Node uses the system certificates: `node --use-system-ca node_modules/next/dist/bin/next dev`.
 
 ## Commands
 | Task | Command |
@@ -54,7 +54,7 @@ The full module map, data model, realtime and auth design are in docs/ARCHITECTU
 - Live list: rows applied in place → `features/snippets/components/live-snippet-feed.tsx`; server re-render → `features/dashboard/components/live-refresh.tsx`. Both use `hooks/use-live-channel.ts`.
 - UI: primitives in `components/ui/*`, item rows in `components/items/*`; a new color means a new token in `styles/globals.css` + `tailwind.config.ts`.
 - Auth and email links: `lib/auth/auth.ts` (browser auth calls + Supabase error-code messages), `app/auth/confirm/*`, `app/auth/callback/route.ts`, `middleware.ts`, `lib/auth/redirect.ts`.
-- Landing page: `app/page.tsx` + `components/sections/*`. Site links and the support email: `lib/site-config.ts`.
+- Landing page: `app/page.tsx` + `components/sections/*`. It has its own look ("Carbon copy", a duplicate pad): `.landing` and the `.sheet-top` / `.sheet-canary` / `.sheet-pink` / `.sheet-carbon` classes in `styles/globals.css` re-point the shared tokens per sheet, so shared components need no variants. Its fonts (Libre Franklin, Courier Prime as `font-typed`) load in `app/page.tsx`; shared type styles are in `components/sections/landing-type.ts`. Site links and the support email: `lib/site-config.ts`.
 
 ## Conventions
 - Server Components by default; `"use client"` only on interactive leaves. Never pass functions or component references (e.g. lucide icons) from a Server to a Client Component.
@@ -81,7 +81,7 @@ The full module map, data model, realtime and auth design are in docs/ARCHITECTU
 - Reserved, read nowhere yet: `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL` (commented in `.env.example`). The service key must never get a `NEXT_PUBLIC_` name.
 - Extension: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_DEVSYNC_URL`. Mobile: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `EXPO_PUBLIC_DEVSYNC_URL` (also placeholders in `mobile/eas.json`). GitHub Actions secret: `EXPO_TOKEN` (expo.dev → Access Tokens).
 - Supabase: Postgres, Auth (email + password, magic link, Google, GitHub), Realtime on `snippets`, `notes`, `space_items`, `space_members`, Storage buckets `snippet-attachments`, `space-attachments`, `avatars`, `workspace-assets`, `exports`, and pg_cron jobs for retention.
-- Vercel hosts the app: project `dev-sync`, team `hrubisoftmayurisaxena-7244s-projects` (from preview URLs). Production URL: (unverified). Env values live in Vercel, never in git.
+- Vercel hosts the app: project `dev-sync`, team `hrubisoftmayurisaxena-7244s-projects` (from preview URLs). Production URL: `https://dev-sync-woad.vercel.app` (seen in Supabase logs on 2026-11-25). The Supabase project is in Tokyo (`ap-northeast-1`). Env values live in Vercel, never in git.
 - Auth emails go through Gmail SMTP set as custom SMTP in Supabase (`docs/setup/supabase-gmail-smtp.md`); the app password is typed into Supabase only.
 - Expo EAS builds the Android app in the cloud.
 
@@ -90,7 +90,7 @@ The full module map, data model, realtime and auth design are in docs/ARCHITECTU
 - `extension/` and `mobile/` are excluded from the root `tsconfig.json` but import root files through `@/*` (`types/database`, `features/snippets/services/snippet-repository`, `features/sync/services/realtime-sync-service`, `features/search/services/*`, `lib/sync/local-echo`, `lib/storage/*`, `utils/formatters`). Changing those can break the other packages, and nothing compiles them.
 - `types/database.ts` is maintained by hand; update it with every schema change.
 - Migrations run by hand, so nothing records which ones ran. Order can matter: `20261028120000_security_hardening.sql` had to run right after its code went live (the owner reported it done on 2026-10-29).
-- `public/sw.js`: bump `VERSION` whenever `offline.html` or the caching changes, or browsers keep the old copy. It only answers page loads while the device is offline.
+- `public/sw.js`: bump `VERSION` whenever `offline.html` or the caching changes, or browsers keep the old copy. It only answers page loads while the device is offline. On localhost it also caches the dev server's `/_next/static/` files, so an edited page can show stale code and hydration errors: unregister the service worker and clear site data in the browser, then reload.
 - Monaco must stay self-hosted (`scripts/copy-monaco.mjs`, run by postinstall/dev/build) because office firewalls block CDNs; the middleware matcher must keep skipping `/monaco/`.
 - Supabase email templates should link to `{{ .SiteURL }}/auth/confirm?token_hash=…&type=…`. `/auth/confirm` verifies only on a button press so mail scanners can't use links up; never verify on page load.
 - `lib/supabase/server.ts` wraps `auth.getUser` to share one call per request; keep that if you edit it.
@@ -101,7 +101,8 @@ The full module map, data model, realtime and auth design are in docs/ARCHITECTU
 - Root `.gitignore` keeps `.claude/`, `AGENTS.md`, `CLAUDE.local.md` and most of `docs/` out of git; only `docs/ARCHITECTURE.md`, `docs/setup/` and the already tracked docs are committed.
 
 ## Current status
-- `main` has the UI overhaul (PR #3), the offline-page fix (PR #4) and the live-sync fix (PR #5); nothing is in progress.
+- `main` has the UI overhaul (PR #3), the offline-page fix (PR #4) and the live-sync fix (PR #5).
+- In progress (2026-11-25): branch `ui/landing-redesign` holds the landing page redesign, not yet merged. A stash holds a clearer 502/503/504 auth error message meant for branch `fix/auth-server-error-message`.
 - Known bug (reported 2026-11-03): "Forgot password" links say "expired" as soon as they're clicked. Likely the Supabase "Reset password" template still uses `{{ .ConfirmationURL }}`, or a work mail scanner opens the link first (unverified). Fix: switch the templates as in `docs/setup/supabase-gmail-smtp.md`, Part 4.
 - Possible slowness: Vercel functions may run far from the Supabase region (unverified); fix with `regions` in a `vercel.json`.
 - `TODO(owner)` in `lib/site-config.ts`: `SUPPORT_EMAIL` is `support@copyanywhere.com`, a domain the owner doesn't own, yet Privacy, Terms, the footer and Settings → Delete account use it; `GITHUB_URL` is empty.
